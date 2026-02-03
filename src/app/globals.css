@@ -1,0 +1,704 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Nexora Design System - Emerald Indigo Theme */
+    /* Primary: Indigo #4f46e5 | Secondary: Emerald #059669 */
+
+    /* Dynamic Brand Color (set via JS from user settings) */
+    --brand-color: #2563EB;
+    --brand-color-rgb: 37, 99, 235;
+
+    /* Backgrounds */
+    --background: 226 100% 98%;
+    --background-subtle: 226 100% 96%;
+    --foreground: 243 50% 16%;
+
+    /* Cards & Surfaces */
+    --card: 0 0% 100%;
+    --card-foreground: 243 50% 16%;
+    --card-hover: 226 100% 98%;
+
+    /* Primary (Indigo) */
+    --primary: 243 75% 59%;
+    --primary-hover: 243 55% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary (Uses Primary color for dynamic theming) */
+    --secondary: 243 75% 59%;
+    --secondary-hover: 243 55% 50%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted */
+    --muted: 226 30% 94%;
+    --muted-foreground: 243 20% 46%;
+
+    /* Accent */
+    --accent: 226 100% 94%;
+    --accent-foreground: 243 47% 35%;
+
+    /* Borders */
+    --border: 226 30% 88%;
+    --border-hover: 226 30% 80%;
+    --input: 226 30% 88%;
+    --ring: 243 75% 59%;
+
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 243 50% 16%;
+
+    /* Sidebar - Dark theme for sidebar in light mode */
+    --sidebar-bg: 243 47% 12%;
+    --sidebar-gradient-start: 243 50% 10%;
+    --sidebar-gradient-end: 243 45% 15%;
+    --sidebar-hover: 243 40% 18%;
+    --sidebar-active: 239 84% 67%;
+    --sidebar-text: 226 30% 75%;
+    --sidebar-text-muted: 226 25% 55%;
+    --sidebar-text-active: 0 0% 98%;
+    --sidebar-border: 243 40% 20%;
+    --sidebar-item-hover: 243 40% 22%;
+    --sidebar-subitem-bg: 243 40% 25%;
+    --sidebar-subitem-hover: 243 38% 30%;
+
+    /* Radius */
+    --radius: 0.75rem;
+
+    /* Gradient colors */
+    --gradient-start: 243 75% 59%;
+    --gradient-end: 243 55% 50%;
+    --gradient-accent: 161 94% 30%;
+
+    /* Module colors */
+    --inbox: 161 94% 30%;
+    --inbox-foreground: 0 0% 100%;
+    --crm: 243 75% 59%;
+    --crm-foreground: 0 0% 100%;
+    --pipeline: 243 55% 50%;
+    --pipeline-foreground: 0 0% 100%;
+    --tickets: 35 100% 55%;
+    --tickets-foreground: 0 0% 100%;
+    --billing: 161 94% 30%;
+    --billing-foreground: 0 0% 100%;
+
+    /* Glass effect */
+    --glass-bg: 0 0% 100% / 0.7;
+    --glass-border: 243 75% 59% / 0.1;
+
+    /* Shadows */
+    --shadow-color: 30 27 75;
+  }
+
+  .dark {
+    /* Backgrounds */
+    --background: 243 50% 7%;
+    --background-subtle: 243 45% 10%;
+    --foreground: 226 100% 96%;
+
+    /* Cards & Surfaces */
+    --card: 243 45% 11%;
+    --card-foreground: 226 100% 94%;
+    --card-hover: 243 45% 14%;
+
+    /* Primary (Indigo - Lighter for dark mode) */
+    --primary: 239 84% 67%;
+    --primary-hover: 235 82% 75%;
+    --primary-foreground: 243 50% 7%;
+
+    /* Secondary (Uses Primary color for dynamic theming) */
+    --secondary: 239 84% 67%;
+    --secondary-hover: 235 82% 75%;
+    --secondary-foreground: 243 50% 7%;
+
+    /* Muted */
+    --muted: 243 40% 16%;
+    --muted-foreground: 226 30% 65%;
+
+    /* Accent */
+    --accent: 243 40% 20%;
+    --accent-foreground: 230 94% 82%;
+
+    /* Borders */
+    --border: 243 40% 18%;
+    --border-hover: 243 40% 25%;
+    --input: 243 40% 18%;
+    --ring: 239 84% 67%;
+
+    /* Destructive */
+    --destructive: 0 63% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Popover */
+    --popover: 243 45% 11%;
+    --popover-foreground: 226 100% 94%;
+
+    /* Sidebar - Dark theme continues in dark mode */
+    --sidebar-bg: 243 50% 8%;
+    --sidebar-gradient-start: 243 52% 6%;
+    --sidebar-gradient-end: 243 48% 11%;
+    --sidebar-hover: 243 45% 14%;
+    --sidebar-active: 239 84% 67%;
+    --sidebar-text: 226 40% 80%;
+    --sidebar-text-muted: 226 30% 60%;
+    --sidebar-text-active: 0 0% 98%;
+    --sidebar-border: 243 40% 16%;
+    --sidebar-item-hover: 243 42% 18%;
+    --sidebar-subitem-bg: 243 42% 20%;
+    --sidebar-subitem-hover: 243 40% 25%;
+
+    /* Gradient colors (dark) */
+    --gradient-start: 239 84% 67%;
+    --gradient-end: 235 82% 75%;
+    --gradient-accent: 160 84% 39%;
+
+    /* Module colors (dark) */
+    --inbox: 160 84% 39%;
+    --inbox-foreground: 0 0% 100%;
+    --crm: 239 84% 67%;
+    --crm-foreground: 243 50% 7%;
+    --pipeline: 235 82% 75%;
+    --pipeline-foreground: 243 50% 7%;
+    --tickets: 35 100% 50%;
+    --tickets-foreground: 0 0% 100%;
+    --billing: 160 84% 39%;
+    --billing-foreground: 0 0% 100%;
+
+    /* Glass effect (dark) */
+    --glass-bg: 243 45% 11% / 0.8;
+    --glass-border: 239 84% 67% / 0.1;
+
+    /* Shadows - use glow effect in dark mode */
+    --shadow-color: 0 0 0;
+    --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.3);
+    --shadow-glow-lg: 0 0 40px rgba(99, 102, 241, 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.2);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.4);
+}
+
+/* Glassmorphism utilities */
+@layer utilities {
+  .glass {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  .glass-subtle {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Nexora Brand Gradients */
+  .gradient-primary {
+    background: linear-gradient(135deg, #221B5A 0%, #3d3675 100%);
+  }
+
+  .gradient-brand {
+    background: linear-gradient(135deg, #221B5A 0%, #4a4190 50%, #7168c9 100%);
+  }
+
+  .gradient-brand-soft {
+    background: linear-gradient(135deg, #d5d3f2 0%, #eae9f7 100%);
+  }
+
+  .gradient-brand-vivid {
+    background: linear-gradient(135deg, #221B5A 0%, #5a4fb0 50%, #9590db 100%);
+  }
+
+  .gradient-brand-radial {
+    background: radial-gradient(ellipse at top left, #4a4190 0%, #221B5A 50%, #1a1545 100%);
+  }
+
+  .gradient-brand-mesh {
+    background:
+      linear-gradient(135deg, rgba(34, 27, 90, 0.1) 0%, transparent 50%),
+      linear-gradient(225deg, rgba(213, 211, 242, 0.3) 0%, transparent 50%),
+      linear-gradient(315deg, rgba(74, 65, 144, 0.1) 0%, transparent 50%);
+  }
+
+  .gradient-brand-glow {
+    background: linear-gradient(180deg, #221B5A 0%, #3d3675 50%, #221B5A 100%);
+  }
+
+  .gradient-brand-aurora {
+    background: linear-gradient(135deg, #221B5A 0%, #4a4190 25%, #7168c9 50%, #b8b3e8 75%, #d5d3f2 100%);
+  }
+
+  .gradient-brand-sunset {
+    background: linear-gradient(135deg, #1a1545 0%, #221B5A 30%, #5a4fb0 70%, #9590db 100%);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #221B5A 0%, #5a4fb0 50%, #7168c9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-vivid {
+    background: linear-gradient(90deg, #221B5A 0%, #7168c9 50%, #9590db 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-border {
+    position: relative;
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+  }
+
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #221B5A 0%, #5a4fb0 50%, #9590db 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Brand accent backgrounds */
+  .bg-brand-gradient {
+    background: linear-gradient(135deg, #221B5A 0%, #3d3675 100%);
+  }
+
+  .bg-brand-light {
+    background: linear-gradient(135deg, #f5f4fb 0%, #eae9f7 100%);
+  }
+
+  .hover\:bg-brand-gradient:hover {
+    background: linear-gradient(135deg, #3d3675 0%, #4a4190 100%);
+  }
+
+  /* Brand shadow */
+  .shadow-brand {
+    box-shadow: 0 4px 14px 0 rgba(34, 27, 90, 0.25);
+  }
+
+  .shadow-brand-lg {
+    box-shadow: 0 10px 40px -10px rgba(34, 27, 90, 0.4);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+/* Keyframe animations */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px hsl(var(--primary) / 0.5);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Animation classes */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.4s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out;
+}
+
+/* Stagger children animations */
+.stagger-children > * {
+  opacity: 0;
+  animation: slide-up 0.4s ease-out forwards;
+}
+
+.stagger-children > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-children > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-children > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-children > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-children > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-children > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-children > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-children > *:nth-child(8) { animation-delay: 0.4s; }
+
+/* Modern card hover effects */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -12px hsl(var(--foreground) / 0.1);
+}
+
+/* Interactive button effects */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-glow::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(135deg, hsl(var(--gradient-start)) 0%, hsl(var(--gradient-end)) 100%);
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: -1;
+  filter: blur(10px);
+}
+
+.btn-glow:hover::before {
+  opacity: 0.6;
+}
+
+/* Focus ring styles */
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-primary;
+}
+
+/* Dynamic Brand Color Utilities */
+.bg-brand {
+  background-color: var(--brand-color);
+}
+
+.text-brand {
+  color: var(--brand-color);
+}
+
+.border-brand {
+  border-color: var(--brand-color);
+}
+
+.ring-brand {
+  --tw-ring-color: var(--brand-color);
+}
+
+.hover\:bg-brand:hover {
+  background-color: var(--brand-color);
+}
+
+.hover\:text-brand:hover {
+  color: var(--brand-color);
+}
+
+.hover\:border-brand:hover {
+  border-color: var(--brand-color);
+}
+
+/* Brand color with opacity */
+.bg-brand\/10 {
+  background-color: rgba(var(--brand-color-rgb), 0.1);
+}
+
+.bg-brand\/20 {
+  background-color: rgba(var(--brand-color-rgb), 0.2);
+}
+
+.bg-brand\/50 {
+  background-color: rgba(var(--brand-color-rgb), 0.5);
+}
+
+.text-brand\/70 {
+  color: rgba(var(--brand-color-rgb), 0.7);
+}
+
+/* Focus with brand color */
+.focus\:ring-brand:focus {
+  --tw-ring-color: var(--brand-color);
+}
+
+.focus\:border-brand:focus {
+  border-color: var(--brand-color);
+}
+
+/* Active state */
+.active\:bg-brand:active {
+  background-color: var(--brand-color);
+}
+
+/* ===== DYNAMIC BRAND COLOR OVERRIDES ===== */
+/* These override default theme colors with the user's brand color */
+
+:root {
+  /* Override primary color with brand color */
+  --primary-brand: var(--brand-color);
+  --primary-brand-rgb: var(--brand-color-rgb);
+}
+
+/* ===== BRAND COLOR SHADE UTILITIES ===== */
+/* Full color palette from 50 (lightest) to 900 (darkest) */
+
+.bg-brand-50 { background-color: var(--brand-50); }
+.bg-brand-100 { background-color: var(--brand-100); }
+.bg-brand-200 { background-color: var(--brand-200); }
+.bg-brand-300 { background-color: var(--brand-300); }
+.bg-brand-400 { background-color: var(--brand-400); }
+.bg-brand-500 { background-color: var(--brand-500); }
+.bg-brand-600 { background-color: var(--brand-600); }
+.bg-brand-700 { background-color: var(--brand-700); }
+.bg-brand-800 { background-color: var(--brand-800); }
+.bg-brand-900 { background-color: var(--brand-900); }
+
+.text-brand-50 { color: var(--brand-50); }
+.text-brand-100 { color: var(--brand-100); }
+.text-brand-200 { color: var(--brand-200); }
+.text-brand-300 { color: var(--brand-300); }
+.text-brand-400 { color: var(--brand-400); }
+.text-brand-500 { color: var(--brand-500); }
+.text-brand-600 { color: var(--brand-600); }
+.text-brand-700 { color: var(--brand-700); }
+.text-brand-800 { color: var(--brand-800); }
+.text-brand-900 { color: var(--brand-900); }
+
+.border-brand-50 { border-color: var(--brand-50); }
+.border-brand-100 { border-color: var(--brand-100); }
+.border-brand-200 { border-color: var(--brand-200); }
+.border-brand-300 { border-color: var(--brand-300); }
+.border-brand-400 { border-color: var(--brand-400); }
+.border-brand-500 { border-color: var(--brand-500); }
+.border-brand-600 { border-color: var(--brand-600); }
+.border-brand-700 { border-color: var(--brand-700); }
+.border-brand-800 { border-color: var(--brand-800); }
+.border-brand-900 { border-color: var(--brand-900); }
+
+/* Hover states for brand shades */
+.hover\:bg-brand-50:hover { background-color: var(--brand-50); }
+.hover\:bg-brand-100:hover { background-color: var(--brand-100); }
+.hover\:bg-brand-200:hover { background-color: var(--brand-200); }
+.hover\:bg-brand-300:hover { background-color: var(--brand-300); }
+.hover\:bg-brand-400:hover { background-color: var(--brand-400); }
+.hover\:bg-brand-500:hover { background-color: var(--brand-500); }
+.hover\:bg-brand-600:hover { background-color: var(--brand-600); }
+.hover\:bg-brand-700:hover { background-color: var(--brand-700); }
+
+/* Hover text states for brand shades */
+.hover\:text-brand:hover { color: var(--brand-color); }
+.hover\:text-brand-50:hover { color: var(--brand-50); }
+.hover\:text-brand-100:hover { color: var(--brand-100); }
+.hover\:text-brand-200:hover { color: var(--brand-200); }
+.hover\:text-brand-300:hover { color: var(--brand-300); }
+.hover\:text-brand-400:hover { color: var(--brand-400); }
+.hover\:text-brand-500:hover { color: var(--brand-500); }
+.hover\:text-brand-600:hover { color: var(--brand-600); }
+.hover\:text-brand-700:hover { color: var(--brand-700); }
+.hover\:text-brand-800:hover { color: var(--brand-800); }
+.hover\:text-brand-900:hover { color: var(--brand-900); }
+
+/* Hover border states for brand shades */
+.hover\:border-brand-100:hover { border-color: var(--brand-100); }
+.hover\:border-brand-200:hover { border-color: var(--brand-200); }
+.hover\:border-brand-300:hover { border-color: var(--brand-300); }
+
+/* ===== THEME AREA BACKGROUNDS ===== */
+/* Use CSS variables set by auth-context for themed backgrounds */
+
+.bg-sidebar-themed {
+  background-color: hsl(var(--sidebar-bg));
+}
+
+.bg-header-themed {
+  background-color: hsl(var(--header-bg));
+}
+
+.bg-sidebar-active-themed {
+  background-color: hsl(var(--sidebar-active-bg));
+}
+
+/* ===== DYNAMIC GRADIENTS ===== */
+.gradient-brand-dynamic {
+  background: linear-gradient(135deg, var(--brand-500) 0%, var(--brand-700) 100%);
+}
+
+.gradient-brand-soft-dynamic {
+  background: linear-gradient(135deg, var(--brand-50) 0%, var(--brand-100) 100%);
+}
+
+.gradient-brand-vivid-dynamic {
+  background: linear-gradient(135deg, var(--brand-600) 0%, var(--brand-400) 50%, var(--brand-300) 100%);
+}
+
+/* Primary button and interactive elements */
+.btn-primary,
+button[data-variant="default"],
+[data-slot="button"][data-variant="default"] {
+  background-color: var(--brand-color) !important;
+}
+
+.btn-primary:hover,
+button[data-variant="default"]:hover {
+  filter: brightness(0.9);
+}
+
+/* Sidebar active state - use brand color */
+.sidebar-active-brand {
+  background-color: var(--brand-color) !important;
+}
+
+/* Links and interactive text */
+a.text-primary,
+.text-primary-brand {
+  color: var(--brand-color);
+}
+
+/* Focus rings */
+*:focus-visible {
+  --tw-ring-color: var(--brand-color);
+}
+
+/* Active/selected states */
+[data-state="active"],
+[aria-selected="true"],
+.active {
+  --accent-color: var(--brand-color);
+}
+
+/* Tab active state */
+[role="tab"][data-state="active"] {
+  border-color: var(--brand-color);
+  color: var(--brand-color);
+}
+
+/* Checkbox and radio checked state */
+[type="checkbox"]:checked,
+[type="radio"]:checked {
+  background-color: var(--brand-color);
+  border-color: var(--brand-color);
+}
+
+/* Progress bars */
+[role="progressbar"] > div {
+  background-color: var(--brand-color);
+}
+
+/* Badge primary */
+.badge-primary {
+  background-color: rgba(var(--brand-color-rgb), 0.1);
+  color: var(--brand-color);
+}
+
+/* Switch checked state */
+[role="switch"][data-state="checked"] {
+  background-color: var(--brand-color);
+}
+
+/* Slider thumb and track */
+[role="slider"] [data-orientation] {
+  background-color: var(--brand-color);
+}

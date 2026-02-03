@@ -1,0 +1,645 @@
+{
+  "conversations": [
+    {
+      "id": "conv-1",
+      "contactId": "contact-1",
+      "contactName": "Sarah Johnson",
+      "contactEmail": "sarah.johnson@techcorp.com",
+      "contactPhone": "+1 555-0123",
+      "contactAvatar": null,
+      "companyName": "TechCorp Inc.",
+      "channelType": "whatsapp",
+      "status": "open",
+      "priority": "high",
+      "subject": null,
+      "lastMessage": "Hi, I wanted to follow up on our conversation about the enterprise plan.",
+      "lastMessageAt": "2024-12-27T08:30:00Z",
+      "unreadCount": 3,
+      "messageCount": 12,
+      "assignedTo": "user-1",
+      "tags": ["vip", "enterprise"],
+      "createdAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "conv-2",
+      "contactId": "contact-2",
+      "contactName": "Michael Chen",
+      "contactEmail": "m.chen@startup.io",
+      "contactPhone": "+1 555-0456",
+      "contactAvatar": null,
+      "companyName": "Startup.io",
+      "channelType": "email",
+      "status": "pending",
+      "priority": "medium",
+      "subject": "Re: Product Demo Request",
+      "lastMessage": "Thanks for the demo yesterday. We have a few more questions about integrations.",
+      "lastMessageAt": "2024-12-27T07:15:00Z",
+      "unreadCount": 1,
+      "messageCount": 8,
+      "assignedTo": "user-1",
+      "tags": ["demo", "prospect"],
+      "createdAt": "2024-12-22T14:30:00Z"
+    },
+    {
+      "id": "conv-3",
+      "contactId": "contact-3",
+      "contactName": "Emily Rodriguez",
+      "contactEmail": "emily.r@designstudio.com",
+      "contactPhone": "+1 555-0789",
+      "contactAvatar": null,
+      "companyName": "Design Studio Co.",
+      "channelType": "sms",
+      "status": "open",
+      "priority": "low",
+      "subject": null,
+      "lastMessage": "Got it, will review and get back to you soon!",
+      "lastMessageAt": "2024-12-27T06:45:00Z",
+      "unreadCount": 0,
+      "messageCount": 5,
+      "assignedTo": "user-2",
+      "tags": ["follow-up"],
+      "createdAt": "2024-12-25T09:00:00Z"
+    },
+    {
+      "id": "conv-4",
+      "contactId": "contact-4",
+      "contactName": "David Kim",
+      "contactEmail": "david@globaltech.com",
+      "contactPhone": "+1 555-0321",
+      "contactAvatar": null,
+      "companyName": "Global Tech Ltd.",
+      "channelType": "whatsapp",
+      "status": "resolved",
+      "priority": "medium",
+      "subject": null,
+      "lastMessage": "Perfect, the issue has been resolved. Thank you for your help!",
+      "lastMessageAt": "2024-12-26T16:20:00Z",
+      "unreadCount": 0,
+      "messageCount": 15,
+      "assignedTo": "user-1",
+      "tags": ["support", "resolved"],
+      "createdAt": "2024-12-18T11:00:00Z"
+    },
+    {
+      "id": "conv-5",
+      "contactId": "contact-5",
+      "contactName": "Lisa Thompson",
+      "contactEmail": "lisa.t@innovate.co",
+      "contactPhone": "+1 555-0654",
+      "contactAvatar": null,
+      "companyName": "Innovate Co.",
+      "channelType": "email",
+      "status": "open",
+      "priority": "high",
+      "subject": "Urgent: Billing Issue",
+      "lastMessage": "I noticed an incorrect charge on our last invoice. Can you please look into this?",
+      "lastMessageAt": "2024-12-27T09:00:00Z",
+      "unreadCount": 2,
+      "messageCount": 3,
+      "assignedTo": null,
+      "tags": ["billing", "urgent"],
+      "createdAt": "2024-12-27T08:45:00Z"
+    }
+  ],
+
+  "messages": {
+    "conv-1": [
+      {
+        "id": "msg-1-1",
+        "conversationId": "conv-1",
+        "content": "Hi there! I'm interested in learning more about your enterprise plan.",
+        "type": "TEXT",
+        "direction": "inbound",
+        "status": "read",
+        "sentAt": "2024-12-20T10:00:00Z",
+        "senderName": "Sarah Johnson"
+      },
+      {
+        "id": "msg-1-2",
+        "conversationId": "conv-1",
+        "content": "Hello Sarah! Thank you for reaching out. I'd be happy to tell you about our enterprise features. What specific aspects are you most interested in?",
+        "type": "TEXT",
+        "direction": "outbound",
+        "status": "read",
+        "sentAt": "2024-12-20T10:05:00Z",
+        "senderName": "John Doe"
+      },
+      {
+        "id": "msg-1-3",
+        "conversationId": "conv-1",
+        "content": "We're mainly interested in the multi-tenant capabilities and API access. How many users can we add?",
+        "type": "TEXT",
+        "direction": "inbound",
+        "status": "read",
+        "sentAt": "2024-12-20T10:10:00Z",
+        "senderName": "Sarah Johnson"
+      },
+      {
+        "id": "msg-1-4",
+        "conversationId": "conv-1",
+        "content": "Great questions! Our enterprise plan supports unlimited users with role-based access control. The API access includes full REST API with 10,000 requests per minute.",
+        "type": "TEXT",
+        "direction": "outbound",
+        "status": "read",
+        "sentAt": "2024-12-20T10:15:00Z",
+        "senderName": "John Doe"
+      },
+      {
+        "id": "msg-1-5",
+        "conversationId": "conv-1",
+        "content": "Hi, I wanted to follow up on our conversation about the enterprise plan.",
+        "type": "TEXT",
+        "direction": "inbound",
+        "status": "delivered",
+        "sentAt": "2024-12-27T08:30:00Z",
+        "senderName": "Sarah Johnson"
+      }
+    ],
+    "conv-2": [
+      {
+        "id": "msg-2-1",
+        "conversationId": "conv-2",
+        "content": "Hello, I'd like to schedule a product demo for our team.",
+        "type": "TEXT",
+        "direction": "inbound",
+        "status": "read",
+        "sentAt": "2024-12-22T14:30:00Z",
+        "senderName": "Michael Chen"
+      },
+      {
+        "id": "msg-2-2",
+        "conversationId": "conv-2",
+        "content": "Hi Michael! I'd be happy to arrange a demo. What time works best for you?",
+        "type": "TEXT",
+        "direction": "outbound",
+        "status": "read",
+        "sentAt": "2024-12-22T14:45:00Z",
+        "senderName": "John Doe"
+      },
+      {
+        "id": "msg-2-3",
+        "conversationId": "conv-2",
+        "content": "Thanks for the demo yesterday. We have a few more questions about integrations.",
+        "type": "TEXT",
+        "direction": "inbound",
+        "status": "delivered",
+        "sentAt": "2024-12-27T07:15:00Z",
+        "senderName": "Michael Chen"
+      }
+    ],
+    "conv-3": [
+      {
+        "id": "msg-3-1",
+        "conversationId": "conv-3",
+        "content": "Hey, just checking in about the proposal I sent over.",
+        "type": "TEXT",
+        "direction": "outbound",
+        "status": "read",
+        "sentAt": "2024-12-25T09:00:00Z",
+        "senderName": "John Doe"
+      },
+      {
+        "id": "msg-3-2",
+        "conversationId": "conv-3",
+        "content": "Got it, will review and get back to you soon!",
+        "type": "TEXT",
+        "direction": "inbound",
+        "status": "read",
+        "sentAt": "2024-12-27T06:45:00Z",
+        "senderName": "Emily Rodriguez"
+      }
+    ]
+  },
+
+  "contacts": [
+    {
+      "id": "contact-1",
+      "firstName": "Sarah",
+      "lastName": "Johnson",
+      "email": "sarah.johnson@techcorp.com",
+      "phone": "+1 555-0123",
+      "company": "TechCorp Inc.",
+      "jobTitle": "VP of Operations",
+      "avatar": null,
+      "status": "active",
+      "source": "website",
+      "leadScore": 85,
+      "lifetimeValue": 24000,
+      "tags": ["vip", "enterprise"],
+      "customFields": {
+        "industry": "Technology",
+        "companySize": "100-500"
+      },
+      "address": {
+        "street": "123 Tech Blvd",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94102",
+        "country": "USA"
+      },
+      "socialProfiles": {
+        "linkedin": "https://linkedin.com/in/sarahjohnson",
+        "twitter": "@sarahj"
+      },
+      "createdAt": "2024-06-15T10:00:00Z",
+      "updatedAt": "2024-12-27T08:30:00Z"
+    },
+    {
+      "id": "contact-2",
+      "firstName": "Michael",
+      "lastName": "Chen",
+      "email": "m.chen@startup.io",
+      "phone": "+1 555-0456",
+      "company": "Startup.io",
+      "jobTitle": "CTO",
+      "avatar": null,
+      "status": "active",
+      "source": "referral",
+      "leadScore": 72,
+      "lifetimeValue": 0,
+      "tags": ["demo", "prospect"],
+      "customFields": {
+        "industry": "SaaS",
+        "companySize": "10-50"
+      },
+      "createdAt": "2024-12-22T14:30:00Z",
+      "updatedAt": "2024-12-27T07:15:00Z"
+    },
+    {
+      "id": "contact-3",
+      "firstName": "Emily",
+      "lastName": "Rodriguez",
+      "email": "emily.r@designstudio.com",
+      "phone": "+1 555-0789",
+      "company": "Design Studio Co.",
+      "jobTitle": "Creative Director",
+      "avatar": null,
+      "status": "active",
+      "source": "linkedin",
+      "leadScore": 45,
+      "lifetimeValue": 5000,
+      "tags": ["follow-up"],
+      "createdAt": "2024-12-25T09:00:00Z",
+      "updatedAt": "2024-12-27T06:45:00Z"
+    },
+    {
+      "id": "contact-4",
+      "firstName": "David",
+      "lastName": "Kim",
+      "email": "david@globaltech.com",
+      "phone": "+1 555-0321",
+      "company": "Global Tech Ltd.",
+      "jobTitle": "IT Director",
+      "avatar": null,
+      "status": "active",
+      "source": "trade_show",
+      "leadScore": 68,
+      "lifetimeValue": 12000,
+      "tags": ["support", "resolved"],
+      "createdAt": "2024-12-18T11:00:00Z",
+      "updatedAt": "2024-12-26T16:20:00Z"
+    },
+    {
+      "id": "contact-5",
+      "firstName": "Lisa",
+      "lastName": "Thompson",
+      "email": "lisa.t@innovate.co",
+      "phone": "+1 555-0654",
+      "company": "Innovate Co.",
+      "jobTitle": "Finance Manager",
+      "avatar": null,
+      "status": "active",
+      "source": "website",
+      "leadScore": 55,
+      "lifetimeValue": 8500,
+      "tags": ["billing", "urgent"],
+      "createdAt": "2024-12-27T08:45:00Z",
+      "updatedAt": "2024-12-27T09:00:00Z"
+    }
+  ],
+
+  "users": [
+    {
+      "id": "user-1",
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john@nexora.com",
+      "avatar": null,
+      "role": "admin",
+      "department": "Sales",
+      "status": "online",
+      "permissions": ["all"]
+    },
+    {
+      "id": "user-2",
+      "firstName": "Sarah",
+      "lastName": "Kim",
+      "email": "sarah.kim@nexora.com",
+      "avatar": null,
+      "role": "agent",
+      "department": "Support",
+      "status": "online",
+      "permissions": ["inbox", "contacts"]
+    },
+    {
+      "id": "user-3",
+      "firstName": "Mike",
+      "lastName": "Wilson",
+      "email": "mike.w@nexora.com",
+      "avatar": null,
+      "role": "agent",
+      "department": "Sales",
+      "status": "away",
+      "permissions": ["inbox", "contacts", "deals"]
+    }
+  ],
+
+  "tags": [
+    { "id": "tag-1", "name": "vip", "color": "#FFD700" },
+    { "id": "tag-2", "name": "enterprise", "color": "#8B5CF6" },
+    { "id": "tag-3", "name": "demo", "color": "#3B82F6" },
+    { "id": "tag-4", "name": "prospect", "color": "#10B981" },
+    { "id": "tag-5", "name": "follow-up", "color": "#F59E0B" },
+    { "id": "tag-6", "name": "support", "color": "#EF4444" },
+    { "id": "tag-7", "name": "resolved", "color": "#6B7280" },
+    { "id": "tag-8", "name": "billing", "color": "#EC4899" },
+    { "id": "tag-9", "name": "urgent", "color": "#DC2626" }
+  ],
+
+  "cannedResponses": [
+    {
+      "id": "canned-1",
+      "title": "Greeting",
+      "shortcut": "/hello",
+      "content": "Hello! Thank you for reaching out. How can I assist you today?",
+      "category": "general"
+    },
+    {
+      "id": "canned-2",
+      "title": "Demo Schedule",
+      "shortcut": "/demo",
+      "content": "I'd be happy to schedule a demo for you. Our available slots this week are:\n- Tuesday 2:00 PM\n- Wednesday 10:00 AM\n- Thursday 3:00 PM\n\nWhich time works best for you?",
+      "category": "sales"
+    },
+    {
+      "id": "canned-3",
+      "title": "Follow Up",
+      "shortcut": "/followup",
+      "content": "Hi! Just checking in to see if you had any questions about our previous conversation. I'm here to help!",
+      "category": "sales"
+    },
+    {
+      "id": "canned-4",
+      "title": "Thank You",
+      "shortcut": "/thanks",
+      "content": "Thank you for your time today! If you have any other questions, feel free to reach out anytime.",
+      "category": "general"
+    },
+    {
+      "id": "canned-5",
+      "title": "Pricing Info",
+      "shortcut": "/pricing",
+      "content": "Our pricing plans start at $29/month for the Starter plan, $79/month for Professional, and custom pricing for Enterprise. Would you like me to send you a detailed comparison?",
+      "category": "sales"
+    }
+  ],
+
+  "signatures": {
+    "email": [
+      {
+        "id": "sig-email-1",
+        "name": "Default",
+        "content": "\n\nBest regards,\nJohn Doe\nSales Manager\nNexora Inc."
+      },
+      {
+        "id": "sig-email-2",
+        "name": "Formal",
+        "content": "\n\nSincerely,\nJohn Doe\nSales Manager | Nexora Inc.\nPhone: +1 234 567 890\nEmail: john@nexora.com"
+      },
+      {
+        "id": "sig-email-3",
+        "name": "Casual",
+        "content": "\n\nCheers,\nJohn"
+      },
+      {
+        "id": "sig-email-4",
+        "name": "No Signature",
+        "content": ""
+      }
+    ],
+    "whatsapp": [
+      {
+        "id": "sig-wa-1",
+        "name": "Default",
+        "content": "\n- John, Nexora"
+      },
+      {
+        "id": "sig-wa-2",
+        "name": "Professional",
+        "content": "\n\nJohn Doe | Sales Manager\nNexora Inc. | +1 234 567 890"
+      },
+      {
+        "id": "sig-wa-3",
+        "name": "Simple",
+        "content": "\n- John"
+      },
+      {
+        "id": "sig-wa-4",
+        "name": "Company",
+        "content": "\n\n— Team Nexora"
+      },
+      {
+        "id": "sig-wa-5",
+        "name": "No Signature",
+        "content": ""
+      }
+    ],
+    "sms": [
+      {
+        "id": "sig-sms-1",
+        "name": "Default",
+        "content": "\n- John, Nexora"
+      },
+      {
+        "id": "sig-sms-2",
+        "name": "Simple",
+        "content": "\n- John"
+      },
+      {
+        "id": "sig-sms-3",
+        "name": "No Signature",
+        "content": ""
+      }
+    ]
+  },
+
+  "whatsappTemplates": [
+    {
+      "id": "wa-tpl-1",
+      "name": "Welcome Message",
+      "category": "MARKETING",
+      "language": "en",
+      "content": "Hello {{1}}! Welcome to Nexora. We're excited to have you on board. How can we help you today?",
+      "variables": ["name"],
+      "status": "approved"
+    },
+    {
+      "id": "wa-tpl-2",
+      "name": "Order Confirmation",
+      "category": "UTILITY",
+      "language": "en",
+      "content": "Hi {{1}}, your order #{{2}} has been confirmed. Expected delivery: {{3}}. Track your order at {{4}}",
+      "variables": ["name", "orderNumber", "deliveryDate", "trackingUrl"],
+      "status": "approved"
+    },
+    {
+      "id": "wa-tpl-3",
+      "name": "Appointment Reminder",
+      "category": "UTILITY",
+      "language": "en",
+      "content": "Reminder: You have an appointment scheduled for {{1}} at {{2}}. Reply YES to confirm or NO to reschedule.",
+      "variables": ["date", "time"],
+      "status": "approved"
+    }
+  ],
+
+  "deals": [
+    {
+      "id": "deal-1",
+      "title": "TechCorp Enterprise Deal",
+      "contactId": "contact-1",
+      "value": 50000,
+      "currency": "USD",
+      "stage": "proposal",
+      "probability": 75,
+      "expectedCloseDate": "2025-01-15",
+      "assignedTo": "user-1",
+      "createdAt": "2024-12-01T10:00:00Z"
+    },
+    {
+      "id": "deal-2",
+      "title": "Startup.io Professional",
+      "contactId": "contact-2",
+      "value": 15000,
+      "currency": "USD",
+      "stage": "demo",
+      "probability": 50,
+      "expectedCloseDate": "2025-01-30",
+      "assignedTo": "user-1",
+      "createdAt": "2024-12-22T14:30:00Z"
+    }
+  ],
+
+  "activities": [
+    {
+      "id": "activity-1",
+      "type": "email",
+      "title": "Email sent",
+      "description": "Follow-up proposal sent to Sarah Johnson",
+      "contactId": "contact-1",
+      "userId": "user-1",
+      "createdAt": "2024-12-26T10:00:00Z"
+    },
+    {
+      "id": "activity-2",
+      "type": "call",
+      "title": "Phone call",
+      "description": "15 min discovery call with Michael Chen",
+      "contactId": "contact-2",
+      "userId": "user-1",
+      "duration": 900,
+      "createdAt": "2024-12-25T14:00:00Z"
+    },
+    {
+      "id": "activity-3",
+      "type": "meeting",
+      "title": "Demo meeting",
+      "description": "Product demo for Startup.io team",
+      "contactId": "contact-2",
+      "userId": "user-1",
+      "duration": 3600,
+      "createdAt": "2024-12-26T15:00:00Z"
+    }
+  ],
+
+  "notes": [
+    {
+      "id": "note-1",
+      "contactId": "contact-1",
+      "content": "Customer interested in premium plan. Follow up next week about annual discount.",
+      "isPrivate": false,
+      "userId": "user-2",
+      "createdAt": "2024-12-25T10:00:00Z"
+    },
+    {
+      "id": "note-2",
+      "contactId": "contact-1",
+      "content": "Check with finance team on special pricing approval.",
+      "isPrivate": true,
+      "userId": "user-1",
+      "createdAt": "2024-12-24T15:00:00Z"
+    },
+    {
+      "id": "note-3",
+      "contactId": "contact-1",
+      "content": "Initial discovery call completed. Very interested in API features.",
+      "isPrivate": false,
+      "userId": "user-3",
+      "createdAt": "2024-12-22T11:00:00Z"
+    }
+  ],
+
+  "inboxStats": {
+    "totalConversations": 156,
+    "openConversations": 24,
+    "pendingConversations": 12,
+    "resolvedToday": 18,
+    "avgResponseTime": "2m 30s",
+    "channelBreakdown": {
+      "whatsapp": 45,
+      "email": 35,
+      "sms": 15,
+      "voice": 5
+    }
+  },
+
+  "dashboardStats": {
+    "contacts": {
+      "total": 1250,
+      "newThisMonth": 85,
+      "activeLeads": 320
+    },
+    "deals": {
+      "total": 45,
+      "value": 125000,
+      "closedThisMonth": 8,
+      "closedValue": 45000
+    },
+    "conversations": {
+      "total": 156,
+      "avgResponseTime": "2m 30s",
+      "satisfactionScore": 4.5
+    },
+    "revenue": {
+      "thisMonth": 45000,
+      "lastMonth": 38000,
+      "growth": 18.4
+    }
+  },
+
+  "pipelines": [
+    {
+      "id": "pipeline-1",
+      "name": "Sales Pipeline",
+      "stages": [
+        { "id": "stage-1", "name": "Lead", "order": 1, "color": "#6B7280" },
+        { "id": "stage-2", "name": "Qualified", "order": 2, "color": "#3B82F6" },
+        { "id": "stage-3", "name": "Demo", "order": 3, "color": "#8B5CF6" },
+        { "id": "stage-4", "name": "Proposal", "order": 4, "color": "#F59E0B" },
+        { "id": "stage-5", "name": "Negotiation", "order": 5, "color": "#EF4444" },
+        { "id": "stage-6", "name": "Closed Won", "order": 6, "color": "#10B981" },
+        { "id": "stage-7", "name": "Closed Lost", "order": 7, "color": "#DC2626" }
+      ]
+    }
+  ]
+}

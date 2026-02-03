@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexora CRM - Light Pastel Design Samples</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+
+        /* Light glass effect */
+        .glass-light {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .glass-white {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Theme Selector -->
+    <div class="fixed top-0 left-0 right-0 bg-white shadow-lg z-50 px-6 py-4 border-b">
+        <div class="max-w-7xl mx-auto">
+            <h1 class="text-xl font-bold text-gray-900 mb-2">Light Pastel Design Samples</h1>
+            <p class="text-sm text-gray-500 mb-4">Soft pastel backgrounds with accent colors - Modern & Clean</p>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="showTheme('lavender')" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-400 to-purple-500 text-white text-sm font-medium shadow-lg shadow-violet-400/30 hover:shadow-xl transition">Lavender Dream</button>
+                <button onclick="showTheme('mint')" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 text-white text-sm font-medium shadow-lg shadow-emerald-400/30 hover:shadow-xl transition">Mint Fresh</button>
+                <button onclick="showTheme('peach')" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-orange-300 to-rose-400 text-white text-sm font-medium shadow-lg shadow-orange-300/30 hover:shadow-xl transition">Peach Cream</button>
+                <button onclick="showTheme('sky')" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-400 to-blue-500 text-white text-sm font-medium shadow-lg shadow-sky-400/30 hover:shadow-xl transition">Sky Blue</button>
+                <button onclick="showTheme('rose')" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-pink-400 to-rose-500 text-white text-sm font-medium shadow-lg shadow-pink-400/30 hover:shadow-xl transition">Rose Blush</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== THEME 1: LAVENDER DREAM ==================== -->
+    <div id="theme-lavender" class="theme-preview min-h-screen pt-32">
+        <!-- Light Pastel Background -->
+        <div class="fixed inset-0 -z-10" style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #ddd6fe 100%);"></div>
+
+        <div class="flex h-[calc(100vh-128px)]">
+            <!-- Header -->
+            <div class="fixed top-32 left-0 right-0 h-16 px-6 flex items-center justify-between z-40 bg-white/80 backdrop-blur-xl mx-4 rounded-2xl shadow-lg shadow-violet-200/50 border border-violet-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-lg shadow-violet-400/40">
+                        <span class="text-white font-bold">N</span>
+                    </div>
+                    <span class="text-gray-800 font-bold text-lg">Nexora</span>
+                    <div class="ml-8 relative">
+                        <input type="text" placeholder="Search anything..." class="bg-violet-50 border border-violet-200 rounded-xl px-4 py-2.5 text-gray-700 placeholder-violet-400 text-sm w-80 focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition">
+                        <svg class="w-5 h-5 absolute right-3 top-1/2 -translate-y-1/2 text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="w-10 h-10 rounded-xl bg-violet-50 hover:bg-violet-100 flex items-center justify-center text-violet-500 hover:text-violet-600 transition border border-violet-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    </button>
+                    <button class="w-10 h-10 rounded-xl bg-violet-50 hover:bg-violet-100 flex items-center justify-center text-violet-500 hover:text-violet-600 transition border border-violet-200">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </button>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-white text-sm font-semibold shadow-lg shadow-violet-400/40">JD</div>
+                </div>
+            </div>
+
+            <!-- Icon Rail - Accent Color -->
+            <div class="fixed top-[180px] left-4 w-16 bottom-4 flex flex-col items-center py-4 gap-3 z-30 bg-gradient-to-b from-violet-500 to-purple-600 rounded-2xl shadow-xl shadow-violet-400/40">
+                <div class="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                </div>
+                <div class="w-11 h-11 rounded-xl hover:bg-white/15 flex items-center justify-center text-violet-100 hover:text-white transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                </div>
+                <div class="w-11 h-11 rounded-xl hover:bg-white/15 flex items-center justify-center text-violet-100 hover:text-white transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div class="w-11 h-11 rounded-xl hover:bg-white/15 flex items-center justify-center text-violet-100 hover:text-white transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div class="flex-1"></div>
+                <div class="w-11 h-11 rounded-xl hover:bg-white/15 flex items-center justify-center text-violet-100 hover:text-white transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+            </div>
+
+            <!-- Sidebar - Lighter Accent -->
+            <div class="fixed top-[180px] left-24 w-60 bottom-4 z-20 bg-gradient-to-b from-violet-400 to-purple-500 rounded-2xl shadow-xl shadow-violet-300/40 overflow-hidden">
+                <div class="p-5 border-b border-white/20">
+                    <h3 class="text-xs font-semibold text-white/80 uppercase tracking-wider">CRM Hub</h3>
+                </div>
+                <div class="p-4 space-y-2">
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/25 text-white shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <span class="text-sm font-medium">Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:bg-white/15 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span class="text-sm">Contacts</span>
+                        <span class="ml-auto bg-white/25 text-white text-xs px-2.5 py-1 rounded-lg font-medium">128</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:bg-white/15 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                        <span class="text-sm">Companies</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:bg-white/15 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span class="text-sm">Deals</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:bg-white/15 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                        <span class="text-sm">Tasks</span>
+                    </a>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-white/20">
+                    <div class="bg-white/15 rounded-xl p-4">
+                        <h4 class="text-xs font-semibold text-white/80 uppercase mb-3">Quick Stats</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-white/70 text-xs">Pipeline</span>
+                                <span class="text-white font-semibold text-sm">$523K</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-white/70 text-xs">Won</span>
+                                <span class="text-white font-semibold text-sm">$182K</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content - White Cards -->
+            <div class="ml-[340px] mt-[180px] flex-1 p-6 mr-4 mb-4">
+                <div class="max-w-6xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-800 mb-1">Dashboard</h1>
+                            <p class="text-violet-600 text-sm">Lavender Dream - Soft purple pastel background</p>
+                        </div>
+                        <button class="px-5 py-3 bg-gradient-to-r from-violet-500 to-purple-500 rounded-xl text-white text-sm font-medium hover:from-violet-400 hover:to-purple-400 shadow-lg shadow-violet-400/40 flex items-center gap-2 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            New Contact
+                        </button>
+                    </div>
+
+                    <!-- Stats Cards - White with accent borders -->
+                    <div class="grid grid-cols-4 gap-5 mb-8">
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-violet-200/50 border border-violet-100 hover:shadow-xl hover:border-violet-300 transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Total Contacts</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center shadow-lg shadow-violet-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">1,284</p>
+                            <p class="text-violet-500 text-xs font-medium mt-1">+12% from last month</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-violet-200/50 border border-violet-100 hover:shadow-xl hover:border-violet-300 transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Active Deals</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">48</p>
+                            <p class="text-blue-500 text-xs font-medium mt-1">$523,400 pipeline</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-violet-200/50 border border-violet-100 hover:shadow-xl hover:border-violet-300 transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Won This Month</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">$42.5K</p>
+                            <p class="text-emerald-500 text-xs font-medium mt-1">12 deals closed</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-violet-200/50 border border-violet-100 hover:shadow-xl hover:border-violet-300 transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Tasks Due</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">7</p>
+                            <p class="text-amber-500 text-xs font-medium mt-1">3 urgent tasks</p>
+                        </div>
+                    </div>
+
+                    <!-- Activity Cards -->
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="bg-white rounded-2xl shadow-lg shadow-violet-200/50 border border-violet-100 overflow-hidden">
+                            <div class="p-5 border-b border-violet-100">
+                                <h3 class="font-semibold text-gray-800">Recent Contacts</h3>
+                            </div>
+                            <div class="p-4 space-y-3">
+                                <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-violet-50 transition cursor-pointer">
+                                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-violet-400/30">JD</div>
+                                    <div class="flex-1">
+                                        <p class="font-medium text-gray-800 text-sm">John Doe</p>
+                                        <p class="text-gray-500 text-xs">john@company.com</p>
+                                    </div>
+                                    <span class="px-3 py-1.5 bg-violet-100 text-violet-600 rounded-lg text-xs font-medium">Lead</span>
+                                </div>
+                                <div class="flex items-center gap-4 p-3 rounded-xl hover:bg-violet-50 transition cursor-pointer">
+                                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-pink-400/30">SJ</div>
+                                    <div class="flex-1">
+                                        <p class="font-medium text-gray-800 text-sm">Sarah Johnson</p>
+                                        <p class="text-gray-500 text-xs">sarah@acme.io</p>
+                                    </div>
+                                    <span class="px-3 py-1.5 bg-emerald-100 text-emerald-600 rounded-lg text-xs font-medium">Customer</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-2xl shadow-lg shadow-violet-200/50 border border-violet-100 overflow-hidden">
+                            <div class="p-5 border-b border-violet-100">
+                                <h3 class="font-semibold text-gray-800">Pipeline Progress</h3>
+                            </div>
+                            <div class="p-5 space-y-5">
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm text-gray-600">Qualification</span>
+                                        <span class="text-sm font-semibold text-gray-800">$45,000</span>
+                                    </div>
+                                    <div class="h-3 bg-violet-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-violet-400 to-purple-500 rounded-full" style="width: 35%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm text-gray-600">Proposal</span>
+                                        <span class="text-sm font-semibold text-gray-800">$120,000</span>
+                                    </div>
+                                    <div class="h-3 bg-violet-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full" style="width: 65%"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between items-center mb-2">
+                                        <span class="text-sm text-gray-600">Negotiation</span>
+                                        <span class="text-sm font-semibold text-gray-800">$85,000</span>
+                                    </div>
+                                    <div class="h-3 bg-violet-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-gradient-to-r from-purple-400 to-pink-500 rounded-full" style="width: 50%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== THEME 2: MINT FRESH ==================== -->
+    <div id="theme-mint" class="theme-preview min-h-screen pt-32 hidden">
+        <div class="fixed inset-0 -z-10" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #a7f3d0 100%);"></div>
+
+        <div class="flex h-[calc(100vh-128px)]">
+            <div class="fixed top-32 left-0 right-0 h-16 px-6 flex items-center justify-between z-40 bg-white/80 backdrop-blur-xl mx-4 rounded-2xl shadow-lg shadow-emerald-200/50 border border-emerald-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-400/40">
+                        <span class="text-white font-bold">N</span>
+                    </div>
+                    <span class="text-gray-800 font-bold text-lg">Nexora</span>
+                    <input type="text" placeholder="Search..." class="ml-8 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5 text-gray-700 placeholder-emerald-400 text-sm w-80 focus:ring-2 focus:ring-emerald-400 transition">
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="w-10 h-10 rounded-xl bg-emerald-50 hover:bg-emerald-100 flex items-center justify-center text-emerald-500 border border-emerald-200 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    </button>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white text-sm font-semibold shadow-lg shadow-emerald-400/40">JD</div>
+                </div>
+            </div>
+
+            <div class="fixed top-[180px] left-4 w-16 bottom-4 flex flex-col items-center py-4 gap-3 z-30 bg-gradient-to-b from-emerald-500 to-teal-600 rounded-2xl shadow-xl shadow-emerald-400/40">
+                <div class="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                </div>
+                <div class="w-11 h-11 rounded-xl hover:bg-white/15 flex items-center justify-center text-emerald-100 hover:text-white transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <div class="w-11 h-11 rounded-xl hover:bg-white/15 flex items-center justify-center text-emerald-100 hover:text-white transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+            </div>
+
+            <div class="fixed top-[180px] left-24 w-60 bottom-4 z-20 bg-gradient-to-b from-emerald-400 to-teal-500 rounded-2xl shadow-xl shadow-emerald-300/40 overflow-hidden">
+                <div class="p-5 border-b border-white/20">
+                    <h3 class="text-xs font-semibold text-white/80 uppercase tracking-wider">CRM Hub</h3>
+                </div>
+                <div class="p-4 space-y-2">
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/25 text-white shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <span class="text-sm font-medium">Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:bg-white/15 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span class="text-sm">Contacts</span>
+                        <span class="ml-auto bg-white/25 text-white text-xs px-2.5 py-1 rounded-lg">128</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="ml-[340px] mt-[180px] flex-1 p-6 mr-4">
+                <div class="max-w-6xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-800 mb-1">Dashboard</h1>
+                            <p class="text-emerald-600 text-sm">Mint Fresh - Soft green pastel background</p>
+                        </div>
+                        <button class="px-5 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl text-white text-sm font-medium shadow-lg shadow-emerald-400/40 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            New Contact
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-5">
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-emerald-200/50 border border-emerald-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Total Contacts</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">1,284</p>
+                            <p class="text-emerald-500 text-xs font-medium mt-1">+12% growth</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-emerald-200/50 border border-emerald-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Active Deals</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center shadow-lg shadow-teal-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">48</p>
+                            <p class="text-teal-500 text-xs font-medium mt-1">$523K pipeline</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-emerald-200/50 border border-emerald-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Won</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-lime-400 to-green-500 flex items-center justify-center shadow-lg shadow-lime-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">$42.5K</p>
+                            <p class="text-lime-600 text-xs font-medium mt-1">12 deals</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-emerald-200/50 border border-emerald-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Tasks</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">7</p>
+                            <p class="text-amber-500 text-xs font-medium mt-1">3 urgent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== THEME 3: PEACH CREAM ==================== -->
+    <div id="theme-peach" class="theme-preview min-h-screen pt-32 hidden">
+        <div class="fixed inset-0 -z-10" style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%);"></div>
+
+        <div class="flex h-[calc(100vh-128px)]">
+            <div class="fixed top-32 left-0 right-0 h-16 px-6 flex items-center justify-between z-40 bg-white/80 backdrop-blur-xl mx-4 rounded-2xl shadow-lg shadow-orange-200/50 border border-orange-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center shadow-lg shadow-orange-400/40">
+                        <span class="text-white font-bold">N</span>
+                    </div>
+                    <span class="text-gray-800 font-bold text-lg">Nexora</span>
+                    <input type="text" placeholder="Search..." class="ml-8 bg-orange-50 border border-orange-200 rounded-xl px-4 py-2.5 text-gray-700 placeholder-orange-400 text-sm w-80 focus:ring-2 focus:ring-orange-400 transition">
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="w-10 h-10 rounded-xl bg-orange-50 hover:bg-orange-100 flex items-center justify-center text-orange-500 border border-orange-200 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    </button>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center text-white text-sm font-semibold shadow-lg shadow-orange-400/40">JD</div>
+                </div>
+            </div>
+
+            <div class="fixed top-[180px] left-4 w-16 bottom-4 flex flex-col items-center py-4 gap-3 z-30 bg-gradient-to-b from-orange-400 to-rose-500 rounded-2xl shadow-xl shadow-orange-400/40">
+                <div class="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                </div>
+                <div class="w-11 h-11 rounded-xl hover:bg-white/15 flex items-center justify-center text-orange-100 hover:text-white transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+            </div>
+
+            <div class="fixed top-[180px] left-24 w-60 bottom-4 z-20 bg-gradient-to-b from-orange-300 to-rose-400 rounded-2xl shadow-xl shadow-orange-300/40 overflow-hidden">
+                <div class="p-5 border-b border-white/20">
+                    <h3 class="text-xs font-semibold text-white/80 uppercase tracking-wider">CRM Hub</h3>
+                </div>
+                <div class="p-4 space-y-2">
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/30 text-white shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <span class="text-sm font-medium">Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:bg-white/15 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span class="text-sm">Contacts</span>
+                        <span class="ml-auto bg-white/25 text-white text-xs px-2.5 py-1 rounded-lg">128</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="ml-[340px] mt-[180px] flex-1 p-6 mr-4">
+                <div class="max-w-6xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-800 mb-1">Dashboard</h1>
+                            <p class="text-orange-600 text-sm">Peach Cream - Warm cream pastel background</p>
+                        </div>
+                        <button class="px-5 py-3 bg-gradient-to-r from-orange-400 to-rose-500 rounded-xl text-white text-sm font-medium shadow-lg shadow-orange-400/40 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            New Contact
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-5">
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-orange-200/50 border border-orange-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Total Contacts</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-rose-500 flex items-center justify-center shadow-lg shadow-orange-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">1,284</p>
+                            <p class="text-orange-500 text-xs font-medium mt-1">+12% growth</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-orange-200/50 border border-orange-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Active Deals</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">48</p>
+                            <p class="text-amber-500 text-xs font-medium mt-1">$523K pipeline</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-orange-200/50 border border-orange-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Won</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">$42.5K</p>
+                            <p class="text-emerald-500 text-xs font-medium mt-1">12 deals</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-orange-200/50 border border-orange-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Tasks</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center shadow-lg shadow-rose-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">7</p>
+                            <p class="text-rose-500 text-xs font-medium mt-1">3 urgent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== THEME 4: SKY BLUE ==================== -->
+    <div id="theme-sky" class="theme-preview min-h-screen pt-32 hidden">
+        <div class="fixed inset-0 -z-10" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);"></div>
+
+        <div class="flex h-[calc(100vh-128px)]">
+            <div class="fixed top-32 left-0 right-0 h-16 px-6 flex items-center justify-between z-40 bg-white/80 backdrop-blur-xl mx-4 rounded-2xl shadow-lg shadow-sky-200/50 border border-sky-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center shadow-lg shadow-sky-400/40">
+                        <span class="text-white font-bold">N</span>
+                    </div>
+                    <span class="text-gray-800 font-bold text-lg">Nexora</span>
+                    <input type="text" placeholder="Search..." class="ml-8 bg-sky-50 border border-sky-200 rounded-xl px-4 py-2.5 text-gray-700 placeholder-sky-400 text-sm w-80 focus:ring-2 focus:ring-sky-400 transition">
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="w-10 h-10 rounded-xl bg-sky-50 hover:bg-sky-100 flex items-center justify-center text-sky-500 border border-sky-200 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    </button>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center text-white text-sm font-semibold shadow-lg shadow-sky-400/40">JD</div>
+                </div>
+            </div>
+
+            <div class="fixed top-[180px] left-4 w-16 bottom-4 flex flex-col items-center py-4 gap-3 z-30 bg-gradient-to-b from-sky-500 to-blue-600 rounded-2xl shadow-xl shadow-sky-400/40">
+                <div class="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                </div>
+                <div class="w-11 h-11 rounded-xl hover:bg-white/15 flex items-center justify-center text-sky-100 hover:text-white transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+            </div>
+
+            <div class="fixed top-[180px] left-24 w-60 bottom-4 z-20 bg-gradient-to-b from-sky-400 to-blue-500 rounded-2xl shadow-xl shadow-sky-300/40 overflow-hidden">
+                <div class="p-5 border-b border-white/20">
+                    <h3 class="text-xs font-semibold text-white/80 uppercase tracking-wider">CRM Hub</h3>
+                </div>
+                <div class="p-4 space-y-2">
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/25 text-white shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <span class="text-sm font-medium">Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:bg-white/15 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span class="text-sm">Contacts</span>
+                        <span class="ml-auto bg-white/25 text-white text-xs px-2.5 py-1 rounded-lg">128</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="ml-[340px] mt-[180px] flex-1 p-6 mr-4">
+                <div class="max-w-6xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-800 mb-1">Dashboard</h1>
+                            <p class="text-sky-600 text-sm">Sky Blue - Light blue pastel background</p>
+                        </div>
+                        <button class="px-5 py-3 bg-gradient-to-r from-sky-500 to-blue-500 rounded-xl text-white text-sm font-medium shadow-lg shadow-sky-400/40 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            New Contact
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-5">
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-sky-200/50 border border-sky-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Total Contacts</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-sky-400 to-blue-500 flex items-center justify-center shadow-lg shadow-sky-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">1,284</p>
+                            <p class="text-sky-500 text-xs font-medium mt-1">+12% growth</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-sky-200/50 border border-sky-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Active Deals</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">48</p>
+                            <p class="text-blue-500 text-xs font-medium mt-1">$523K pipeline</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-sky-200/50 border border-sky-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Won</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">$42.5K</p>
+                            <p class="text-emerald-500 text-xs font-medium mt-1">12 deals</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-sky-200/50 border border-sky-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Tasks</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">7</p>
+                            <p class="text-amber-500 text-xs font-medium mt-1">3 urgent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== THEME 5: ROSE BLUSH ==================== -->
+    <div id="theme-rose" class="theme-preview min-h-screen pt-32 hidden">
+        <div class="fixed inset-0 -z-10" style="background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 50%, #fecdd3 100%);"></div>
+
+        <div class="flex h-[calc(100vh-128px)]">
+            <div class="fixed top-32 left-0 right-0 h-16 px-6 flex items-center justify-between z-40 bg-white/80 backdrop-blur-xl mx-4 rounded-2xl shadow-lg shadow-rose-200/50 border border-rose-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-400/40">
+                        <span class="text-white font-bold">N</span>
+                    </div>
+                    <span class="text-gray-800 font-bold text-lg">Nexora</span>
+                    <input type="text" placeholder="Search..." class="ml-8 bg-rose-50 border border-rose-200 rounded-xl px-4 py-2.5 text-gray-700 placeholder-rose-400 text-sm w-80 focus:ring-2 focus:ring-rose-400 transition">
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="w-10 h-10 rounded-xl bg-rose-50 hover:bg-rose-100 flex items-center justify-center text-rose-500 border border-rose-200 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                    </button>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white text-sm font-semibold shadow-lg shadow-pink-400/40">JD</div>
+                </div>
+            </div>
+
+            <div class="fixed top-[180px] left-4 w-16 bottom-4 flex flex-col items-center py-4 gap-3 z-30 bg-gradient-to-b from-pink-500 to-rose-600 rounded-2xl shadow-xl shadow-pink-400/40">
+                <div class="w-11 h-11 rounded-xl bg-white/25 flex items-center justify-center text-white">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                </div>
+                <div class="w-11 h-11 rounded-xl hover:bg-white/15 flex items-center justify-center text-pink-100 hover:text-white transition cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+            </div>
+
+            <div class="fixed top-[180px] left-24 w-60 bottom-4 z-20 bg-gradient-to-b from-pink-400 to-rose-500 rounded-2xl shadow-xl shadow-pink-300/40 overflow-hidden">
+                <div class="p-5 border-b border-white/20">
+                    <h3 class="text-xs font-semibold text-white/80 uppercase tracking-wider">CRM Hub</h3>
+                </div>
+                <div class="p-4 space-y-2">
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/25 text-white shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                        <span class="text-sm font-medium">Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-4 py-3 rounded-xl text-white/90 hover:bg-white/15 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span class="text-sm">Contacts</span>
+                        <span class="ml-auto bg-white/25 text-white text-xs px-2.5 py-1 rounded-lg">128</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="ml-[340px] mt-[180px] flex-1 p-6 mr-4">
+                <div class="max-w-6xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <div>
+                            <h1 class="text-3xl font-bold text-gray-800 mb-1">Dashboard</h1>
+                            <p class="text-rose-600 text-sm">Rose Blush - Soft pink pastel background</p>
+                        </div>
+                        <button class="px-5 py-3 bg-gradient-to-r from-pink-500 to-rose-500 rounded-xl text-white text-sm font-medium shadow-lg shadow-pink-400/40 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            New Contact
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-4 gap-5">
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-rose-200/50 border border-rose-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Total Contacts</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">1,284</p>
+                            <p class="text-pink-500 text-xs font-medium mt-1">+12% growth</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-rose-200/50 border border-rose-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Active Deals</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-400 to-red-500 flex items-center justify-center shadow-lg shadow-rose-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">48</p>
+                            <p class="text-rose-500 text-xs font-medium mt-1">$523K pipeline</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-rose-200/50 border border-rose-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Won</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">$42.5K</p>
+                            <p class="text-emerald-500 text-xs font-medium mt-1">12 deals</p>
+                        </div>
+                        <div class="bg-white rounded-2xl p-6 shadow-lg shadow-rose-200/50 border border-rose-100 hover:shadow-xl transition group">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-gray-500 text-sm">Tasks</span>
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-400/40 group-hover:scale-110 transition">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-bold text-gray-800">7</p>
+                            <p class="text-amber-500 text-xs font-medium mt-1">3 urgent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="fixed bottom-4 right-4 bg-white rounded-2xl p-4 max-w-sm z-50 shadow-xl border border-gray-200">
+        <h4 class="font-semibold text-gray-800 mb-2">Light Pastel Design Features</h4>
+        <ul class="text-xs text-gray-600 space-y-1">
+            <li>Soft pastel gradient backgrounds</li>
+            <li>Accent-colored icon rail & sidebar</li>
+            <li>White glass header with blur</li>
+            <li>White cards with colored shadows</li>
+            <li>Rounded corners (16px radius)</li>
+            <li>Colored glow shadows on buttons</li>
+        </ul>
+    </div>
+
+    <script>
+        function showTheme(theme) {
+            document.querySelectorAll('.theme-preview').forEach(el => el.classList.add('hidden'));
+            document.getElementById('theme-' + theme).classList.remove('hidden');
+        }
+        showTheme('lavender');
+    </script>
+
+</body>
+</html>
