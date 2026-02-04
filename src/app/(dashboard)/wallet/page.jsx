@@ -21,7 +21,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { useWallet, useWalletTransactions, useWalletUsage, useSpendLimits } from '@/hooks/use-wallet';
+import {
+  useWallet,
+  useWalletTransactions,
+  useWalletUsage,
+  useSpendLimits,
+} from '@/hooks/use-wallet';
 
 function formatCurrency(amount) {
   if (amount === undefined || amount === null) return '$0.00';
@@ -57,13 +62,25 @@ export default function WalletPage() {
 
   // Fetch data from API
   const { data: wallet, isLoading: walletLoading, error: walletError, refetch } = useWallet();
-  const { data: transactionsData, isLoading: transactionsLoading } = useWalletTransactions({ limit: 10 });
+  const { data: transactionsData, isLoading: transactionsLoading } = useWalletTransactions({
+    limit: 10,
+  });
   const { data: usage, isLoading: usageLoading } = useWalletUsage();
   const { data: spendLimits, isLoading: limitsLoading } = useSpendLimits();
 
   const transactions = transactionsData?.data || [];
   const usageBreakdown = usage?.breakdown || [];
-  const limits = spendLimits || [];
+
+  // Convert spend limits object to array format
+  const limits = spendLimits
+    ? Object.entries(spendLimits).map(([channel, data]) => ({
+        channel,
+        dailyLimit: data.dailyLimit,
+        monthlyLimit: data.monthlyLimit,
+        dailyUsed: data.currentDailySpend,
+        monthlyUsed: data.currentMonthlySpend,
+      }))
+    : [];
 
   // Loading state
   if (walletLoading) {
@@ -129,12 +146,18 @@ export default function WalletPage() {
           </div>
           <div className="text-right">
             <div className="text-sm text-muted-foreground">Auto-recharge</div>
-            <div className={cn('text-sm font-medium', wallet?.autoRechargeEnabled ? 'text-green-600' : 'text-gray-500')}>
+            <div
+              className={cn(
+                'text-sm font-medium',
+                wallet?.autoRechargeEnabled ? 'text-green-600' : 'text-gray-500'
+              )}
+            >
               {wallet?.autoRechargeEnabled ? 'Enabled' : 'Disabled'}
             </div>
             {wallet?.autoRechargeEnabled && (
               <div className="text-xs text-muted-foreground mt-1">
-                {formatCurrency(wallet?.autoRechargeAmount)} when below {formatCurrency(wallet?.autoRechargeThreshold)}
+                {formatCurrency(wallet?.autoRechargeAmount)} when below{' '}
+                {formatCurrency(wallet?.autoRechargeThreshold)}
               </div>
             )}
           </div>
@@ -143,7 +166,7 @@ export default function WalletPage() {
 
       {/* Tabs */}
       <div className="flex items-center gap-1 border-b">
-        {(['overview', 'transactions', 'limits']).map((tab) => (
+        {['overview', 'transactions', 'limits'].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -170,7 +193,9 @@ export default function WalletPage() {
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
               </div>
             ) : usageBreakdown.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">No usage data available</p>
+              <p className="text-sm text-muted-foreground text-center py-8">
+                No usage data available
+              </p>
             ) : (
               <>
                 <div className="space-y-4">
@@ -189,7 +214,9 @@ export default function WalletPage() {
                             </div>
                           </div>
                         </div>
-                        <div className="text-right font-medium">{formatCurrency(item.cost || 0)}</div>
+                        <div className="text-right font-medium">
+                          {formatCurrency(item.cost || 0)}
+                        </div>
                       </div>
                     );
                   })}
@@ -197,7 +224,9 @@ export default function WalletPage() {
                 <div className="flex items-center justify-between pt-4 mt-4 border-t">
                   <span className="font-semibold">Total Usage</span>
                   <span className="font-bold text-lg">
-                    {formatCurrency(usage?.totalCost || usageBreakdown.reduce((sum, i) => sum + (i.cost || 0), 0))}
+                    {formatCurrency(
+                      usage?.totalCost || usageBreakdown.reduce((sum, i) => sum + (i.cost || 0), 0)
+                    )}
                   </span>
                 </div>
               </>
@@ -238,7 +267,9 @@ export default function WalletPage() {
                   <div className="font-medium">•••• •••• •••• 4242</div>
                   <div className="text-sm text-muted-foreground">Expires 12/25</div>
                 </div>
-                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Default</span>
+                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
+                  Default
+                </span>
               </div>
               <Button variant="ghost" className="w-full mt-3">
                 <Plus className="h-4 w-4 mr-2" />
@@ -263,7 +294,10 @@ export default function WalletPage() {
           ) : (
             <div className="divide-y">
               {transactions.map((tx) => (
-                <div key={tx.id} className="flex items-center justify-between p-4 hover:bg-muted/50">
+                <div
+                  key={tx.id}
+                  className="flex items-center justify-between p-4 hover:bg-muted/50"
+                >
                   <div className="flex items-center gap-3">
                     <div
                       className={cn(
@@ -278,8 +312,13 @@ export default function WalletPage() {
                       )}
                     </div>
                     <div>
-                      <div className="font-medium">{tx.description || (tx.type === 'CREDIT' ? 'Wallet top-up' : 'Usage charge')}</div>
-                      <div className="text-sm text-muted-foreground">{formatDateTime(tx.createdAt)}</div>
+                      <div className="font-medium">
+                        {tx.description ||
+                          (tx.type === 'CREDIT' ? 'Wallet top-up' : 'Usage charge')}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {formatDateTime(tx.createdAt)}
+                      </div>
                     </div>
                   </div>
                   <div className="text-right">
@@ -289,7 +328,8 @@ export default function WalletPage() {
                         tx.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'
                       )}
                     >
-                      {tx.type === 'CREDIT' ? '+' : '-'}{formatCurrency(Math.abs(tx.amount))}
+                      {tx.type === 'CREDIT' ? '+' : '-'}
+                      {formatCurrency(Math.abs(tx.amount))}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Balance: {formatCurrency(tx.balanceAfter)}
@@ -322,30 +362,42 @@ export default function WalletPage() {
               <Card key={limit.channel} className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold">{limit.channel?.replace(/_/g, ' ')}</h3>
-                  <Button variant="outline" size="sm">Edit Limits</Button>
+                  <Button variant="outline" size="sm">
+                    Edit Limits
+                  </Button>
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span className="text-muted-foreground">Daily Limit</span>
-                      <span>{formatCurrency(limit.dailyUsed || 0)} / {formatCurrency(limit.dailyLimit || 0)}</span>
+                      <span>
+                        {formatCurrency(limit.dailyUsed || 0)} /{' '}
+                        {formatCurrency(limit.dailyLimit || 0)}
+                      </span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary rounded-full"
-                        style={{ width: `${limit.dailyLimit ? ((limit.dailyUsed || 0) / limit.dailyLimit) * 100 : 0}%` }}
+                        style={{
+                          width: `${limit.dailyLimit ? ((limit.dailyUsed || 0) / limit.dailyLimit) * 100 : 0}%`,
+                        }}
                       />
                     </div>
                   </div>
                   <div>
                     <div className="flex items-center justify-between text-sm mb-2">
                       <span className="text-muted-foreground">Monthly Limit</span>
-                      <span>{formatCurrency(limit.monthlyUsed || 0)} / {formatCurrency(limit.monthlyLimit || 0)}</span>
+                      <span>
+                        {formatCurrency(limit.monthlyUsed || 0)} /{' '}
+                        {formatCurrency(limit.monthlyLimit || 0)}
+                      </span>
                     </div>
                     <div className="h-2 bg-muted rounded-full overflow-hidden">
                       <div
                         className="h-full bg-primary rounded-full"
-                        style={{ width: `${limit.monthlyLimit ? ((limit.monthlyUsed || 0) / limit.monthlyLimit) * 100 : 0}%` }}
+                        style={{
+                          width: `${limit.monthlyLimit ? ((limit.monthlyUsed || 0) / limit.monthlyLimit) * 100 : 0}%`,
+                        }}
                       />
                     </div>
                   </div>
