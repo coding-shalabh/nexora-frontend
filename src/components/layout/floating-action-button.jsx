@@ -58,6 +58,7 @@ const hubItems = [
   { label: 'Marketing', href: '/marketing/campaigns', icon: Megaphone },
   { label: 'Service', href: '/tickets', icon: HeadphonesIcon },
   { label: 'Commerce', href: '/commerce/products', icon: ShoppingCart },
+  { label: 'HR', href: '/hr/employees', icon: Users },
   { label: 'Projects', href: '/projects', icon: FolderKanban },
   { label: 'Analytics', href: '/analytics/dashboards', icon: BarChart3 },
   { label: 'Automation', href: '/automation/workflows', icon: Workflow },

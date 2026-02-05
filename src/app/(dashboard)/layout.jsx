@@ -61,6 +61,9 @@ export default function DashboardLayout({ children }) {
     pathname.startsWith('/commerce') ||
     pathname.startsWith('/tickets') ||
     pathname.startsWith('/projects') ||
+    pathname.startsWith('/hr') ||
+    pathname.startsWith('/analytics') ||
+    pathname.startsWith('/automation') ||
     pathname.startsWith('/settings');
 
   return (

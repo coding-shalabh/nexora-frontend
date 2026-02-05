@@ -1,25 +1,38 @@
 'use client';
 
-import { PipelineSidebar } from '@/components/layout/sidebars';
-import { SidebarProvider } from '@/contexts/sidebar-context';
+import {
+  PipelineSidebar,
+  PipelineProvider,
+  PipelineHeader,
+  PipelineSubMenu,
+} from '@/components/layout/sidebars/pipeline-sidebar';
 
 export default function PipelineLayout({ children }) {
   return (
-    <SidebarProvider>
-      <div className="flex h-full">
-        {/* Hub Sidebar with lighter purple background */}
-        <aside
-          className="overflow-auto border-r border-indigo-700/30"
-          style={{
-            background: 'linear-gradient(to bottom, #292450, #352f6e)',
-          }}
-        >
-          <PipelineSidebar />
-        </aside>
-        <div className="flex-1 overflow-auto bg-white dark:bg-card rounded-tl-2xl shadow-xl">
-          <div className="p-6 max-w-[1600px] mx-auto">{children}</div>
+    <PipelineProvider>
+      <div className="flex h-full bg-background">
+        {/* Left: Core Menu Sidebar */}
+        <PipelineSidebar />
+
+        {/* Right: Header + SubMenu + Content */}
+        <div className="flex flex-col flex-1 h-full overflow-hidden bg-background">
+          {/* Header spanning full width (above both submenu and content) */}
+          <div className="shrink-0 p-2 pb-0">
+            <PipelineHeader />
+          </div>
+
+          {/* SubMenu + Content side by side */}
+          <div className="flex flex-1 gap-2 p-2 overflow-hidden">
+            {/* Sub-menu panel */}
+            <PipelineSubMenu />
+
+            {/* Content area */}
+            <main className="flex-1 overflow-auto bg-white dark:bg-card rounded-2xl shadow-sm border border-brand-100">
+              {children}
+            </main>
+          </div>
         </div>
       </div>
-    </SidebarProvider>
+    </PipelineProvider>
   );
 }

@@ -1,6 +1,12 @@
 export { InboxSidebar } from './inbox-sidebar';
 export { CRMSidebar, CRMProvider, CRMHeader, CRMSubMenu, useCRMContext } from './crm-sidebar';
-export { PipelineSidebar } from './pipeline-sidebar';
+export {
+  PipelineSidebar,
+  PipelineProvider,
+  PipelineHeader,
+  PipelineSubMenu,
+  usePipelineContext,
+} from './pipeline-sidebar';
 export {
   TicketsSidebar,
   TicketsProvider,
@@ -37,7 +43,13 @@ export {
   CommerceSubMenu,
   useCommerceContext,
 } from './commerce-sidebar';
-export { ProjectsSidebar } from './projects-sidebar';
+export {
+  ProjectsSidebar,
+  ProjectsProvider,
+  ProjectsHeader,
+  ProjectsSubMenu,
+  useProjectsContext,
+} from './projects-sidebar';
 export {
   AnalyticsSidebar,
   AnalyticsProvider,
@@ -45,4 +57,10 @@ export {
   AnalyticsSubMenu,
   useAnalyticsContext,
 } from './analytics-sidebar';
-export { AutomationSidebar } from './automation-sidebar';
+export {
+  AutomationSidebar,
+  AutomationProvider,
+  AutomationHeader,
+  AutomationSubMenu,
+  useAutomationContext,
+} from './automation-sidebar';
