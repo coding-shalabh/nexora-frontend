@@ -35,16 +35,9 @@ import {
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/auth-context';
+import { HubLayout } from '@/components/layout/hub-layout';
 
-// Animation variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
-};
-
+// Animation variants for inner content
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
@@ -376,18 +369,30 @@ export default function OrganizationPage() {
     setIsSaving(true);
 
     try {
-      // Save organization settings
-      await api.patch('/settings/organization', {
+      // Build payload - only include non-empty values for URL/email fields
+      // to avoid Zod validation errors
+      const payload = {
         name: organization.name,
-        website: organization.website,
-        email: organization.email,
         phone: organization.phone,
         address: organization.address,
         industry: organization.industry,
         size: organization.size,
         timezone: organization.timezone,
         currency: organization.currency,
-      });
+      };
+
+      // Only include email if it's a valid non-empty value
+      if (organization.email && organization.email.trim()) {
+        payload.email = organization.email.trim();
+      }
+
+      // Only include website if it's a valid non-empty value
+      if (organization.website && organization.website.trim()) {
+        payload.website = organization.website.trim();
+      }
+
+      // Save organization settings
+      await api.patch('/settings/organization', payload);
 
       // Refresh auth context to update any cached data
       await checkAuth(true);
@@ -411,39 +416,58 @@ export default function OrganizationPage() {
   // Show loading state
   if (isLoading) {
     return (
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-          <p className="text-gray-500">Loading organization data...</p>
+      <HubLayout
+        hubId="settings"
+        title="Organization Settings"
+        description="Manage your organization details, branding, and preferences"
+        showFixedMenu={false}
+      >
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
+            <p className="text-gray-500">Loading organization data...</p>
+          </div>
         </div>
-      </div>
+      </HubLayout>
     );
   }
 
   // Show error state
   if (error) {
     return (
-      <div className="flex-1 flex items-center justify-center p-6">
-        <div className="text-center">
-          <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-            <Building2 className="h-6 w-6 text-red-600" />
+      <HubLayout
+        hubId="settings"
+        title="Organization Settings"
+        description="Manage your organization details, branding, and preferences"
+        showFixedMenu={false}
+      >
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="text-center">
+            <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+              <Building2 className="h-6 w-6 text-red-600" />
+            </div>
+            <p className="text-gray-900 font-medium mb-1">Failed to load organization</p>
+            <p className="text-gray-500 text-sm">{error}</p>
           </div>
-          <p className="text-gray-900 font-medium mb-1">Failed to load organization</p>
-          <p className="text-gray-500 text-sm">{error}</p>
         </div>
-      </div>
+      </HubLayout>
     );
   }
 
   return (
-    <motion.div
-      className="flex-1 p-6 pb-24 space-y-6 overflow-auto"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
+    <HubLayout
+      hubId="settings"
+      title="Organization Settings"
+      description="Manage your organization details, branding, and preferences"
+      showFixedMenu={false}
     >
       {/* Organization Header Card */}
-      <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm">
+      <motion.div
+        variants={itemVariants}
+        initial="hidden"
+        animate="show"
+        className="bg-white rounded-2xl p-6 shadow-sm"
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-5">
             <div className="relative">
@@ -497,6 +521,8 @@ export default function OrganizationPage() {
       {/* Tabs */}
       <motion.div
         variants={itemVariants}
+        initial="hidden"
+        animate="show"
         className="bg-white rounded-2xl p-1.5 shadow-sm inline-flex"
       >
         {tabs.map((tab) => (
@@ -1082,6 +1108,6 @@ export default function OrganizationPage() {
           </div>
         </motion.div>
       )}
-    </motion.div>
+    </HubLayout>
   );
 }
