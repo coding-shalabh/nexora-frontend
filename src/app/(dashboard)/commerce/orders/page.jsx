@@ -51,6 +51,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useBilling, formatCurrency } from '@/hooks/use-billing';
 import { cn } from '@/lib/utils';
+import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 const statusConfig = {
   DRAFT: { label: 'Draft', icon: Clock, color: 'bg-gray-100 text-gray-700' },
@@ -97,6 +99,7 @@ export default function OrdersPage() {
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   const { invoices, loading, error, fetchInvoices, sendInvoice } = useBilling();
 
@@ -127,34 +130,10 @@ export default function OrdersPage() {
     const totalValue = invoices.reduce((sum, o) => sum + (parseFloat(o.totalAmount) || 0), 0);
 
     return [
-      {
-        label: 'Total Orders',
-        value: total,
-        icon: ShoppingCart,
-        bgColor: 'bg-blue-100',
-        textColor: 'text-blue-600',
-      },
-      {
-        label: 'Pending',
-        value: pending,
-        icon: Clock,
-        bgColor: 'bg-yellow-100',
-        textColor: 'text-yellow-600',
-      },
-      {
-        label: 'Completed',
-        value: completed,
-        icon: CheckCircle,
-        bgColor: 'bg-green-100',
-        textColor: 'text-green-600',
-      },
-      {
-        label: 'Total Value',
-        value: formatCurrency(totalValue, 'INR'),
-        icon: DollarSign,
-        bgColor: 'bg-purple-100',
-        textColor: 'text-purple-600',
-      },
+      createStat('Total Orders', total, ShoppingCart, 'blue'),
+      createStat('Pending', pending, Clock, 'amber'),
+      createStat('Completed', completed, CheckCircle, 'green'),
+      createStat('Total Value', formatCurrency(totalValue, 'INR'), DollarSign, 'purple'),
     ];
   }, [invoices]);
 
@@ -189,249 +168,353 @@ export default function OrdersPage() {
     }
   };
 
-  return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Orders</h1>
-          <p className="text-muted-foreground">Manage customer orders and fulfillment</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={handleRefresh}>
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" onClick={handleExport} className="gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-          <Link href="/commerce/invoices/new">
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Create Order
-            </Button>
-          </Link>
-        </div>
-      </div>
+  // FixedMenuPanel configuration
+  const fixedMenuConfig = {
+    primaryActions: [{ id: 'create', label: 'Create Order', icon: Plus, variant: 'default' }],
+    secondaryActions: [
+      { id: 'refresh', label: 'Refresh', icon: RefreshCw, variant: 'ghost' },
+      { id: 'export', label: 'Export', icon: Download, variant: 'ghost' },
+    ],
+    filters: {
+      quickFilters: [
+        { id: 'all', label: 'All Status' },
+        { id: 'DRAFT', label: 'Draft' },
+        { id: 'SENT', label: 'Pending' },
+        { id: 'PAID', label: 'Completed' },
+        { id: 'PARTIALLY_PAID', label: 'Partial' },
+        { id: 'OVERDUE', label: 'Overdue' },
+        { id: 'CANCELLED', label: 'Cancelled' },
+      ],
+    },
+  };
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className={cn('p-2 rounded-lg', stat.bgColor)}>
-                    <Icon className={cn('h-5 w-5', stat.textColor)} />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+  const handleAction = (actionId) => {
+    if (actionId === 'create') {
+      router.push('/commerce/invoices/new');
+    } else if (actionId === 'refresh') {
+      handleRefresh();
+    } else if (actionId === 'export') {
+      handleExport();
+    }
+  };
 
-      {/* Filters */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="flex-1 relative max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search orders by ID or customer..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="All Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="DRAFT">Draft</SelectItem>
-            <SelectItem value="SENT">Pending</SelectItem>
-            <SelectItem value="PAID">Completed</SelectItem>
-            <SelectItem value="PARTIALLY_PAID">Partial Payment</SelectItem>
-            <SelectItem value="OVERDUE">Overdue</SelectItem>
-            <SelectItem value="CANCELLED">Cancelled</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+  // Order card component for list
+  const OrderCard = ({ order }) => {
+    const status = statusConfig[order.status] || statusConfig.DRAFT;
+    const fulfillment = fulfillmentConfig.UNFULFILLED;
+    const StatusIcon = status.icon;
+    const FulfillmentIcon = fulfillment.icon;
 
-      {/* Orders Table */}
-      <Card>
-        {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        ) : error ? (
-          <div className="flex flex-col items-center justify-center py-12 gap-2">
-            <AlertCircle className="h-12 w-12 text-destructive" />
-            <p className="text-muted-foreground">Failed to load orders</p>
-            <Button variant="outline" onClick={() => fetchInvoices({ limit: 100 })}>
-              Try Again
-            </Button>
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order ID</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Fulfillment</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredOrders.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12">
-                    <div className="flex flex-col items-center gap-2">
-                      <ShoppingCart className="h-12 w-12 text-muted-foreground" />
-                      <p className="text-lg font-medium">No orders found</p>
-                      <p className="text-muted-foreground mb-4">
-                        {searchQuery || statusFilter !== 'all'
-                          ? 'Try adjusting your filters'
-                          : 'Create your first order to get started'}
-                      </p>
-                      {!searchQuery && statusFilter === 'all' && (
-                        <Link href="/commerce/invoices/new">
-                          <Button className="gap-2">
-                            <Plus className="h-4 w-4" />
-                            Create Order
-                          </Button>
-                        </Link>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredOrders.map((order) => {
-                  const status = statusConfig[order.status] || statusConfig.DRAFT;
-                  const fulfillment = fulfillmentConfig.UNFULFILLED; // Default since we don't have fulfillment tracking yet
-                  const StatusIcon = status.icon;
-                  const FulfillmentIcon = fulfillment.icon;
-
-                  return (
-                    <TableRow
-                      key={order.id}
-                      className="cursor-pointer hover:bg-muted/50"
-                      onClick={() => router.push(`/commerce/invoices/${order.id}`)}
-                    >
-                      <TableCell>
-                        <Badge variant="outline" className="font-mono">
-                          {order.invoiceNumber || `ORD-${order.id.slice(0, 8)}`}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">
-                            {order.contact?.firstName} {order.contact?.lastName}
-                          </p>
-                          {order.contact?.company?.name && (
-                            <p className="text-sm text-muted-foreground">
-                              {order.contact.company.name}
-                            </p>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p>{formatDate(order.issueDate || order.createdAt)}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {formatTimeAgo(order.createdAt)}
-                          </p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <p className="font-bold">
-                          {formatCurrency(
-                            parseFloat(order.totalAmount) || 0,
-                            order.currency || 'INR'
-                          )}
-                        </p>
-                        {order.lines && order.lines.length > 0 && (
-                          <p className="text-xs text-muted-foreground">
-                            {order.lines.length} item{order.lines.length !== 1 ? 's' : ''}
-                          </p>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={cn('capitalize gap-1', status.color)}>
-                          <StatusIcon className="h-3 w-3" />
-                          {status.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={cn('capitalize gap-1', fulfillment.color)}>
-                          <FulfillmentIcon className="h-3 w-3" />
-                          {fulfillment.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/commerce/invoices/${order.id}`);
-                              }}
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/commerce/invoices/${order.id}/edit`);
-                              }}
-                            >
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit Order
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
-                              <FileText className="h-4 w-4 mr-2" />
-                              Download Invoice
-                            </DropdownMenuItem>
-                            {order.status === 'DRAFT' && (
-                              <>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSendOrder(order);
-                                  }}
-                                  className="text-blue-600"
-                                >
-                                  <Truck className="h-4 w-4 mr-2" />
-                                  Send to Customer
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
+    return (
+      <Card
+        className={cn(
+          'p-4 hover:shadow-md transition-shadow cursor-pointer',
+          selectedOrder?.id === order.id && 'ring-2 ring-primary'
         )}
+        onClick={() => setSelectedOrder(order)}
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge variant="outline" className="font-mono">
+                {order.invoiceNumber || `ORD-${order.id.slice(0, 8)}`}
+              </Badge>
+              <Badge className={cn('capitalize gap-1', status.color)}>
+                <StatusIcon className="h-3 w-3" />
+                {status.label}
+              </Badge>
+            </div>
+            <div>
+              <p className="font-medium">
+                {order.contact?.firstName} {order.contact?.lastName}
+              </p>
+              {order.contact?.company?.name && (
+                <p className="text-sm text-muted-foreground">{order.contact.company.name}</p>
+              )}
+            </div>
+            <div className="flex items-center gap-4 mt-2 text-sm">
+              <p className="font-bold">
+                {formatCurrency(parseFloat(order.totalAmount) || 0, order.currency || 'INR')}
+              </p>
+              {order.lines && order.lines.length > 0 && (
+                <p className="text-muted-foreground">
+                  {order.lines.length} item{order.lines.length !== 1 ? 's' : ''}
+                </p>
+              )}
+              <p className="text-muted-foreground ml-auto">
+                {formatTimeAgo(order.issueDate || order.createdAt)}
+              </p>
+            </div>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <Button variant="ghost" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/commerce/invoices/${order.id}`);
+                }}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                View Details
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/commerce/invoices/${order.id}/edit`);
+                }}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Order
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                <FileText className="h-4 w-4 mr-2" />
+                Download Invoice
+              </DropdownMenuItem>
+              {order.status === 'DRAFT' && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSendOrder(order);
+                    }}
+                    className="text-blue-600"
+                  >
+                    <Truck className="h-4 w-4 mr-2" />
+                    Send to Customer
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </Card>
-    </div>
+    );
+  };
+
+  // Order detail component
+  const OrderDetail = ({ order }) => {
+    if (!order) {
+      return (
+        <div className="flex items-center justify-center h-full">
+          <div className="text-center">
+            <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">No order selected</h3>
+            <p className="text-muted-foreground">Select an order from the list to view details</p>
+          </div>
+        </div>
+      );
+    }
+
+    const status = statusConfig[order.status] || statusConfig.DRAFT;
+    const fulfillment = fulfillmentConfig.UNFULFILLED;
+    const StatusIcon = status.icon;
+    const FulfillmentIcon = fulfillment.icon;
+
+    return (
+      <div className="h-full overflow-y-auto p-6">
+        {/* Order Header */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="font-mono text-muted-foreground text-sm">
+              {order.invoiceNumber || `ORD-${order.id.slice(0, 8)}`}
+            </span>
+          </div>
+          <div className="flex items-center gap-4 mb-4">
+            <Badge className={cn('capitalize gap-1', status.color)}>
+              <StatusIcon className="h-3 w-3" />
+              {status.label}
+            </Badge>
+            <Badge className={cn('capitalize gap-1', fulfillment.color)}>
+              <FulfillmentIcon className="h-3 w-3" />
+              {fulfillment.label}
+            </Badge>
+          </div>
+        </div>
+
+        {/* Customer Details */}
+        <div className="mb-6">
+          <h4 className="text-sm font-medium text-muted-foreground mb-3">Customer</h4>
+          <div className="space-y-2">
+            <p className="font-medium">
+              {order.contact?.firstName} {order.contact?.lastName}
+            </p>
+            {order.contact?.email && (
+              <p className="text-sm text-muted-foreground">{order.contact.email}</p>
+            )}
+            {order.contact?.company?.name && (
+              <p className="text-sm text-muted-foreground">{order.contact.company.name}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Order Items */}
+        {order.lines && order.lines.length > 0 && (
+          <div className="mb-6">
+            <h4 className="text-sm font-medium text-muted-foreground mb-3">Items</h4>
+            <div className="space-y-2">
+              {order.lines.map((line, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between py-2 border-b last:border-0"
+                >
+                  <div>
+                    <p className="font-medium">{line.description || line.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Qty: {line.quantity} ×{' '}
+                      {formatCurrency(parseFloat(line.unitPrice) || 0, order.currency || 'INR')}
+                    </p>
+                  </div>
+                  <p className="font-medium">
+                    {formatCurrency(
+                      (parseFloat(line.quantity) || 0) * (parseFloat(line.unitPrice) || 0),
+                      order.currency || 'INR'
+                    )}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Order Summary */}
+        <div className="mb-6">
+          <h4 className="text-sm font-medium text-muted-foreground mb-3">Summary</h4>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between py-2">
+              <span className="text-sm text-muted-foreground">Subtotal</span>
+              <span className="font-medium">
+                {formatCurrency(parseFloat(order.subtotal) || 0, order.currency || 'INR')}
+              </span>
+            </div>
+            {order.taxAmount && parseFloat(order.taxAmount) > 0 && (
+              <div className="flex items-center justify-between py-2">
+                <span className="text-sm text-muted-foreground">Tax</span>
+                <span className="font-medium">
+                  {formatCurrency(parseFloat(order.taxAmount) || 0, order.currency || 'INR')}
+                </span>
+              </div>
+            )}
+            <div className="flex items-center justify-between py-2 border-t pt-2">
+              <span className="font-bold">Total</span>
+              <span className="font-bold text-lg">
+                {formatCurrency(parseFloat(order.totalAmount) || 0, order.currency || 'INR')}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Order Details */}
+        <div className="mb-6">
+          <h4 className="text-sm font-medium text-muted-foreground mb-3">Details</h4>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between py-2 border-b">
+              <span className="text-sm text-muted-foreground">Issue Date</span>
+              <span>{formatDate(order.issueDate || order.createdAt)}</span>
+            </div>
+            {order.dueDate && (
+              <div className="flex items-center justify-between py-2 border-b">
+                <span className="text-sm text-muted-foreground">Due Date</span>
+                <span>{formatDate(order.dueDate)}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between py-2 border-b">
+              <span className="text-sm text-muted-foreground">Created</span>
+              <span>{formatTimeAgo(order.createdAt)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3">
+          <Button className="flex-1" onClick={() => router.push(`/commerce/invoices/${order.id}`)}>
+            <Eye className="h-4 w-4 mr-2" />
+            View Full Invoice
+          </Button>
+          <Button
+            variant="outline"
+            className="flex-1"
+            onClick={() => router.push(`/commerce/invoices/${order.id}/edit`)}
+          >
+            <Edit className="h-4 w-4 mr-2" />
+            Edit
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <HubLayout
+      hubId="commerce"
+      title="Orders"
+      description="Manage customer orders and fulfillment"
+      stats={stats}
+      showFixedMenu={true}
+      fixedMenuFilters={
+        <FixedMenuPanel
+          config={fixedMenuConfig}
+          activeFilter={statusFilter}
+          onFilterChange={setStatusFilter}
+          onAction={handleAction}
+          className="p-4"
+        />
+      }
+      fixedMenuList={
+        <div className="space-y-2 p-4">
+          {/* Search Bar */}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search orders by ID or customer..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* Orders List */}
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : error ? (
+            <div className="flex flex-col items-center justify-center py-12 gap-2">
+              <AlertCircle className="h-12 w-12 text-destructive" />
+              <p className="text-muted-foreground">Failed to load orders</p>
+              <Button variant="outline" onClick={() => fetchInvoices({ limit: 100 })}>
+                Try Again
+              </Button>
+            </div>
+          ) : filteredOrders.length === 0 ? (
+            <div className="text-center py-12">
+              <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No orders found</h3>
+              <p className="text-muted-foreground mb-4">
+                {searchQuery || statusFilter !== 'all'
+                  ? 'Try adjusting your filters'
+                  : 'Create your first order to get started'}
+              </p>
+              {!searchQuery && statusFilter === 'all' && (
+                <Button onClick={() => router.push('/commerce/invoices/new')}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Order
+                </Button>
+              )}
+            </div>
+          ) : (
+            filteredOrders.map((order) => <OrderCard key={order.id} order={order} />)
+          )}
+        </div>
+      }
+    >
+      {/* Order Detail View */}
+      <OrderDetail order={selectedOrder} />
+    </HubLayout>
   );
 }

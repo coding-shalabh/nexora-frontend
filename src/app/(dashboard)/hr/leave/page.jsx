@@ -1,21 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { CalendarDays, Plus, Search, Check, X, Clock, Calendar, Download } from 'lucide-react';
+import {
+  CalendarDays,
+  Plus,
+  Search,
+  Check,
+  X,
+  Clock,
+  Calendar,
+  AlertCircle,
+  Download,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 const leaveRequests = [
   {
@@ -86,67 +89,196 @@ const leaveRequests = [
   },
 ];
 
-const stats = [
-  { label: 'Pending Requests', value: '12', color: 'bg-yellow-100 text-yellow-700' },
-  { label: 'Approved (Month)', value: '45', color: 'bg-green-100 text-green-700' },
-  { label: 'On Leave Today', value: '8', color: 'bg-blue-100 text-blue-700' },
-  { label: 'Rejected (Month)', value: '3', color: 'bg-red-100 text-red-700' },
-];
+const statusConfig = {
+  pending: { label: 'Pending', color: 'bg-yellow-100 text-yellow-700' },
+  approved: { label: 'Approved', color: 'bg-green-100 text-green-700' },
+  rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700' },
+};
 
 const getStatusBadge = (status) => {
-  const styles = {
-    pending: 'bg-yellow-100 text-yellow-700',
-    approved: 'bg-green-100 text-green-700',
-    rejected: 'bg-red-100 text-red-700',
-  };
-  return (
-    <Badge className={styles[status]}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>
-  );
+  const config = statusConfig[status];
+  return <Badge className={config.color}>{config.label}</Badge>;
 };
 
 export default function LeavePage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedRequest, setSelectedRequest] = useState(null);
+
+  // Calculate stats
+  const pendingCount = leaveRequests.filter((r) => r.status === 'pending').length;
+  const approvedCount = leaveRequests.filter((r) => r.status === 'approved').length;
+  const onLeaveToday = 8; // This would be calculated based on current date
+  const rejectedCount = leaveRequests.filter((r) => r.status === 'rejected').length;
+
+  // Filter requests
+  const filteredRequests = leaveRequests.filter((request) => {
+    const matchesSearch = request.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || request.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  // Stats for HubLayout
+  const stats = [
+    createStat('Pending', pendingCount, Clock, 'amber'),
+    createStat('Approved', approvedCount, Check, 'green'),
+    createStat('On Leave', onLeaveToday, CalendarDays, 'blue'),
+    createStat('Rejected', rejectedCount, X, 'red'),
+  ];
+
+  // FixedMenuPanel configuration - only filters
+  const fixedMenuConfig = {
+    filters: {
+      quickFilters: [
+        { id: 'all', label: 'All' },
+        { id: 'pending', label: 'Pending' },
+        { id: 'approved', label: 'Approved' },
+        { id: 'rejected', label: 'Rejected' },
+      ],
+    },
+  };
+
+  const handleAction = (actionId) => {
+    console.log('Action:', actionId);
+  };
+
+  // Actions for the stats bar (top bar)
+  const topBarActions = (
+    <>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 gap-1.5"
+        onClick={() => console.log('Calendar')}
+      >
+        <Calendar className="h-3.5 w-3.5" />
+        <span className="text-xs">Calendar</span>
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-7 gap-1.5"
+        onClick={() => console.log('Export')}
+      >
+        <Download className="h-3.5 w-3.5" />
+        <span className="text-xs">Export</span>
+      </Button>
+      <Button size="sm" className="h-7 gap-1.5" onClick={() => console.log('Apply Leave')}>
+        <Plus className="h-3.5 w-3.5" />
+        <span className="text-xs">Apply Leave</span>
+      </Button>
+    </>
+  );
+
+  const handleApprove = (request) => {
+    console.log('Approve:', request);
+    // Handle approve logic
+  };
+
+  const handleReject = (request) => {
+    console.log('Reject:', request);
+    // Handle reject logic
+  };
+
+  const handleView = (request) => {
+    setSelectedRequest(request);
+  };
+
+  // Empty state
+  const EmptyState = () => (
+    <div className="p-12 text-center">
+      <AlertCircle className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+      <h3 className="text-lg font-medium mb-2">No leave requests found</h3>
+      <p className="text-muted-foreground mb-4">
+        {searchQuery || statusFilter !== 'all'
+          ? 'Try adjusting your filters'
+          : 'No leave requests to display'}
+      </p>
+    </div>
+  );
+
+  // Leave Request Card
+  const LeaveRequestCard = ({ request }) => {
+    const config = statusConfig[request.status];
+    return (
+      <Card
+        className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+        onClick={() => handleView(request)}
+      >
+        <div className="flex items-start gap-4">
+          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+            <span className="text-sm font-medium text-primary">{request.avatar}</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-4 mb-2">
+              <h3 className="font-medium">{request.name}</h3>
+              <Badge className={config.color}>{config.label}</Badge>
+            </div>
+            <p className="text-sm text-muted-foreground mb-2">{request.type}</p>
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {request.from} to {request.to}
+              </span>
+              <span>{request.days} days</span>
+            </div>
+            {request.status === 'pending' && (
+              <div className="flex items-center gap-2 mt-3">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-green-600 hover:text-green-700"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleApprove(request);
+                  }}
+                >
+                  <Check className="h-4 w-4 mr-1" />
+                  Approve
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-red-600 hover:text-red-700"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleReject(request);
+                  }}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Reject
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </Card>
+    );
+  };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Leave Management</h1>
-          <p className="text-muted-foreground">Manage employee leave requests</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
-            <Calendar className="h-4 w-4" />
-            Calendar View
-          </Button>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Apply Leave
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <Badge className={stat.color}>{stat.label}</Badge>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      <Card>
-        <CardContent className="p-4">
-          <div className="relative">
+    <HubLayout
+      hubId="hr"
+      showTopBar={false}
+      showSidebar={false}
+      title="Leave Management"
+      description="Manage employee leave requests"
+      stats={stats}
+      actions={topBarActions}
+      showFixedMenu={true}
+      fixedMenuFilters={
+        <FixedMenuPanel
+          config={fixedMenuConfig}
+          activeFilter={statusFilter}
+          onFilterChange={setStatusFilter}
+          onAction={handleAction}
+          className="p-4"
+        />
+      }
+      fixedMenuList={
+        <div className="space-y-2 p-4">
+          {/* Search Bar */}
+          <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search leave requests..."
@@ -155,65 +287,95 @@ export default function LeavePage() {
               className="pl-10"
             />
           </div>
-        </CardContent>
-      </Card>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <CalendarDays className="h-4 w-4" />
-            Leave Requests
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>From</TableHead>
-                <TableHead>To</TableHead>
-                <TableHead>Days</TableHead>
-                <TableHead>Reason</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {leaveRequests.map((request) => (
-                <TableRow key={request.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-xs font-medium text-primary">{request.avatar}</span>
-                      </div>
-                      <span className="font-medium">{request.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{request.type}</TableCell>
-                  <TableCell>{request.from}</TableCell>
-                  <TableCell>{request.to}</TableCell>
-                  <TableCell>{request.days}</TableCell>
-                  <TableCell className="max-w-[150px] truncate">{request.reason}</TableCell>
-                  <TableCell>{getStatusBadge(request.status)}</TableCell>
-                  <TableCell>
-                    {request.status === 'pending' && (
-                      <div className="flex items-center gap-2">
-                        <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600">
-                          <Check className="h-4 w-4" />
-                        </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600">
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+          {/* Leave Requests List */}
+          {filteredRequests.length === 0 ? (
+            <EmptyState />
+          ) : (
+            filteredRequests.map((request) => (
+              <LeaveRequestCard key={request.id} request={request} />
+            ))
+          )}
+        </div>
+      }
+    >
+      {/* Detail View in Content Area */}
+      {selectedRequest ? (
+        <div className="h-full overflow-y-auto p-6">
+          {/* Request Header */}
+          <div className="mb-6">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <span className="text-xl font-medium text-primary">{selectedRequest.avatar}</span>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">{selectedRequest.name}</h2>
+                <p className="text-muted-foreground">{selectedRequest.type}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <Badge className={statusConfig[selectedRequest.status].color}>
+                {statusConfig[selectedRequest.status].label}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Request Details */}
+          <div className="space-y-4 mb-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">From Date</p>
+                <p className="font-medium">{selectedRequest.from}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">To Date</p>
+                <p className="font-medium">{selectedRequest.to}</p>
+              </div>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Duration</p>
+              <p className="font-medium">{selectedRequest.days} days</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Leave Type</p>
+              <p className="font-medium">{selectedRequest.type}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Reason</p>
+              <p className="bg-muted/50 p-4 rounded-lg">{selectedRequest.reason}</p>
+            </div>
+          </div>
+
+          {/* Actions */}
+          {selectedRequest.status === 'pending' && (
+            <div className="flex gap-3">
+              <Button
+                className="flex-1 bg-green-600 hover:bg-green-700"
+                onClick={() => handleApprove(selectedRequest)}
+              >
+                <Check className="h-4 w-4 mr-2" />
+                Approve
+              </Button>
+              <Button
+                variant="outline"
+                className="flex-1 text-red-600 hover:text-red-700 border-red-200"
+                onClick={() => handleReject(selectedRequest)}
+              >
+                <X className="h-4 w-4 mr-2" />
+                Reject
+              </Button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="h-full flex items-center justify-center">
+          <div className="text-center">
+            <CalendarDays className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-medium mb-2">No Request Selected</h3>
+            <p className="text-muted-foreground">Select a leave request to view details</p>
+          </div>
+        </div>
+      )}
+    </HubLayout>
   );
 }

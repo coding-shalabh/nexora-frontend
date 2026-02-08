@@ -8,11 +8,9 @@ import {
   Home,
   MessageSquare,
   Users,
-  Kanban,
   TrendingUp,
   Megaphone,
   HeadphonesIcon,
-  Ticket,
   ShoppingCart,
   FolderKanban,
   Zap,
@@ -22,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+// NOTE: Pipeline merged into Sales, Tickets merged into Service
 const coreHubs = [
   { title: 'Home', href: '/dashboard', icon: Home, color: 'from-violet-500 to-purple-600' },
   {
@@ -32,29 +31,33 @@ const coreHubs = [
     badge: '3',
   },
   { title: 'CRM', href: '/crm', icon: Users, color: 'from-blue-500 to-cyan-500' },
-  { title: 'Pipeline', href: '/pipeline', icon: Kanban, color: 'from-emerald-500 to-green-600' },
-  { title: 'Sales', href: '/sales', icon: TrendingUp, color: 'from-blue-500 to-indigo-600' },
+  { title: 'Sales', href: '/sales', icon: TrendingUp, color: 'from-emerald-500 to-teal-500' },
   { title: 'Marketing', href: '/marketing', icon: Megaphone, color: 'from-pink-500 to-rose-600' },
-  { title: 'Service', href: '/service', icon: HeadphonesIcon, color: 'from-teal-500 to-cyan-600' },
-  { title: 'Tickets', href: '/tickets', icon: Ticket, color: 'from-orange-500 to-red-600' },
+  {
+    title: 'Service',
+    href: '/service',
+    icon: HeadphonesIcon,
+    color: 'from-orange-500 to-amber-500',
+  },
   {
     title: 'Commerce',
     href: '/commerce',
     icon: ShoppingCart,
-    color: 'from-emerald-500 to-green-600',
+    color: 'from-cyan-500 to-blue-500',
   },
   {
     title: 'Projects',
     href: '/projects',
     icon: FolderKanban,
-    color: 'from-amber-500 to-orange-600',
+    color: 'from-violet-500 to-purple-500',
   },
-  { title: 'Automation', href: '/automation', icon: Zap, color: 'from-fuchsia-500 to-pink-600' },
+  { title: 'HR', href: '/hr', icon: Users, color: 'from-blue-500 to-indigo-500' },
+  { title: 'Automation', href: '/automation', icon: Zap, color: 'from-yellow-500 to-orange-500' },
   {
     title: 'Analytics',
     href: '/analytics',
     icon: BarChart3,
-    color: 'from-purple-500 to-indigo-600',
+    color: 'from-fuchsia-500 to-pink-500',
   },
 ];
 
@@ -82,11 +85,13 @@ export function IconRail() {
             href={
               item.href === '/crm'
                 ? '/crm/contacts'
-                : item.href === '/pipeline'
-                  ? '/pipeline/deals'
-                  : item.href === '/settings'
-                    ? '/settings/organization'
-                    : item.href
+                : item.href === '/sales'
+                  ? '/sales/deals'
+                  : item.href === '/service'
+                    ? '/service/tickets'
+                    : item.href === '/settings'
+                      ? '/settings/organization'
+                      : item.href
             }
           >
             <motion.div

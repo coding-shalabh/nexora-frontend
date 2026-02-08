@@ -70,6 +70,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 // Company Types
 const COMPANY_TYPES = [
@@ -1094,79 +1095,83 @@ export default function CompaniesPage() {
     createStat('Partners', stats.partners, Building2, 'purple'),
   ];
 
-  // Action buttons for the top bar
-  const actionButtons =
-    selectedIds.size > 0 ? (
-      <>
-        <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={clearSelection}>
-          <X className="h-4 w-4" />
-        </Button>
-        <span className="text-sm font-medium mr-2">{selectedIds.size} selected</span>
-        <Button size="sm" variant="outline" className="h-8" onClick={handleBulkExport}>
-          <FileDown className="h-4 w-4 mr-1" />
-          Export
-        </Button>
-        <Button size="sm" variant="destructive" className="h-8" onClick={handleBulkDelete}>
-          <Trash2 className="h-4 w-4 mr-1" />
-          Delete
-        </Button>
-      </>
-    ) : (
-      <>
-        <Button
-          size="sm"
-          variant={selectionMode ? 'secondary' : 'outline'}
-          className="h-8 w-8 p-0"
-          onClick={toggleSelectionMode}
-          title={selectionMode ? 'Exit selection mode' : 'Enter selection mode'}
-        >
-          {selectionMode ? (
-            <MinusSquare className="h-4 w-4" />
-          ) : (
-            <CheckSquare className="h-4 w-4" />
-          )}
-        </Button>
-        <Button size="sm" variant="outline" className="h-8 w-8 p-0" title="Import">
-          <Upload className="h-4 w-4" />
-        </Button>
-        <Button size="sm" onClick={openCreate} className="h-8 w-8 p-0" title="Add new company">
-          <Plus className="h-4 w-4" />
-        </Button>
-      </>
-    );
+  // FixedMenuPanel configuration
+  const fixedMenuConfig = {
+    primaryActions: [{ id: 'create', label: 'Add Company', icon: Plus, variant: 'default' }],
+    secondaryActions: [
+      { id: 'import', label: 'Import', icon: Upload, variant: 'ghost' },
+      {
+        id: 'selection',
+        label: selectionMode ? 'Exit Selection' : 'Select',
+        icon: selectionMode ? MinusSquare : CheckSquare,
+        variant: selectionMode ? 'secondary' : 'ghost',
+      },
+    ],
+    filters: {
+      quickFilters: [
+        { id: 'all', label: 'All' },
+        { id: 'CUSTOMER', label: 'Customers' },
+        { id: 'PROSPECT', label: 'Prospects' },
+        { id: 'PARTNER', label: 'Partners' },
+      ],
+    },
+  };
 
-  // Fixed menu header
-  const fixedMenuHeaderContent = (
-    <div className="flex items-center justify-between">
-      <div>
-        <h2 className="text-base font-semibold text-foreground">Companies</h2>
-        <p className="text-xs text-muted-foreground mt-1">{meta.total} companies</p>
+  // Handle FixedMenuPanel actions
+  const handleMenuAction = (actionId) => {
+    switch (actionId) {
+      case 'create':
+        openCreate();
+        break;
+      case 'import':
+        // TODO: Open import modal
+        toast({ title: 'Import', description: 'Import functionality coming soon' });
+        break;
+      case 'selection':
+        toggleSelectionMode();
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Bulk actions configuration
+  const bulkActions = [
+    { id: 'export', label: 'Export', icon: FileDown, variant: 'outline' },
+    { id: 'delete', label: 'Delete', icon: Trash2, variant: 'destructive' },
+  ];
+
+  const handleBulkAction = (actionId) => {
+    switch (actionId) {
+      case 'export':
+        handleBulkExport();
+        break;
+      case 'delete':
+        handleBulkDelete();
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Fixed menu list
+  const fixedMenuListContent = (
+    <div className="py-2">
+      {/* Search Bar */}
+      <div className="px-4 mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search companies..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
       </div>
-    </div>
-  );
 
-  // Fixed menu filters
-  const fixedMenuFiltersContent = (
-    <>
-      {/* Type Filter Tabs */}
-      <div className="px-5 py-3">
-        <Tabs value={filterType} onValueChange={setFilterType}>
-          <TabsList className="w-full h-9 bg-slate-100 p-1">
-            <TabsTrigger value="all" className="flex-1 text-xs h-7 rounded-md">
-              All
-            </TabsTrigger>
-            <TabsTrigger value="CUSTOMER" className="flex-1 text-xs h-7 rounded-md">
-              Customers
-            </TabsTrigger>
-            <TabsTrigger value="PROSPECT" className="flex-1 text-xs h-7 rounded-md">
-              Prospects
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Industry Filter + Sort */}
-      <div className="px-5 py-3 border-t border-gray-100 flex gap-2">
+      {/* Industry & Sort Filters */}
+      <div className="px-4 mb-4 flex gap-2">
         <Select value={filterIndustry} onValueChange={setFilterIndustry}>
           <SelectTrigger className="h-8 text-xs flex-1">
             <Factory className="h-3 w-3 mr-1" />
@@ -1201,12 +1206,7 @@ export default function CompaniesPage() {
           </SelectContent>
         </Select>
       </div>
-    </>
-  );
 
-  // Fixed menu list
-  const fixedMenuListContent = (
-    <div className="py-2">
       {isLoading ? (
         <div className="px-4 space-y-3">
           {[1, 2, 3, 4].map((i) => (
@@ -1386,15 +1386,24 @@ export default function CompaniesPage() {
   return (
     <HubLayout
       hubId="crm"
+      showTopBar={false}
+      showSidebar={false}
       title="Companies"
       description="Manage your company accounts"
       stats={layoutStats}
-      searchValue={searchQuery}
-      onSearchChange={setSearchQuery}
-      searchPlaceholder="Search companies..."
-      actions={actionButtons}
-      fixedMenuHeader={fixedMenuHeaderContent}
-      fixedMenuFilters={fixedMenuFiltersContent}
+      showFixedMenu={true}
+      fixedMenuFilters={
+        <FixedMenuPanel
+          config={fixedMenuConfig}
+          activeFilter={filterType}
+          onFilterChange={setFilterType}
+          onAction={handleMenuAction}
+          selectedCount={selectedIds.size}
+          bulkActions={bulkActions}
+          onBulkAction={handleBulkAction}
+          className="p-4"
+        />
+      }
       fixedMenuList={fixedMenuListContent}
       fixedMenuFooter={fixedMenuFooterContent}
     >

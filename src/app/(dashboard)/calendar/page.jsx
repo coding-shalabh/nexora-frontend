@@ -50,6 +50,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useCalendarEvents, useCreateCalendarEvent, useDeleteCalendarEvent } from '@/hooks';
 import { useToast } from '@/hooks/use-toast';
+import { HubLayout, createStat } from '@/components/layout/hub-layout';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
@@ -133,6 +134,29 @@ export default function CalendarPage() {
       attendees: event.attendees,
     }));
   }, [eventsData]);
+
+  // Calculate stats
+  const stats = useMemo(() => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const todayEvents = events.filter((e) => {
+      const eventDate = new Date(e.start.getFullYear(), e.start.getMonth(), e.start.getDate());
+      return eventDate.getTime() === today.getTime();
+    });
+    const upcomingEvents = events.filter((e) => e.start > now);
+
+    return [
+      createStat('Total Events', events.length, CalendarIcon, 'primary'),
+      createStat('Today', todayEvents.length, Clock, 'blue'),
+      createStat('Upcoming', upcomingEvents.length, CalendarIcon, 'green'),
+      createStat(
+        'Connected',
+        (googleConnected ? 1 : 0) + (outlookConnected ? 1 : 0),
+        Link2,
+        'purple'
+      ),
+    ];
+  }, [events, googleConnected, outlookConnected]);
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear();
@@ -293,167 +317,171 @@ export default function CalendarPage() {
   const days = getDaysInMonth(currentDate);
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Calendar</h1>
-          <p className="text-muted-foreground">Manage your schedule, meetings, and appointments</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setShowConnectModal(true)}>
-            <Link2 className="h-4 w-4 mr-2" />
-            Connect Calendar
-          </Button>
-          <Button
-            onClick={() => {
-              setSelectedEvent(null);
-              setShowEventModal(true);
-            }}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New Event
-          </Button>
-        </div>
-      </div>
-
-      {/* Calendar Header */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1">
-                <Button variant="outline" size="icon" onClick={() => navigateMonth(-1)}>
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button variant="outline" size="icon" onClick={() => navigateMonth(1)}>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-              <h2 className="text-xl font-semibold">
-                {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
-              </h2>
-              <Button variant="outline" size="sm" onClick={goToToday}>
-                Today
-              </Button>
-            </div>
-            <div className="flex items-center gap-2">
-              <Select value={view} onValueChange={setView}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="month">Month</SelectItem>
-                  <SelectItem value="week">Week</SelectItem>
-                  <SelectItem value="day">Day</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size="icon">
-                <Filter className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon">
-                <RefreshCw className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Calendar Grid */}
-      <Card>
-        <CardContent className="p-0">
-          {/* Day Headers */}
-          <div className="grid grid-cols-7 border-b">
-            {DAYS.map((day) => (
-              <div
-                key={day}
-                className="p-3 text-center text-sm font-medium text-muted-foreground border-r last:border-r-0"
-              >
-                {day}
-              </div>
-            ))}
-          </div>
-
-          {/* Calendar Days */}
-          <div className="grid grid-cols-7">
-            {days.map((day, index) => {
-              const dayEvents = getEventsForDate(day.date);
-              return (
-                <div
-                  key={index}
-                  className={cn(
-                    'min-h-[120px] p-2 border-r border-b last:border-r-0 cursor-pointer hover:bg-muted/50 transition-colors',
-                    !day.isCurrentMonth && 'bg-muted/30 text-muted-foreground',
-                    isToday(day.date) && 'bg-primary/5'
-                  )}
-                  onClick={() => handleDateClick(day.date)}
-                >
-                  <div
-                    className={cn(
-                      'text-sm font-medium mb-1',
-                      isToday(day.date) &&
-                        'bg-primary text-primary-foreground w-7 h-7 rounded-full flex items-center justify-center'
-                    )}
-                  >
-                    {day.date.getDate()}
+    <>
+      <HubLayout
+        hubId="productivity"
+        title="Calendar"
+        description="Manage your schedule, meetings, and appointments"
+        stats={stats}
+        showFixedMenu={false}
+        actions={
+          <>
+            <Button variant="outline" onClick={() => setShowConnectModal(true)}>
+              <Link2 className="h-4 w-4 mr-2" />
+              Connect Calendar
+            </Button>
+            <Button
+              onClick={() => {
+                setSelectedEvent(null);
+                setShowEventModal(true);
+              }}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Event
+            </Button>
+          </>
+        }
+      >
+        <div className="h-full overflow-y-auto p-6 space-y-6">
+          {/* Calendar Header */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-1">
+                    <Button variant="outline" size="icon" onClick={() => navigateMonth(-1)}>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button variant="outline" size="icon" onClick={() => navigateMonth(1)}>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <div className="space-y-1">
-                    {dayEvents.slice(0, 3).map((event) => (
-                      <div
-                        key={event.id}
-                        className={cn(
-                          'text-xs p-1 rounded truncate text-white cursor-pointer hover:opacity-80',
-                          eventTypes[event.type]?.color || 'bg-gray-500'
-                        )}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEventClick(event);
-                        }}
-                      >
-                        {event.title}
-                      </div>
-                    ))}
-                    {dayEvents.length > 3 && (
-                      <div className="text-xs text-muted-foreground">
-                        +{dayEvents.length - 3} more
-                      </div>
-                    )}
-                  </div>
+                  <h2 className="text-xl font-semibold">
+                    {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
+                  </h2>
+                  <Button variant="outline" size="sm" onClick={goToToday}>
+                    Today
+                  </Button>
                 </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
+                <div className="flex items-center gap-2">
+                  <Select value={view} onValueChange={setView}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="month">Month</SelectItem>
+                      <SelectItem value="week">Week</SelectItem>
+                      <SelectItem value="day">Day</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Button variant="outline" size="icon">
+                    <Filter className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="icon">
+                    <RefreshCw className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-      {/* Connected Calendars Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Connected Calendars</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <div
-              className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-lg',
-                googleConnected ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
-              )}
-            >
-              {googleConnected ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
-              <span className="text-sm font-medium">Google Calendar</span>
-            </div>
-            <div
-              className={cn(
-                'flex items-center gap-2 px-3 py-2 rounded-lg',
-                outlookConnected ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
-              )}
-            >
-              {outlookConnected ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
-              <span className="text-sm font-medium">Outlook Calendar</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          {/* Calendar Grid */}
+          <Card>
+            <CardContent className="p-0">
+              {/* Day Headers */}
+              <div className="grid grid-cols-7 border-b">
+                {DAYS.map((day) => (
+                  <div
+                    key={day}
+                    className="p-3 text-center text-sm font-medium text-muted-foreground border-r last:border-r-0"
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar Days */}
+              <div className="grid grid-cols-7">
+                {days.map((day, index) => {
+                  const dayEvents = getEventsForDate(day.date);
+                  return (
+                    <div
+                      key={index}
+                      className={cn(
+                        'min-h-[120px] p-2 border-r border-b last:border-r-0 cursor-pointer hover:bg-muted/50 transition-colors',
+                        !day.isCurrentMonth && 'bg-muted/30 text-muted-foreground',
+                        isToday(day.date) && 'bg-primary/5'
+                      )}
+                      onClick={() => handleDateClick(day.date)}
+                    >
+                      <div
+                        className={cn(
+                          'text-sm font-medium mb-1',
+                          isToday(day.date) &&
+                            'bg-primary text-primary-foreground w-7 h-7 rounded-full flex items-center justify-center'
+                        )}
+                      >
+                        {day.date.getDate()}
+                      </div>
+                      <div className="space-y-1">
+                        {dayEvents.slice(0, 3).map((event) => (
+                          <div
+                            key={event.id}
+                            className={cn(
+                              'text-xs p-1 rounded truncate text-white cursor-pointer hover:opacity-80',
+                              eventTypes[event.type]?.color || 'bg-gray-500'
+                            )}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEventClick(event);
+                            }}
+                          >
+                            {event.title}
+                          </div>
+                        ))}
+                        {dayEvents.length > 3 && (
+                          <div className="text-xs text-muted-foreground">
+                            +{dayEvents.length - 3} more
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Connected Calendars Status */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Connected Calendars</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <div
+                  className={cn(
+                    'flex items-center gap-2 px-3 py-2 rounded-lg',
+                    googleConnected ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                  )}
+                >
+                  {googleConnected ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
+                  <span className="text-sm font-medium">Google Calendar</span>
+                </div>
+                <div
+                  className={cn(
+                    'flex items-center gap-2 px-3 py-2 rounded-lg',
+                    outlookConnected ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                  )}
+                >
+                  {outlookConnected ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />}
+                  <span className="text-sm font-medium">Outlook Calendar</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </HubLayout>
 
       {/* Create Event Modal */}
       <Dialog open={showEventModal} onOpenChange={setShowEventModal}>
@@ -752,6 +780,6 @@ export default function CalendarPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

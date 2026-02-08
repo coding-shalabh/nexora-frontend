@@ -330,13 +330,11 @@ export default function MeetingsPage() {
 
   return (
     <HubLayout
+      hubId="sales"
       title="Meetings"
       description="Schedule and manage sales meetings"
-      stats={layoutStats}
-      searchValue={searchQuery}
-      onSearchChange={handleSearch}
-      searchPlaceholder="Search meetings..."
-      actionButtons={actionButtons}
+      showSidebar={false}
+      showTopBar={false}
       showFixedMenu={false}
     >
       {mainContent}

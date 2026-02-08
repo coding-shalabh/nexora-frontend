@@ -1,7 +1,6 @@
 'use client';
 
-import { HubLayout } from '@/components/layout/hub-layout';
-
+// Finance layout - each page controls its own HubLayout with specific props
 export default function FinanceLayout({ children }) {
-  return <HubLayout hubId="finance">{children}</HubLayout>;
+  return children;
 }

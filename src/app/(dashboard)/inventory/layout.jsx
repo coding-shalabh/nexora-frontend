@@ -1,7 +1,6 @@
 'use client';
 
-import { HubLayout } from '@/components/layout/hub-layout';
-
+// Inventory layout - each page controls its own HubLayout with specific props
 export default function InventoryLayout({ children }) {
-  return <HubLayout hubId="inventory">{children}</HubLayout>;
+  return children;
 }

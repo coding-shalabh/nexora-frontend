@@ -36,17 +36,17 @@ const navigationSections = [
     icon: Kanban,
     items: [
       { title: 'Deals', href: '/pipeline/deals', icon: Kanban },
-      { title: 'Leads', href: '/pipeline/leads', icon: Users },
-      { title: 'Products', href: '/pipeline/products', icon: Package },
+      // Leads moved to CRM Hub - use /crm/leads (redirect in place)
+      // Products moved to Commerce Hub - use /commerce/products (redirect in place)
     ],
   },
   {
     id: 'sales',
     title: 'Sales',
-    subtitle: 'Quotes & forecasts',
+    subtitle: 'Forecasts',
     icon: TrendingUp,
     items: [
-      { title: 'Quotes', href: '/pipeline/quotes', icon: FileText },
+      // Quotes moved to Commerce Hub - use /commerce/quotes
       { title: 'Forecast', href: '/pipeline/forecast', icon: TrendingUp },
     ],
   },
@@ -244,36 +244,6 @@ const pageStats = {
     { value: '0', label: 'Won', icon: CheckCircle, bg: 'bg-purple-50', color: 'text-purple-600' },
     { value: '0', label: 'Pending', icon: Clock, bg: 'bg-amber-50', color: 'text-amber-600' },
   ],
-  '/pipeline/leads': [
-    { value: '0', label: 'Leads', icon: Users, bg: 'bg-blue-50', color: 'text-blue-600' },
-    {
-      value: '0',
-      label: 'Qualified',
-      icon: CheckCircle,
-      bg: 'bg-green-50',
-      color: 'text-green-600',
-    },
-    { value: '0', label: 'New', icon: Clock, bg: 'bg-purple-50', color: 'text-purple-600' },
-    { value: '0%', label: 'Conversion', icon: Target, bg: 'bg-amber-50', color: 'text-amber-600' },
-  ],
-  '/pipeline/products': [
-    { value: '0', label: 'Products', icon: Package, bg: 'bg-blue-50', color: 'text-blue-600' },
-    { value: '0', label: 'Active', icon: CheckCircle, bg: 'bg-green-50', color: 'text-green-600' },
-    { value: '$0', label: 'Value', icon: DollarSign, bg: 'bg-purple-50', color: 'text-purple-600' },
-    { value: '0', label: 'Categories', icon: Settings, bg: 'bg-amber-50', color: 'text-amber-600' },
-  ],
-  '/pipeline/quotes': [
-    { value: '0', label: 'Quotes', icon: FileText, bg: 'bg-blue-50', color: 'text-blue-600' },
-    { value: '0', label: 'Pending', icon: Clock, bg: 'bg-green-50', color: 'text-green-600' },
-    {
-      value: '0',
-      label: 'Accepted',
-      icon: CheckCircle,
-      bg: 'bg-purple-50',
-      color: 'text-purple-600',
-    },
-    { value: '$0', label: 'Value', icon: DollarSign, bg: 'bg-amber-50', color: 'text-amber-600' },
-  ],
   '/pipeline/forecast': [
     { value: '$0', label: 'Forecast', icon: TrendingUp, bg: 'bg-blue-50', color: 'text-blue-600' },
     {
@@ -299,9 +269,6 @@ const pageStats = {
 // ═══════════════════════════════════════════════════════════════════════════════
 const pageActions = {
   '/pipeline/deals': [{ icon: 'plus', label: 'New Deal', variant: 'default' }],
-  '/pipeline/leads': [{ icon: 'plus', label: 'New Lead', variant: 'default' }],
-  '/pipeline/products': [{ icon: 'plus', label: 'New Product', variant: 'default' }],
-  '/pipeline/quotes': [{ icon: 'plus', label: 'New Quote', variant: 'default' }],
   '/pipeline/forecast': [],
   '/pipeline/reports': [{ icon: 'plus', label: 'New Report', variant: 'default' }],
   '/pipeline/settings': [],

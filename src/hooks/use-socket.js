@@ -5,7 +5,11 @@ import { io } from 'socket.io-client';
 import { useQueryClient } from '@tanstack/react-query';
 import { inboxKeys } from './use-inbox';
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+// Strip /api/v1 from API URL to get base WebSocket URL
+const SOCKET_URL =
+  process.env.NEXT_PUBLIC_WS_URL ||
+  process.env.NEXT_PUBLIC_API_URL?.replace('/api/v1', '') ||
+  'http://localhost:4000';
 
 /**
  * WebSocket hook for real-time messaging
@@ -106,24 +110,21 @@ export function useSocket() {
       });
 
       // Optionally update the cache directly for instant UI update
-      queryClient.setQueryData(
-        inboxKeys.messages(data.conversationId),
-        (oldData) => {
-          if (!oldData) return oldData;
-          // Add new message to the list if not already present
-          const messages = Array.isArray(oldData) ? oldData : oldData.messages || oldData;
-          const exists = messages.some((m) => m.id === data.message.id);
-          if (exists) return oldData;
+      queryClient.setQueryData(inboxKeys.messages(data.conversationId), (oldData) => {
+        if (!oldData) return oldData;
+        // Add new message to the list if not already present
+        const messages = Array.isArray(oldData) ? oldData : oldData.messages || oldData;
+        const exists = messages.some((m) => m.id === data.message.id);
+        if (exists) return oldData;
 
-          if (Array.isArray(oldData)) {
-            return [...oldData, data.message];
-          }
-          return {
-            ...oldData,
-            messages: [...(oldData.messages || []), data.message],
-          };
+        if (Array.isArray(oldData)) {
+          return [...oldData, data.message];
         }
-      );
+        return {
+          ...oldData,
+          messages: [...(oldData.messages || []), data.message],
+        };
+      });
     });
 
     // Handle conversation update event
@@ -141,22 +142,19 @@ export function useSocket() {
       console.log('Message status update via WebSocket:', data);
 
       // Update message status in cache
-      queryClient.setQueryData(
-        inboxKeys.messages(data.conversationId),
-        (oldData) => {
-          if (!oldData) return oldData;
-          const messages = Array.isArray(oldData) ? oldData : oldData.messages || oldData;
+      queryClient.setQueryData(inboxKeys.messages(data.conversationId), (oldData) => {
+        if (!oldData) return oldData;
+        const messages = Array.isArray(oldData) ? oldData : oldData.messages || oldData;
 
-          const updatedMessages = messages.map((m) =>
-            m.id === data.messageId ? { ...m, status: data.status } : m
-          );
+        const updatedMessages = messages.map((m) =>
+          m.id === data.messageId ? { ...m, status: data.status } : m
+        );
 
-          if (Array.isArray(oldData)) {
-            return updatedMessages;
-          }
-          return { ...oldData, messages: updatedMessages };
+        if (Array.isArray(oldData)) {
+          return updatedMessages;
         }
-      );
+        return { ...oldData, messages: updatedMessages };
+      });
     });
 
     // Handle typing indicators

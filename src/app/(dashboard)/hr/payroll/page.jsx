@@ -1,18 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
-import {
-  DollarSign,
-  Download,
-  Calendar,
-  Users,
-  TrendingUp,
-  FileText,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-} from 'lucide-react';
+import { DollarSign, Download, Users, FileText, CheckCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -31,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
+import { HubLayout, createStat } from '@/components/layout/hub-layout';
 
 const payrollData = [
   {
@@ -91,13 +80,6 @@ const payrollData = [
   },
 ];
 
-const stats = [
-  { label: 'Total Payroll', value: '₹24.5L', icon: DollarSign, color: 'text-green-600' },
-  { label: 'Employees', value: '156', icon: Users, color: 'text-blue-600' },
-  { label: 'Pending', value: '12', icon: Clock, color: 'text-yellow-600' },
-  { label: 'Processed', value: '144', icon: CheckCircle, color: 'text-green-600' },
-];
-
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',
@@ -120,14 +102,25 @@ const getStatusBadge = (status) => {
 export default function PayrollPage() {
   const [month, setMonth] = useState('january');
 
+  // Stats for HubLayout
+  const stats = [
+    createStat('Total Payroll', '₹24.5L', DollarSign, 'green'),
+    createStat('Employees', '156', Users, 'blue'),
+    createStat('Pending', '12', Clock, 'amber'),
+    createStat('Processed', '144', CheckCircle, 'green'),
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Payroll</h1>
-          <p className="text-muted-foreground">Manage employee salaries and payments</p>
-        </div>
-        <div className="flex items-center gap-2">
+    <HubLayout
+      hubId="hr"
+      showTopBar={false}
+      showSidebar={false}
+      title="Payroll"
+      description="Manage employee salaries and payments"
+      stats={stats}
+      showFixedMenu={false}
+      actions={
+        <>
           <Select value={month} onValueChange={setMonth}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Select Month" />
@@ -146,81 +139,62 @@ export default function PayrollPage() {
             <FileText className="h-4 w-4" />
             Run Payroll
           </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <stat.icon className={cn('h-5 w-5', stat.color)} />
-                  <div>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <DollarSign className="h-4 w-4" />
-            Payroll for January 2026
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Employee</TableHead>
-                <TableHead>Department</TableHead>
-                <TableHead className="text-right">Basic</TableHead>
-                <TableHead className="text-right">Allowances</TableHead>
-                <TableHead className="text-right">Deductions</TableHead>
-                <TableHead className="text-right">Net Pay</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {payrollData.map((record) => (
-                <TableRow key={record.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-xs font-medium text-primary">{record.avatar}</span>
-                      </div>
-                      <span className="font-medium">{record.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{record.department}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(record.basicSalary)}</TableCell>
-                  <TableCell className="text-right text-green-600">
-                    +{formatCurrency(record.allowances)}
-                  </TableCell>
-                  <TableCell className="text-right text-red-600">
-                    -{formatCurrency(record.deductions)}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(record.netPay)}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(record.status)}</TableCell>
+        </>
+      }
+    >
+      <div className="h-full overflow-y-auto p-6">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Payroll for January 2026
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Department</TableHead>
+                  <TableHead className="text-right">Basic</TableHead>
+                  <TableHead className="text-right">Allowances</TableHead>
+                  <TableHead className="text-right">Deductions</TableHead>
+                  <TableHead className="text-right">Net Pay</TableHead>
+                  <TableHead>Status</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+              </TableHeader>
+              <TableBody>
+                {payrollData.map((record) => (
+                  <TableRow key={record.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <span className="text-xs font-medium text-primary">{record.avatar}</span>
+                        </div>
+                        <span className="font-medium">{record.name}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>{record.department}</TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(record.basicSalary)}
+                    </TableCell>
+                    <TableCell className="text-right text-green-600">
+                      +{formatCurrency(record.allowances)}
+                    </TableCell>
+                    <TableCell className="text-right text-red-600">
+                      -{formatCurrency(record.deductions)}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatCurrency(record.netPay)}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(record.status)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </HubLayout>
   );
 }

@@ -429,13 +429,11 @@ export default function ProspectingPage() {
 
   return (
     <HubLayout
+      hubId="sales"
       title="Prospecting"
       description="Discover and enrich your ideal prospects"
-      stats={layoutStats}
-      searchValue={searchQuery}
-      onSearchChange={handleSearch}
-      searchPlaceholder="Search prospects..."
-      actionButtons={actionButtons}
+      showSidebar={false}
+      showTopBar={false}
       showFixedMenu={false}
     >
       {mainContent}

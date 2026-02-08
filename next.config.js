@@ -3,19 +3,52 @@ const nextConfig = {
   transpilePackages: ['@crm360/shared', '@crm360/ui'],
   async redirects() {
     return [
+      // Legacy CRM routes
       {
         source: '/companies',
         destination: '/crm/companies',
         permanent: true,
       },
       {
+        source: '/contacts',
+        destination: '/crm/contacts',
+        permanent: true,
+      },
+      // Pipeline → Sales (Pipeline merged into Sales hub)
+      {
         source: '/pipeline',
-        destination: '/pipeline/deals',
+        destination: '/sales/deals',
         permanent: true,
       },
       {
-        source: '/contacts',
-        destination: '/crm/contacts',
+        source: '/pipeline/deals',
+        destination: '/sales/deals',
+        permanent: true,
+      },
+      {
+        source: '/pipeline/leads',
+        destination: '/sales/leads',
+        permanent: true,
+      },
+      {
+        source: '/pipeline/products',
+        destination: '/sales/products',
+        permanent: true,
+      },
+      {
+        source: '/pipeline/:path*',
+        destination: '/sales/:path*',
+        permanent: true,
+      },
+      // Tickets → Service (Tickets merged into Service hub)
+      {
+        source: '/tickets',
+        destination: '/service/tickets',
+        permanent: true,
+      },
+      {
+        source: '/tickets/:path*',
+        destination: '/service/tickets/:path*',
         permanent: true,
       },
     ];

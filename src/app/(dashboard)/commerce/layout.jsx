@@ -1,14 +1,6 @@
-'use client';
-
-import { CommerceSidebar } from '@/components/layout/sidebars';
-
+// Commerce Layout - Uses HubLayout pattern (pages render their own layout)
+// Simplified to avoid double-sidebar and context errors
+// The old CommerceProvider/CommerceSidebar pattern conflicted with HubLayout used in pages
 export default function CommerceLayout({ children }) {
-  return (
-    <div className="flex h-full">
-      <CommerceSidebar />
-      <main className="flex-1 overflow-auto bg-white dark:bg-card rounded-tl-2xl shadow-xl">
-        {children}
-      </main>
-    </div>
-  );
+  return <>{children}</>;
 }

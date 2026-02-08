@@ -362,13 +362,11 @@ export default function PlaybooksPage() {
 
   return (
     <HubLayout
+      hubId="sales"
       title="Sales Playbooks"
       description="Scripts, guides, and battlecards for your sales team"
-      stats={layoutStats}
-      searchValue={searchQuery}
-      onSearchChange={handleSearch}
-      searchPlaceholder="Search playbooks..."
-      actionButtons={actionButtons}
+      showSidebar={false}
+      showTopBar={false}
       showFixedMenu={false}
     >
       {mainContent}

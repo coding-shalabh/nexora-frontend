@@ -42,6 +42,7 @@ const navigationSections = [
     icon: Megaphone,
     items: [
       { title: 'Campaigns', href: '/marketing/campaigns', icon: Megaphone },
+      { title: 'Broadcasts', href: '/marketing/broadcasts', icon: Megaphone },
       { title: 'Email', href: '/marketing/email', icon: Mail },
       { title: 'SMS', href: '/marketing/sms', icon: Smartphone },
       { title: 'Social Media', href: '/marketing/social', icon: Share2 },
@@ -56,7 +57,7 @@ const navigationSections = [
       { title: 'Landing Pages', href: '/marketing/landing-pages', icon: FileText },
       { title: 'Forms', href: '/marketing/forms', icon: FormInput },
       { title: 'CTAs', href: '/marketing/ctas', icon: MousePointerClick },
-      { title: 'Templates', href: '/marketing/templates', icon: FileText },
+      // Templates moved to Settings Hub - use /settings/templates (redirect in place)
     ],
   },
   {
@@ -67,7 +68,8 @@ const navigationSections = [
     items: [
       { title: 'Segments', href: '/marketing/segments', icon: Users },
       { title: 'Lists', href: '/marketing/lists', icon: List },
-      { title: 'Lead Scoring', href: '/marketing/lead-scoring', icon: Target },
+      // Lead Scoring moved to Automation Hub - link directly to primary owner
+      { title: 'Lead Scoring', href: '/automation/lead-scoring', icon: Target, external: true },
     ],
   },
   {
@@ -148,12 +150,12 @@ export function MarketingProvider({ children }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// MARKETING SIDEBAR (CORE MENU ONLY)
+// MARKETING SIDEBAR (CORE MENU WITH COLLAPSIBLE SECTIONS)
 // ═══════════════════════════════════════════════════════════════════════════════
 export function MarketingSidebar() {
-  const { selectedSection, setSelectedSection, navigationSections } = useMarketingContext();
-  const router = useRouter();
+  const { pathname } = useMarketingContext();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [expandedSections, setExpandedSections] = useState(['campaigns', 'assets', 'audience']);
 
   // Load collapsed state
   useEffect(() => {
@@ -161,12 +163,13 @@ export function MarketingSidebar() {
     if (saved !== null) setIsCollapsed(JSON.parse(saved));
   }, []);
 
-  // Handle section click - navigate to first item of section
-  const handleSectionClick = (section) => {
-    setSelectedSection(section.id);
-    if (section.items && section.items.length > 0) {
-      router.push(section.items[0].href);
-    }
+  const isActive = (href) => pathname === href || pathname.startsWith(href + '/');
+
+  // Toggle section expansion
+  const toggleSection = (sectionId) => {
+    setExpandedSections((prev) =>
+      prev.includes(sectionId) ? prev.filter((id) => id !== sectionId) : [...prev, sectionId]
+    );
   };
 
   const toggleCollapsed = () => {
@@ -175,49 +178,46 @@ export function MarketingSidebar() {
     localStorage.setItem('marketing-sidebar-collapsed', JSON.stringify(newState));
   };
 
+  // Get config section (separate from others)
+  const configSection = navigationSections.find((s) => s.id === 'config');
+  const mainSections = navigationSections.filter((s) => s.id !== 'config');
+
   return (
     <TooltipProvider delayDuration={0}>
       <motion.aside
         initial={false}
-        animate={{ width: isCollapsed ? 64 : 180 }}
+        animate={{ width: isCollapsed ? 64 : 220 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }}
-        className="relative h-full flex flex-col border-r shrink-0 bg-transparent border-gray-300"
+        className="relative h-full flex flex-col bg-transparent"
       >
-        {/* Header */}
-        <div className="p-3 border-b border-gray-300">
-          {!isCollapsed && <h2 className="text-sm font-semibold text-gray-700">Marketing</h2>}
-          {isCollapsed && (
-            <div className="flex justify-center">
-              <Megaphone className="h-5 w-5 text-gray-500" />
-            </div>
-          )}
-        </div>
-
-        {/* Core Menu Items */}
+        {/* Core Menu Items with Collapsible Sections */}
         <nav
-          className="flex-1 overflow-y-auto py-2 px-2"
+          className="flex-1 overflow-y-auto py-3 px-2"
           style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
         >
           <div className="space-y-1">
-            {navigationSections.map((section) => {
+            {/* Collapsible Sections */}
+            {mainSections.map((section) => {
+              const isExpanded = expandedSections.includes(section.id);
+              const hasActiveItem = section.items.some((item) => isActive(item.href));
               const SectionIcon = section.icon;
-              const isSelected = selectedSection === section.id;
 
               if (isCollapsed) {
                 return (
                   <Tooltip key={section.id}>
                     <TooltipTrigger asChild>
-                      <button
-                        onClick={() => handleSectionClick(section)}
-                        className={cn(
-                          'w-full flex items-center justify-center p-2 rounded-lg transition-all',
-                          isSelected
-                            ? 'bg-gray-100 text-brand shadow-sm'
-                            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-700'
-                        )}
-                      >
-                        <SectionIcon className="h-5 w-5" />
-                      </button>
+                      <Link href={section.items[0]?.href || '#'}>
+                        <div
+                          className={cn(
+                            'w-full flex items-center justify-center p-2 rounded-lg transition-all',
+                            hasActiveItem
+                              ? 'bg-gray-100 text-brand shadow-sm'
+                              : 'text-gray-600 hover:bg-gray-100 hover:text-gray-700'
+                          )}
+                        >
+                          <SectionIcon className="h-5 w-5" />
+                        </div>
+                      </Link>
                     </TooltipTrigger>
                     <TooltipContent
                       side="right"
@@ -230,23 +230,120 @@ export function MarketingSidebar() {
               }
 
               return (
-                <button
-                  key={section.id}
-                  onClick={() => handleSectionClick(section)}
-                  className={cn(
-                    'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-left',
-                    isSelected
-                      ? 'bg-gray-100 text-brand shadow-sm font-medium'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-800'
+                <div key={section.id} className="mt-1 first:mt-0">
+                  {/* Section Header - Clickable to expand/collapse */}
+                  <button
+                    onClick={() => toggleSection(section.id)}
+                    className={cn(
+                      'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all text-left',
+                      hasActiveItem
+                        ? 'text-brand font-medium'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                    )}
+                  >
+                    <SectionIcon
+                      className={cn(
+                        'h-4 w-4 shrink-0',
+                        hasActiveItem ? 'text-brand' : 'text-gray-400'
+                      )}
+                    />
+                    <span className="text-sm flex-1 truncate">{section.title}</span>
+                    <ChevronRight
+                      className={cn('h-3 w-3 transition-transform', isExpanded ? 'rotate-90' : '')}
+                    />
+                  </button>
+
+                  {/* Section Items - Collapsible */}
+                  {isExpanded && (
+                    <div className="ml-4 pl-2 border-l border-gray-200 mt-1 space-y-0.5">
+                      {section.items.map((item) => {
+                        const active = isActive(item.href);
+                        const ItemIcon = item.icon;
+
+                        return (
+                          <Link key={item.href} href={item.href}>
+                            <div
+                              className={cn(
+                                'flex items-center gap-2 px-2 py-1.5 rounded-md transition-all text-sm',
+                                active
+                                  ? 'bg-gray-100 text-brand font-medium'
+                                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                              )}
+                            >
+                              <ItemIcon
+                                className={cn(
+                                  'h-3.5 w-3.5 shrink-0',
+                                  active ? 'text-brand' : 'text-gray-400'
+                                )}
+                              />
+                              <span className="truncate">{item.title}</span>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
                   )}
-                >
-                  <SectionIcon
-                    className={cn('h-4 w-4 shrink-0', isSelected ? 'text-brand' : 'text-gray-500')}
-                  />
-                  <span className="text-sm truncate">{section.title}</span>
-                </button>
+                </div>
               );
             })}
+
+            {/* Config Section */}
+            {configSection && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                {configSection.items.map((item) => {
+                  const active = isActive(item.href);
+                  const ItemIcon = item.icon;
+
+                  if (isCollapsed) {
+                    return (
+                      <Tooltip key={item.href}>
+                        <TooltipTrigger asChild>
+                          <Link href={item.href}>
+                            <div
+                              className={cn(
+                                'w-full flex items-center justify-center p-2 rounded-lg transition-all',
+                                active
+                                  ? 'bg-gray-100 text-brand shadow-sm'
+                                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-700'
+                              )}
+                            >
+                              <ItemIcon className="h-5 w-5" />
+                            </div>
+                          </Link>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="bg-white border border-gray-200 shadow-lg"
+                        >
+                          <span className="font-medium text-gray-800">{item.title}</span>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  }
+
+                  return (
+                    <Link key={item.href} href={item.href}>
+                      <div
+                        className={cn(
+                          'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all',
+                          active
+                            ? 'bg-gray-100 text-brand shadow-sm font-medium'
+                            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-800'
+                        )}
+                      >
+                        <ItemIcon
+                          className={cn(
+                            'h-4 w-4 shrink-0',
+                            active ? 'text-brand' : 'text-gray-500'
+                          )}
+                        />
+                        <span className="text-sm truncate">{item.title}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </nav>
 
@@ -255,7 +352,7 @@ export function MarketingSidebar() {
           variant="outline"
           size="icon"
           onClick={toggleCollapsed}
-          className="absolute -right-3 top-16 h-6 w-6 rounded-full bg-white border-gray-300 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
+          className="absolute -right-3 top-20 h-6 w-6 rounded-full bg-white border-gray-200 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
         >
           {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
         </Button>

@@ -328,13 +328,11 @@ export default function DocumentsPage() {
 
   return (
     <HubLayout
+      hubId="sales"
       title="Sales Documents"
       description="Share and track engagement with your sales content"
-      stats={layoutStats}
-      searchValue={searchQuery}
-      onSearchChange={handleSearch}
-      searchPlaceholder="Search documents..."
-      actionButtons={actionButtons}
+      showSidebar={false}
+      showTopBar={false}
       showFixedMenu={false}
     >
       {mainContent}

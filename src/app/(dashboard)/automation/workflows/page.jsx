@@ -60,7 +60,9 @@ import {
   Eye,
   Settings,
   History,
+  Activity,
 } from 'lucide-react';
+import { HubLayout, createStat } from '@/components/layout/hub-layout';
 
 // Mock data for workflows
 const mockWorkflows = [
@@ -335,9 +337,11 @@ export default function WorkflowsPage() {
 
   const handleCreateWorkflow = (formData) => {
     if (editWorkflow) {
-      setWorkflows(workflows.map((w) =>
-        w.id === editWorkflow.id ? { ...w, ...formData, updatedAt: new Date().toISOString() } : w
-      ));
+      setWorkflows(
+        workflows.map((w) =>
+          w.id === editWorkflow.id ? { ...w, ...formData, updatedAt: new Date().toISOString() } : w
+        )
+      );
     } else {
       const newWorkflow = {
         id: Date.now().toString(),
@@ -361,13 +365,15 @@ export default function WorkflowsPage() {
   };
 
   const handleToggleStatus = (id) => {
-    setWorkflows(workflows.map((w) => {
-      if (w.id === id) {
-        const newStatus = w.status === 'active' ? 'paused' : 'active';
-        return { ...w, status: newStatus };
-      }
-      return w;
-    }));
+    setWorkflows(
+      workflows.map((w) => {
+        if (w.id === id) {
+          const newStatus = w.status === 'active' ? 'paused' : 'active';
+          return { ...w, status: newStatus };
+        }
+        return w;
+      })
+    );
   };
 
   const handleDelete = (id) => {
@@ -393,252 +399,222 @@ export default function WorkflowsPage() {
   const activeCount = workflows.filter((w) => w.status === 'active').length;
   const totalExecutionsToday = workflows.reduce((sum, w) => sum + w.executionsToday, 0);
   const totalFailed = workflows.reduce((sum, w) => sum + w.failedToday, 0);
-  const avgSuccessRate = workflows.filter((w) => w.successRate > 0).length > 0
-    ? (workflows.filter((w) => w.successRate > 0).reduce((sum, w) => sum + w.successRate, 0) /
-        workflows.filter((w) => w.successRate > 0).length).toFixed(1)
-    : 0;
+  const avgSuccessRate =
+    workflows.filter((w) => w.successRate > 0).length > 0
+      ? (
+          workflows.filter((w) => w.successRate > 0).reduce((sum, w) => sum + w.successRate, 0) /
+          workflows.filter((w) => w.successRate > 0).length
+        ).toFixed(1)
+      : 0;
+
+  // Stats for HubLayout
+  const stats = [
+    createStat('Total Workflows', workflows.length.toString(), Zap, 'purple'),
+    createStat('Active', activeCount.toString(), CheckCircle, 'green'),
+    createStat('Runs Today', totalExecutionsToday.toString(), Activity, 'blue'),
+    createStat('Success Rate', `${avgSuccessRate}%`, BarChart3, 'emerald'),
+  ];
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Workflows</h1>
-          <p className="text-muted-foreground">Automate business processes with event-driven workflows</p>
-        </div>
+    <HubLayout
+      hubId="automation"
+      showTopBar={false}
+      showSidebar={false}
+      title="Workflows"
+      description="Automate business processes with event-driven workflows"
+      stats={stats}
+      showFixedMenu={false}
+      actions={
         <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
           Create Workflow
         </Button>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      }
+    >
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        {/* Filters */}
         <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Zap className="h-5 w-5 text-primary" />
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search workflows..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
             </div>
-            <div>
-              <div className="text-2xl font-bold">{workflows.length}</div>
-              <div className="text-sm text-muted-foreground">Total Workflows</div>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-green-600">{activeCount}</div>
-              <div className="text-sm text-muted-foreground">Active</div>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Play className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{totalExecutionsToday}</div>
-              <div className="text-sm text-muted-foreground">Runs Today</div>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
-              <BarChart3 className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">{avgSuccessRate}%</div>
-              <div className="text-sm text-muted-foreground">Success Rate</div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Card className="p-4">
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search workflows..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <div className="flex items-center gap-1 border rounded-lg p-1">
-            <Button
-              variant={filterStatus === 'all' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setFilterStatus('all')}
-            >
-              All
-            </Button>
-            {Object.entries(statusConfig).map(([status, config]) => (
+            <div className="flex items-center gap-1 border rounded-lg p-1">
               <Button
-                key={status}
-                variant={filterStatus === status ? 'secondary' : 'ghost'}
+                variant={filterStatus === 'all' ? 'secondary' : 'ghost'}
                 size="sm"
-                onClick={() => setFilterStatus(status)}
+                onClick={() => setFilterStatus('all')}
               >
-                {config.label}
+                All
               </Button>
-            ))}
+              {Object.entries(statusConfig).map(([status, config]) => (
+                <Button
+                  key={status}
+                  variant={filterStatus === status ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => setFilterStatus(status)}
+                >
+                  {config.label}
+                </Button>
+              ))}
+            </div>
           </div>
-        </div>
-      </Card>
-
-      {/* Workflows List */}
-      <div className="space-y-4">
-        {filteredWorkflows.map((workflow) => {
-          const TriggerIcon = workflow.trigger.icon;
-          const StatusIcon = statusConfig[workflow.status].icon;
-
-          return (
-            <Card key={workflow.id} className="p-5 hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4 flex-1">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Zap className="h-6 w-6 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold">{workflow.name}</h3>
-                      <Badge className={statusConfig[workflow.status].color}>
-                        {statusConfig[workflow.status].label}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-3">{workflow.description}</p>
-
-                    {/* Trigger & Actions */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-muted rounded-md text-sm">
-                        <TriggerIcon className="h-3.5 w-3.5" />
-                        <span>{workflow.trigger.label}</span>
-                      </div>
-                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                        <GitBranch className="h-3.5 w-3.5" />
-                        <span>{workflow.actions.length} action{workflow.actions.length !== 1 ? 's' : ''}</span>
-                      </div>
-                    </div>
-
-                    {/* Stats Row */}
-                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <Play className="h-3.5 w-3.5" />
-                        <span>{workflow.executionsTotal.toLocaleString()} total</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5" />
-                        <span>{workflow.executionsToday} today</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <CheckCircle className="h-3.5 w-3.5 text-green-500" />
-                        <span>{workflow.successRate}% success</span>
-                      </div>
-                      {workflow.failedToday > 0 && (
-                        <div className="flex items-center gap-1.5 text-red-600">
-                          <XCircle className="h-3.5 w-3.5" />
-                          <span>{workflow.failedToday} failed</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1.5">
-                        <History className="h-3.5 w-3.5" />
-                        <span>Last: {formatTimeAgo(workflow.lastExecutedAt)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="flex items-center gap-2 shrink-0 ml-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleToggleStatus(workflow.id)}
-                    disabled={workflow.status === 'draft'}
-                  >
-                    {workflow.status === 'active' ? (
-                      <>
-                        <Pause className="h-3.5 w-3.5 mr-1" />
-                        Pause
-                      </>
-                    ) : (
-                      <>
-                        <Play className="h-3.5 w-3.5 mr-1" />
-                        Start
-                      </>
-                    )}
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    <Settings className="h-3.5 w-3.5 mr-1" />
-                    Configure
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setEditWorkflow(workflow);
-                          setCreateDialogOpen(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDuplicate(workflow)}>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Duplicate
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <History className="h-4 w-4 mr-2" />
-                        Execution History
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleDelete(workflow.id)}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      {filteredWorkflows.length === 0 && (
-        <Card className="p-12 text-center">
-          <Zap className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No workflows found</h3>
-          <p className="text-muted-foreground mb-4">
-            Create your first workflow to start automating tasks
-          </p>
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Workflow
-          </Button>
         </Card>
-      )}
+
+        {/* Workflows List */}
+        <div className="space-y-4">
+          {filteredWorkflows.map((workflow) => {
+            const TriggerIcon = workflow.trigger.icon;
+            const StatusIcon = statusConfig[workflow.status].icon;
+
+            return (
+              <Card key={workflow.id} className="p-5 hover:shadow-md transition-shadow">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-4 flex-1">
+                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                      <Zap className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-semibold">{workflow.name}</h3>
+                        <Badge className={statusConfig[workflow.status].color}>
+                          {statusConfig[workflow.status].label}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-3">{workflow.description}</p>
+
+                      {/* Trigger & Actions */}
+                      <div className="flex items-center gap-2 mb-3">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-muted rounded-md text-sm">
+                          <TriggerIcon className="h-3.5 w-3.5" />
+                          <span>{workflow.trigger.label}</span>
+                        </div>
+                        <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                          <GitBranch className="h-3.5 w-3.5" />
+                          <span>
+                            {workflow.actions.length} action
+                            {workflow.actions.length !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Stats Row */}
+                      <div className="flex items-center gap-6 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <Play className="h-3.5 w-3.5" />
+                          <span>{workflow.executionsTotal.toLocaleString()} total</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>{workflow.executionsToday} today</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                          <span>{workflow.successRate}% success</span>
+                        </div>
+                        {workflow.failedToday > 0 && (
+                          <div className="flex items-center gap-1.5 text-red-600">
+                            <XCircle className="h-3.5 w-3.5" />
+                            <span>{workflow.failedToday} failed</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1.5">
+                          <History className="h-3.5 w-3.5" />
+                          <span>Last: {formatTimeAgo(workflow.lastExecutedAt)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 shrink-0 ml-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleToggleStatus(workflow.id)}
+                      disabled={workflow.status === 'draft'}
+                    >
+                      {workflow.status === 'active' ? (
+                        <>
+                          <Pause className="h-3.5 w-3.5 mr-1" />
+                          Pause
+                        </>
+                      ) : (
+                        <>
+                          <Play className="h-3.5 w-3.5 mr-1" />
+                          Start
+                        </>
+                      )}
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Settings className="h-3.5 w-3.5 mr-1" />
+                      Configure
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setEditWorkflow(workflow);
+                            setCreateDialogOpen(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDuplicate(workflow)}>
+                          <Copy className="h-4 w-4 mr-2" />
+                          Duplicate
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <History className="h-4 w-4 mr-2" />
+                          Execution History
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(workflow.id)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+
+        {filteredWorkflows.length === 0 && (
+          <Card className="p-12 text-center">
+            <Zap className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No workflows found</h3>
+            <p className="text-muted-foreground mb-4">
+              Create your first workflow to start automating tasks
+            </p>
+            <Button onClick={() => setCreateDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Workflow
+            </Button>
+          </Card>
+        )}
+      </div>
 
       {/* Create/Edit Dialog */}
       <CreateWorkflowDialog
@@ -650,6 +626,6 @@ export default function WorkflowsPage() {
         onSubmit={handleCreateWorkflow}
         editWorkflow={editWorkflow}
       />
-    </div>
+    </HubLayout>
   );
 }

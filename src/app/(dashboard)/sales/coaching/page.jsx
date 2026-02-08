@@ -356,13 +356,11 @@ export default function CoachingPage() {
 
   return (
     <HubLayout
+      hubId="sales"
       title="Sales Coaching"
       description="AI-powered call analysis and skill development"
-      stats={layoutStats}
-      searchValue={searchQuery}
-      onSearchChange={handleSearch}
-      searchPlaceholder="Search recordings..."
-      actionButtons={actionButtons}
+      showSidebar={false}
+      showTopBar={false}
       showFixedMenu={false}
     >
       {mainContent}

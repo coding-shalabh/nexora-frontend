@@ -38,7 +38,7 @@ const serviceNavigation = [
   { title: 'Tickets', href: '/service/tickets', icon: Ticket, description: 'Support tickets' },
   {
     title: 'Knowledge Base',
-    href: '/service/knowledge-base',
+    href: '/service/kb',
     icon: BookOpen,
     description: 'Help articles',
   },
@@ -86,7 +86,7 @@ const fixedActions = [
   {
     id: 'article',
     title: 'New Article',
-    href: '/service/knowledge-base/new',
+    href: '/service/kb/articles/new',
     icon: BookOpen,
     variant: 'outline',
   },

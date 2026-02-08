@@ -2309,6 +2309,25 @@ export default function InboxPage() {
     toast({ title: 'Email', description: `Ready to email ${email}` });
   };
 
+  const handleCreateTicketFromPanel = (contactId, contactName, contactInfo) => {
+    if (!contactId) {
+      toast({
+        title: 'No contact',
+        description: 'Cannot create ticket without contact information',
+        variant: 'destructive',
+      });
+      return;
+    }
+    // Navigate to tickets page with contact pre-filled
+    router.push(
+      `/tickets/new?contactId=${contactId}&contactName=${encodeURIComponent(contactName || '')}`
+    );
+    toast({
+      title: 'Create Ticket',
+      description: `Opening ticket form for ${contactName || contactInfo}`,
+    });
+  };
+
   // Voice channel - show dedicated VoiceInbox component
   if (channelFilter === 'voice') {
     return <VoiceInbox />;
@@ -3921,6 +3940,7 @@ export default function InboxPage() {
                 onWhatsApp={handleWhatsAppFromPanel}
                 onSms={handleSmsFromPanel}
                 onEmail={handleEmailFromPanel}
+                onCreateTicket={handleCreateTicketFromPanel}
               />
             </motion.div>
           )}

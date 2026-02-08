@@ -58,6 +58,9 @@ import {
 } from '@/components/ui/table';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
+import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
+import { cn } from '@/lib/utils';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -489,236 +492,295 @@ export default function SegmentsPage() {
 
   const totalContacts = segments.reduce((sum, s) => sum + (s.contactCount || 0), 0);
 
-  return (
-    <div className="space-y-6 pb-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Audience Segments</h1>
-          <p className="text-muted-foreground">
-            Create and manage contact segments for targeted campaigns
-          </p>
-        </div>
-        <Button
-          onClick={() => {
-            resetForm();
-            setCreateDialogOpen(true);
-          }}
-        >
-          <Plus className="mr-2 h-4 w-4" />
+  // Stats for HubLayout
+  const hubStats = [
+    createStat('Total', counts.total || 0, Filter, 'purple'),
+    createStat('Contacts', totalContacts, Users, 'blue'),
+    createStat('Static', counts.static || 0, Users, 'green'),
+    createStat('Dynamic', counts.dynamic || 0, RefreshCw, 'amber'),
+  ];
+
+  // FixedMenuPanel configuration
+  const fixedMenuConfig = {
+    primaryActions: [{ id: 'create', label: 'New Segment', icon: Plus, variant: 'default' }],
+    filters: {
+      quickFilters: [
+        { id: 'all', label: 'All' },
+        { id: 'STATIC', label: 'Static' },
+        { id: 'DYNAMIC', label: 'Dynamic' },
+      ],
+    },
+  };
+
+  // Empty state component
+  const EmptyState = () => (
+    <div className="p-12 text-center">
+      <Filter className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+      <h3 className="text-lg font-semibold mb-2">No segments found</h3>
+      <p className="text-muted-foreground mb-4">
+        {searchQuery || typeFilter !== 'all'
+          ? 'Try adjusting your filters'
+          : 'Create your first segment to organize your audience'}
+      </p>
+      {!searchQuery && typeFilter === 'all' && (
+        <Button onClick={() => setCreateDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
           Create Segment
         </Button>
-      </div>
+      )}
+    </div>
+  );
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Segments</CardTitle>
-            <Filter className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{counts.total}</div>
-            <p className="text-xs text-muted-foreground">
-              {counts.static} static, {counts.dynamic} dynamic
+  // Segment card component for the list
+  const SegmentCard = ({ segment }) => {
+    const TypeIcon = segmentTypeConfig[segment.type]?.icon || Users;
+
+    return (
+      <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className={segmentTypeConfig[segment.type]?.className}>
+                <TypeIcon className="mr-1 h-3 w-3" />
+                {segmentTypeConfig[segment.type]?.label}
+              </Badge>
+              <div className="text-sm">
+                <span className="font-bold">{(segment.contactCount || 0).toLocaleString()}</span>
+                <span className="text-muted-foreground ml-1">contacts</span>
+              </div>
+            </div>
+            <h3 className="font-medium truncate">{segment.name}</h3>
+            <p className="text-sm text-muted-foreground truncate">
+              {segment.description || 'No description'}
             </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Contacts</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalContacts.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Across all segments</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Static Segments</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{counts.static}</div>
-            <p className="text-xs text-muted-foreground">Manually curated</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Dynamic Segments</CardTitle>
-            <RefreshCw className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{counts.dynamic}</div>
-            <p className="text-xs text-muted-foreground">Auto-updating</p>
-          </CardContent>
-        </Card>
-      </div>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2">
+              <Clock className="h-3 w-3" />
+              <span>{new Date(segment.updatedAt).toLocaleDateString()}</span>
+            </div>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+              <Button variant="ghost" size="icon">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openEdit(segment);
+                }}
+              >
+                <Edit className="mr-2 h-4 w-4" />
+                Edit Segment
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setViewContactsDialog(segment.id);
+                }}
+              >
+                <Eye className="mr-2 h-4 w-4" />
+                View Contacts
+              </DropdownMenuItem>
+              {segment.type === 'DYNAMIC' && (
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    syncMutation.mutate(segment.id);
+                  }}
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Sync Now
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  duplicateMutation.mutate(segment.id);
+                }}
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => e.stopPropagation()}>
+                <Target className="mr-2 h-4 w-4" />
+                Create Campaign
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  deleteMutation.mutate(segment.id);
+                }}
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </Card>
+    );
+  };
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
+  return (
+    <>
+      <HubLayout
+        hubId="marketing"
+        showTopBar={false}
+        showSidebar={false}
+        title="Audience Segments"
+        description="Create and manage contact segments for targeted campaigns"
+        stats={hubStats}
+        fixedMenuFilters={
+          <FixedMenuPanel
+            config={fixedMenuConfig}
+            activeFilter={typeFilter}
+            onFilterChange={setTypeFilter}
+            onAction={(id) => id === 'create' && setCreateDialogOpen(true)}
+            className="p-4"
+          />
+        }
+        fixedMenuList={
+          <div className="space-y-2 p-4">
+            {/* Search Bar */}
+            <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search segments..."
-                className="pl-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
               />
             </div>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-full md:w-[200px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="STATIC">Static</SelectItem>
-                <SelectItem value="DYNAMIC">Dynamic</SelectItem>
-              </SelectContent>
-            </Select>
+
+            {/* Segments List */}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredSegments.length === 0 ? (
+              <EmptyState />
+            ) : (
+              filteredSegments.map((segment) => <SegmentCard key={segment.id} segment={segment} />)
+            )}
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Segments Grid */}
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : filteredSegments.length > 0 ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredSegments.map((segment) => {
-            const TypeIcon = segmentTypeConfig[segment.type]?.icon || Users;
-            return (
-              <Card key={segment.id} className="group relative">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg">{segment.name}</CardTitle>
-                      <CardDescription className="mt-2">{segment.description}</CardDescription>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(segment)}>
-                          <Edit className="mr-2 h-4 w-4" />
-                          Edit Segment
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setViewContactsDialog(segment.id)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Contacts
-                        </DropdownMenuItem>
-                        {segment.type === 'DYNAMIC' && (
-                          <DropdownMenuItem onClick={() => syncMutation.mutate(segment.id)}>
-                            <RefreshCw className="mr-2 h-4 w-4" />
-                            Sync Now
-                          </DropdownMenuItem>
-                        )}
-                        <DropdownMenuItem onClick={() => duplicateMutation.mutate(segment.id)}>
-                          <Copy className="mr-2 h-4 w-4" />
-                          Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Target className="mr-2 h-4 w-4" />
-                          Create Campaign
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          className="text-destructive"
-                          onClick={() => deleteMutation.mutate(segment.id)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <Badge className={segmentTypeConfig[segment.type]?.className}>
-                        <TypeIcon className="mr-1 h-3 w-3" />
-                        {segmentTypeConfig[segment.type]?.label}
-                      </Badge>
-                      <div className="text-sm">
-                        <span className="font-bold">
-                          {(segment.contactCount || 0).toLocaleString()}
-                        </span>
-                        <span className="text-muted-foreground ml-1">contacts</span>
+        }
+      >
+        {/* Segment Details View in Content Area */}
+        <div className="h-full overflow-y-auto p-6">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {filteredSegments.map((segment) => {
+              const TypeIcon = segmentTypeConfig[segment.type]?.icon || Users;
+              return (
+                <Card key={segment.id} className="group relative">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{segment.name}</CardTitle>
+                        <CardDescription className="mt-2">{segment.description}</CardDescription>
                       </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEdit(segment)}>
+                            <Edit className="mr-2 h-4 w-4" />
+                            Edit Segment
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setViewContactsDialog(segment.id)}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Contacts
+                          </DropdownMenuItem>
+                          {segment.type === 'DYNAMIC' && (
+                            <DropdownMenuItem onClick={() => syncMutation.mutate(segment.id)}>
+                              <RefreshCw className="mr-2 h-4 w-4" />
+                              Sync Now
+                            </DropdownMenuItem>
+                          )}
+                          <DropdownMenuItem onClick={() => duplicateMutation.mutate(segment.id)}>
+                            <Copy className="mr-2 h-4 w-4" />
+                            Duplicate
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Target className="mr-2 h-4 w-4" />
+                            Create Campaign
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => deleteMutation.mutate(segment.id)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
-
-                    {segment.type === 'DYNAMIC' && segment.conditions?.rules?.length > 0 && (
-                      <div className="space-y-1">
-                        <div className="text-xs font-medium text-muted-foreground">Conditions</div>
-                        <div className="text-xs bg-muted p-2 rounded">
-                          {segment.conditions.rules.length} rule
-                          {segment.conditions.rules.length !== 1 ? 's' : ''} (
-                          {segment.conditions.combinator})
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Badge className={segmentTypeConfig[segment.type]?.className}>
+                          <TypeIcon className="mr-1 h-3 w-3" />
+                          {segmentTypeConfig[segment.type]?.label}
+                        </Badge>
+                        <div className="text-sm">
+                          <span className="font-bold">
+                            {(segment.contactCount || 0).toLocaleString()}
+                          </span>
+                          <span className="text-muted-foreground ml-1">contacts</span>
                         </div>
                       </div>
-                    )}
 
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        <span>Updated {new Date(segment.updatedAt).toLocaleDateString()}</span>
+                      {segment.type === 'DYNAMIC' && segment.conditions?.rules?.length > 0 && (
+                        <div className="space-y-1">
+                          <div className="text-xs font-medium text-muted-foreground">
+                            Conditions
+                          </div>
+                          <div className="text-xs bg-muted p-2 rounded">
+                            {segment.conditions.rules.length} rule
+                            {segment.conditions.rules.length !== 1 ? 's' : ''} (
+                            {segment.conditions.combinator})
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          <span>Updated {new Date(segment.updatedAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2 pt-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => setViewContactsDialog(segment.id)}
+                        >
+                          <Users className="mr-2 h-3 w-3" />
+                          View Contacts
+                        </Button>
+                        <Button size="sm" className="flex-1">
+                          <Mail className="mr-2 h-3 w-3" />
+                          Send Email
+                        </Button>
                       </div>
                     </div>
-
-                    <div className="flex gap-2 pt-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => setViewContactsDialog(segment.id)}
-                      >
-                        <Users className="mr-2 h-3 w-3" />
-                        View Contacts
-                      </Button>
-                      <Button size="sm" className="flex-1">
-                        <Mail className="mr-2 h-3 w-3" />
-                        Send Email
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
         </div>
-      ) : (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <Filter className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <h3 className="text-lg font-semibold mb-2">No segments found</h3>
-            <p className="text-muted-foreground mb-4">
-              {searchQuery
-                ? 'Try adjusting your search criteria'
-                : 'Create your first segment to organize your audience'}
-            </p>
-            {!searchQuery && (
-              <Button
-                onClick={() => {
-                  resetForm();
-                  setCreateDialogOpen(true);
-                }}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Create Segment
-              </Button>
-            )}
-          </CardContent>
-        </Card>
-      )}
+      </HubLayout>
 
       {/* Create/Edit Segment Dialog */}
       <Dialog
@@ -924,6 +986,6 @@ export default function SegmentsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }

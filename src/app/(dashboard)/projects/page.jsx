@@ -48,6 +48,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { useProjects, useCreateProject, useUpdateProject, useDeleteProject } from '@/hooks';
+import { HubLayout, createStat } from '@/components/layout/hub-layout';
 
 const statusConfig = {
   PLANNING: { label: 'Planning', color: 'bg-gray-500', icon: Clock },
@@ -144,11 +145,19 @@ export default function ProjectsPage() {
     }
   };
 
-  // Stats
+  // Calculate stats
   const totalProjects = meta.total || 0;
   const completedProjects = projects.filter((p) => p.status === 'COMPLETED').length;
   const inProgressProjects = projects.filter((p) => p.status === 'IN_PROGRESS').length;
   const totalBudget = projects.reduce((sum, p) => sum + (parseFloat(p.budget) || 0), 0);
+
+  // Stats for HubLayout
+  const stats = [
+    createStat('Total Projects', totalProjects.toString(), FolderKanban, 'blue'),
+    createStat('In Progress', inProgressProjects.toString(), Loader2, 'blue'),
+    createStat('Completed', completedProjects.toString(), CheckCircle2, 'green'),
+    createStat('Total Budget', formatCurrency(totalBudget), Calendar, 'purple'),
+  ];
 
   if (error) {
     return (
@@ -159,358 +168,314 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Projects</h1>
-          <p className="text-muted-foreground">Manage and track your projects</p>
-        </div>
+    <HubLayout
+      hubId="projects"
+      title="Projects"
+      description="Manage and track your projects"
+      stats={stats}
+      showFixedMenu={false}
+      actions={
         <Button onClick={() => setIsCreateOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           New Project
         </Button>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      }
+    >
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        {/* Filters */}
         <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <FolderKanban className="h-5 w-5 text-primary" />
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search projects..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
             </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Total Projects</div>
-              <div className="text-2xl font-bold">{totalProjects}</div>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Loader2 className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">In Progress</div>
-              <div className="text-2xl font-bold">{inProgressProjects}</div>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Completed</div>
-              <div className="text-2xl font-bold">{completedProjects}</div>
-            </div>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
-              <Calendar className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Total Budget</div>
-              <div className="text-2xl font-bold">{formatCurrency(totalBudget)}</div>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <Card className="p-4">
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search projects..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              {Object.entries(statusConfig).map(([value, config]) => (
-                <SelectItem key={value} value={value}>
-                  {config.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <div className="flex items-center border rounded-lg">
-            <Button
-              variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('grid')}
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </Card>
-
-      {/* Loading State */}
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : projects.length === 0 ? (
-        <Card className="p-12">
-          <div className="text-center">
-            <FolderKanban className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No projects yet</h3>
-            <p className="text-muted-foreground mb-4">
-              Get started by creating your first project.
-            </p>
-            <Button onClick={() => setIsCreateOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Project
-            </Button>
-          </div>
-        </Card>
-      ) : viewMode === 'grid' ? (
-        /* Grid View */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.map((project) => {
-            const StatusIcon = statusConfig[project.status]?.icon || Clock;
-            return (
-              <Card
-                key={project.id}
-                className="p-5 cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => router.push(`/projects/${project.id}`)}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: project.color }}
-                    />
-                    <h3 className="font-semibold truncate">{project.name}</h3>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/projects/${project.id}`);
-                        }}
-                      >
-                        View Details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          router.push(`/projects/${project.id}/edit`);
-                        }}
-                      >
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-red-600"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteProject(project.id);
-                        }}
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                {project.description && (
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                    {project.description}
-                  </p>
-                )}
-
-                <div className="flex items-center gap-2 mb-4">
-                  <Badge
-                    variant="secondary"
-                    className={cn('text-white', statusConfig[project.status]?.color)}
-                  >
-                    {statusConfig[project.status]?.label}
-                  </Badge>
-                  <Badge
-                    variant="outline"
-                    className={cn(priorityConfig[project.priority]?.color, 'text-white')}
-                  >
-                    {priorityConfig[project.priority]?.label}
-                  </Badge>
-                </div>
-
-                {/* Progress */}
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-muted-foreground">Progress</span>
-                    <span className="font-medium">{project.progress || 0}%</span>
-                  </div>
-                  <Progress value={project.progress || 0} className="h-2" />
-                </div>
-
-                {/* Stats */}
-                <div className="flex items-center justify-between text-sm text-muted-foreground border-t pt-4">
-                  <span className="flex items-center gap-1">
-                    <CheckCircle2 className="h-4 w-4" />
-                    {project._count?.tasks || 0} tasks
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Users className="h-4 w-4" />
-                    {project.members?.length || 0} members
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    {formatDate(project.endDate)}
-                  </span>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      ) : (
-        /* List View */
-        <Card>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">
-                    Project
-                  </th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">
-                    Status
-                  </th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">
-                    Priority
-                  </th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">
-                    Progress
-                  </th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">Tasks</th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">
-                    Due Date
-                  </th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">
-                    Budget
-                  </th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {projects.map((project) => (
-                  <tr
-                    key={project.id}
-                    className="border-b hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => router.push(`/projects/${project.id}`)}
-                  >
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="h-3 w-3 rounded-full"
-                          style={{ backgroundColor: project.color }}
-                        />
-                        <div>
-                          <span className="font-medium">{project.name}</span>
-                          {project.description && (
-                            <div className="text-sm text-muted-foreground truncate max-w-xs">
-                              {project.description}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <Badge
-                        variant="secondary"
-                        className={cn('text-white', statusConfig[project.status]?.color)}
-                      >
-                        {statusConfig[project.status]?.label}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      <Badge
-                        variant="outline"
-                        className={cn(priorityConfig[project.priority]?.color, 'text-white')}
-                      >
-                        {priorityConfig[project.priority]?.label}
-                      </Badge>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <Progress value={project.progress || 0} className="h-2 w-20" />
-                        <span className="text-sm">{project.progress || 0}%</span>
-                      </div>
-                    </td>
-                    <td className="p-4">{project._count?.tasks || 0}</td>
-                    <td className="p-4">{formatDate(project.endDate)}</td>
-                    <td className="p-4">{formatCurrency(project.budget, project.currency)}</td>
-                    <td className="p-4">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/projects/${project.id}`);
-                            }}
-                          >
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push(`/projects/${project.id}/edit`);
-                            }}
-                          >
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-red-600"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteProject(project.id);
-                            }}
-                          >
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
-                  </tr>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="All Statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                {Object.entries(statusConfig).map(([value, config]) => (
+                  <SelectItem key={value} value={value}>
+                    {config.label}
+                  </SelectItem>
                 ))}
-              </tbody>
-            </table>
+              </SelectContent>
+            </Select>
+            <div className="flex items-center border rounded-lg">
+              <Button
+                variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </Card>
-      )}
+
+        {/* Loading State */}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : projects.length === 0 ? (
+          <Card className="p-12">
+            <div className="text-center">
+              <FolderKanban className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium mb-2">No projects yet</h3>
+              <p className="text-muted-foreground mb-4">
+                Get started by creating your first project.
+              </p>
+              <Button onClick={() => setIsCreateOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Project
+              </Button>
+            </div>
+          </Card>
+        ) : viewMode === 'grid' ? (
+          /* Grid View */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {projects.map((project) => {
+              const StatusIcon = statusConfig[project.status]?.icon || Clock;
+              return (
+                <Card
+                  key={project.id}
+                  className="p-5 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => router.push(`/projects/${project.id}`)}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="h-3 w-3 rounded-full"
+                        style={{ backgroundColor: project.color }}
+                      />
+                      <h3 className="font-semibold truncate">{project.name}</h3>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/projects/${project.id}`);
+                          }}
+                        >
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/projects/${project.id}/edit`);
+                          }}
+                        >
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-red-600"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteProject(project.id);
+                          }}
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  {project.description && (
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {project.description}
+                    </p>
+                  )}
+
+                  <div className="flex items-center gap-2 mb-4">
+                    <Badge
+                      variant="secondary"
+                      className={cn('text-white', statusConfig[project.status]?.color)}
+                    >
+                      {statusConfig[project.status]?.label}
+                    </Badge>
+                    <Badge
+                      variant="outline"
+                      className={cn(priorityConfig[project.priority]?.color, 'text-white')}
+                    >
+                      {priorityConfig[project.priority]?.label}
+                    </Badge>
+                  </div>
+
+                  {/* Progress */}
+                  <div className="mb-4">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Progress</span>
+                      <span className="font-medium">{project.progress || 0}%</span>
+                    </div>
+                    <Progress value={project.progress || 0} className="h-2" />
+                  </div>
+
+                  {/* Stats */}
+                  <div className="flex items-center justify-between text-sm text-muted-foreground border-t pt-4">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="h-4 w-4" />
+                      {project._count?.tasks || 0} tasks
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Users className="h-4 w-4" />
+                      {project.members?.length || 0} members
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      {formatDate(project.endDate)}
+                    </span>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        ) : (
+          /* List View */
+          <Card>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b bg-muted/50">
+                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">
+                      Project
+                    </th>
+                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">
+                      Status
+                    </th>
+                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">
+                      Priority
+                    </th>
+                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">
+                      Progress
+                    </th>
+                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">
+                      Tasks
+                    </th>
+                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">
+                      Due Date
+                    </th>
+                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">
+                      Budget
+                    </th>
+                    <th className="p-4 text-left text-sm font-medium text-muted-foreground">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {projects.map((project) => (
+                    <tr
+                      key={project.id}
+                      className="border-b hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => router.push(`/projects/${project.id}`)}
+                    >
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="h-3 w-3 rounded-full"
+                            style={{ backgroundColor: project.color }}
+                          />
+                          <div>
+                            <span className="font-medium">{project.name}</span>
+                            {project.description && (
+                              <div className="text-sm text-muted-foreground truncate max-w-xs">
+                                {project.description}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <Badge
+                          variant="secondary"
+                          className={cn('text-white', statusConfig[project.status]?.color)}
+                        >
+                          {statusConfig[project.status]?.label}
+                        </Badge>
+                      </td>
+                      <td className="p-4">
+                        <Badge
+                          variant="outline"
+                          className={cn(priorityConfig[project.priority]?.color, 'text-white')}
+                        >
+                          {priorityConfig[project.priority]?.label}
+                        </Badge>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <Progress value={project.progress || 0} className="h-2 w-20" />
+                          <span className="text-sm">{project.progress || 0}%</span>
+                        </div>
+                      </td>
+                      <td className="p-4">{project._count?.tasks || 0}</td>
+                      <td className="p-4">{formatDate(project.endDate)}</td>
+                      <td className="p-4">{formatCurrency(project.budget, project.currency)}</td>
+                      <td className="p-4">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/projects/${project.id}`);
+                              }}
+                            >
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/projects/${project.id}/edit`);
+                              }}
+                            >
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-red-600"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteProject(project.id);
+                              }}
+                            >
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        )}
+      </div>
 
       {/* Create Project Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
@@ -656,6 +621,6 @@ export default function ProjectsPage() {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </HubLayout>
   );
 }

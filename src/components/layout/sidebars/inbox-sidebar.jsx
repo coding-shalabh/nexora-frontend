@@ -173,11 +173,7 @@ const navigationSections = [
         href: '/inbox/broadcasts',
         icon: Radio,
       },
-      {
-        title: 'Sequences',
-        href: '/inbox/sequences',
-        icon: Send,
-      },
+      // Sequences moved to Automation Hub - use /automation/sequences (redirect in place)
     ],
   },
   {
@@ -217,9 +213,11 @@ const navigationSections = [
     icon: Bot,
     defaultExpanded: false,
     items: [
+      // Chatbots moved to Automation Hub - /automation/chatbots is primary
+      // Link points directly to avoid redirect hop
       {
         title: 'Chatbots',
-        href: '/inbox/chatbots',
+        href: '/automation/chatbots',
         icon: Bot,
       },
     ],
@@ -995,7 +993,7 @@ export function InboxSidebar() {
         </nav>
 
         {/* Bottom fixed items - Settings & Analytics (outside scrollable area) */}
-        <div className="border-t border-gray-200 px-2 py-2 bg-transparent">
+        <div className="px-2 py-2 bg-transparent">
           <div className="space-y-0.5">
             {bottomItems.map((item) => (
               <NavItem key={item.href} item={item} showDescription={false} />

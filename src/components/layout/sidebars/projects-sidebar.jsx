@@ -163,21 +163,11 @@ export function ProjectsSidebar() {
         initial={false}
         animate={{ width: isCollapsed ? 64 : 180 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }}
-        className="relative h-full flex flex-col border-r shrink-0 bg-transparent border-gray-300"
+        className="relative h-full flex flex-col bg-transparent"
       >
-        {/* Header */}
-        <div className="p-3 border-b border-gray-300">
-          {!isCollapsed && <h2 className="text-sm font-semibold text-gray-700">Projects</h2>}
-          {isCollapsed && (
-            <div className="flex justify-center">
-              <FolderKanban className="h-5 w-5 text-gray-500" />
-            </div>
-          )}
-        </div>
-
         {/* Core Menu Items */}
         <nav
-          className="flex-1 overflow-y-auto py-2 px-2"
+          className="flex-1 overflow-y-auto py-3 px-2"
           style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
         >
           <div className="space-y-1">
@@ -237,7 +227,7 @@ export function ProjectsSidebar() {
           variant="outline"
           size="icon"
           onClick={toggleCollapsed}
-          className="absolute -right-3 top-16 h-6 w-6 rounded-full bg-white border-gray-300 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
+          className="absolute -right-3 top-20 h-6 w-6 rounded-full bg-white border-gray-200 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
         >
           {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
         </Button>

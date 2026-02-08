@@ -41,29 +41,28 @@ const navigationSections = [
     items: [
       { title: 'Dashboards', href: '/analytics/dashboards', icon: LayoutDashboard },
       { title: 'Reports', href: '/analytics/reports', icon: FileText },
-      { title: 'Custom Reports', href: '/analytics/custom-reports', icon: PieChart },
+      { title: 'Tracking', href: '/analytics/tracking', icon: Target },
     ],
   },
   {
-    id: 'tracking',
-    title: 'Tracking',
-    subtitle: 'Goals & metrics',
+    id: 'goals',
+    title: 'Goals',
+    subtitle: 'Goals & KPIs',
     icon: Target,
-    items: [
-      { title: 'Goals', href: '/analytics/goals', icon: Target },
-      { title: 'Metrics', href: '/analytics/metrics', icon: TrendingUp },
-      { title: 'Filters', href: '/analytics/filters', icon: Filter },
-    ],
+    items: [{ title: 'Goals', href: '/analytics/goals', icon: Target }],
   },
   {
-    id: 'data',
-    title: 'Data',
-    subtitle: 'Data management',
-    icon: Database,
+    id: 'website',
+    title: 'Website',
+    subtitle: 'Website analytics',
+    icon: Eye,
     items: [
-      { title: 'Data Sources', href: '/analytics/data-sources', icon: Database },
-      { title: 'Export', href: '/analytics/export', icon: Download },
-      { title: 'Share', href: '/analytics/share', icon: Share2 },
+      { title: 'Overview', href: '/analytics/website', icon: Eye },
+      { title: 'Live', href: '/analytics/website/live', icon: RefreshCw },
+      { title: 'Pages', href: '/analytics/website/pages', icon: FileText },
+      { title: 'Visitors', href: '/analytics/website/visitors', icon: TrendingUp },
+      { title: 'Sources', href: '/analytics/website/sources', icon: Database },
+      { title: 'Forms', href: '/analytics/website/forms', icon: FileText },
     ],
   },
   {
@@ -160,21 +159,11 @@ export function AnalyticsSidebar() {
         initial={false}
         animate={{ width: isCollapsed ? 64 : 180 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }}
-        className="relative h-full flex flex-col border-r shrink-0 bg-transparent border-gray-300"
+        className="relative h-full flex flex-col bg-transparent"
       >
-        {/* Header */}
-        <div className="p-3 border-b border-gray-300">
-          {!isCollapsed && <h2 className="text-sm font-semibold text-gray-700">Analytics</h2>}
-          {isCollapsed && (
-            <div className="flex justify-center">
-              <BarChart3 className="h-5 w-5 text-gray-500" />
-            </div>
-          )}
-        </div>
-
         {/* Core Menu Items */}
         <nav
-          className="flex-1 overflow-y-auto py-2 px-2"
+          className="flex-1 overflow-y-auto py-3 px-2"
           style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
         >
           <div className="space-y-1">
@@ -234,7 +223,7 @@ export function AnalyticsSidebar() {
           variant="outline"
           size="icon"
           onClick={toggleCollapsed}
-          className="absolute -right-3 top-16 h-6 w-6 rounded-full bg-white border-gray-300 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
+          className="absolute -right-3 top-20 h-6 w-6 rounded-full bg-white border-gray-200 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
         >
           {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
         </Button>

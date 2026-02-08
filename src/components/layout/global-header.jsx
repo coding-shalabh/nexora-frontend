@@ -103,12 +103,12 @@ const coreNavItems = [
   { id: 'files', label: 'Files', href: '/files', icon: FolderOpen },
 ];
 
-// Search suggestions
+// Search suggestions - updated for merged hub structure
 const searchSuggestions = [
   { type: 'contact', label: 'Search Contacts', href: '/crm/contacts', icon: Users },
   { type: 'company', label: 'Search Companies', href: '/crm/companies', icon: Building2 },
-  { type: 'deal', label: 'Search Deals', href: '/pipeline/deals', icon: DollarSign },
-  { type: 'ticket', label: 'Search Tickets', href: '/tickets', icon: Ticket },
+  { type: 'deal', label: 'Search Deals', href: '/sales/deals', icon: DollarSign },
+  { type: 'ticket', label: 'Search Tickets', href: '/service/tickets', icon: Ticket },
 ];
 
 export function GlobalHeader() {

@@ -1,26 +1,14 @@
-'use client';
-
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
+import { redirect } from 'next/navigation';
 
 /**
- * Redirect to centralized Custom Fields management
- * Custom fields are now managed in Settings → Custom Fields
+ * CRM Custom Fields - Redirects to Settings Hub
+ *
+ * This page has been consolidated. The Settings Hub (/settings/custom-fields) is now
+ * the primary location for custom field management across all entities.
+ *
+ * @see /settings/custom-fields - Primary custom fields view
+ * @see docs/NEXORA_DUPLICATE_FEATURES_ANALYSIS.md - Consolidation rationale
  */
-export default function CrmFieldsPage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace('/settings/custom-fields');
-  }, [router]);
-
-  return (
-    <div className="flex items-center justify-center h-full">
-      <div className="text-center">
-        <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground mb-4" />
-        <p className="text-muted-foreground">Redirecting to Custom Fields settings...</p>
-      </div>
-    </div>
-  );
+export default function CRMFieldsPage() {
+  redirect('/settings/custom-fields');
 }

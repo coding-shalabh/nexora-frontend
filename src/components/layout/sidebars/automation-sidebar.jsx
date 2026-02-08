@@ -46,7 +46,10 @@ const navigationSections = [
     title: 'AI',
     subtitle: 'Intelligent automation',
     icon: Bot,
-    items: [{ title: 'AI Agents', href: '/automation/ai-agents', icon: Bot }],
+    items: [
+      { title: 'Chatbots', href: '/automation/chatbots', icon: Bot },
+      { title: 'AI Agents', href: '/automation/ai-agents', icon: Bot },
+    ],
   },
   {
     id: 'status',
@@ -159,21 +162,11 @@ export function AutomationSidebar() {
         initial={false}
         animate={{ width: isCollapsed ? 64 : 180 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }}
-        className="relative h-full flex flex-col border-r shrink-0 bg-transparent border-gray-300"
+        className="relative h-full flex flex-col bg-transparent"
       >
-        {/* Header */}
-        <div className="p-3 border-b border-gray-300">
-          {!isCollapsed && <h2 className="text-sm font-semibold text-gray-700">Automation</h2>}
-          {isCollapsed && (
-            <div className="flex justify-center">
-              <Workflow className="h-5 w-5 text-gray-500" />
-            </div>
-          )}
-        </div>
-
         {/* Core Menu Items */}
         <nav
-          className="flex-1 overflow-y-auto py-2 px-2"
+          className="flex-1 overflow-y-auto py-3 px-2"
           style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
         >
           <div className="space-y-1">
@@ -233,7 +226,7 @@ export function AutomationSidebar() {
           variant="outline"
           size="icon"
           onClick={toggleCollapsed}
-          className="absolute -right-3 top-16 h-6 w-6 rounded-full bg-white border-gray-300 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
+          className="absolute -right-3 top-20 h-6 w-6 rounded-full bg-white border-gray-200 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
         >
           {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
         </Button>
@@ -269,6 +262,24 @@ const pageStats = {
     { value: '0', label: 'Scored', icon: Target, bg: 'bg-green-50', color: 'text-green-600' },
     { value: '0', label: 'Hot Leads', icon: Zap, bg: 'bg-purple-50', color: 'text-purple-600' },
     { value: '0', label: 'Avg Score', icon: BarChart3, bg: 'bg-amber-50', color: 'text-amber-600' },
+  ],
+  '/automation/chatbots': [
+    { value: '0', label: 'Chatbots', icon: Bot, bg: 'bg-blue-50', color: 'text-blue-600' },
+    { value: '0', label: 'Active', icon: Play, bg: 'bg-green-50', color: 'text-green-600' },
+    {
+      value: '0',
+      label: 'Conversations',
+      icon: Target,
+      bg: 'bg-purple-50',
+      color: 'text-purple-600',
+    },
+    {
+      value: '0%',
+      label: 'Resolution',
+      icon: CheckCircle,
+      bg: 'bg-amber-50',
+      color: 'text-amber-600',
+    },
   ],
   '/automation/ai-agents': [
     { value: '0', label: 'Agents', icon: Bot, bg: 'bg-blue-50', color: 'text-blue-600' },
@@ -309,6 +320,7 @@ const pageActions = {
   '/automation/workflows': [{ icon: 'plus', label: 'New Workflow', variant: 'default' }],
   '/automation/sequences': [{ icon: 'plus', label: 'New Sequence', variant: 'default' }],
   '/automation/lead-scoring': [{ icon: 'plus', label: 'New Rule', variant: 'default' }],
+  '/automation/chatbots': [{ icon: 'plus', label: 'New Chatbot', variant: 'default' }],
   '/automation/ai-agents': [{ icon: 'plus', label: 'New Agent', variant: 'default' }],
   '/automation/active': [],
   '/automation/archived': [],

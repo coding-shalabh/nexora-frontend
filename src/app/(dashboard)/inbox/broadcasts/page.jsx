@@ -30,6 +30,7 @@ import {
   ArrowUpDown,
   ArrowLeft,
   Filter,
+  FileText,
 } from 'lucide-react';
 import { HubLayout, createStat } from '@/components/layout/hub-layout';
 import { Button } from '@/components/ui/button';

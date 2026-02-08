@@ -23,8 +23,10 @@ import {
   Building2,
   TrendingUp,
   Target,
+  Search,
 } from 'lucide-react';
 import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -66,13 +68,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 
 // Default stages if pipeline not loaded
 const defaultStages = [
@@ -103,17 +98,82 @@ function formatCurrency(amount) {
   }).format(amount || 0);
 }
 
+// Deal List Item Component
+function DealListItem({ deal, isSelected, onClick, stages }) {
+  const stage = stages.find((s) => s.id === deal.stageId);
+
+  return (
+    <Card
+      className={cn(
+        'p-4 mb-2 mx-2 hover:shadow-md transition-shadow cursor-pointer',
+        isSelected && 'ring-2 ring-primary/20 bg-primary/5'
+      )}
+      onClick={onClick}
+      style={{ width: 'calc(100% - 16px)' }}
+    >
+      <div className="flex items-start gap-4">
+        <div
+          className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0"
+          style={{ backgroundColor: `${stage?.color || '#gray'}20` }}
+        >
+          <DollarSign className="h-5 w-5" style={{ color: stage?.color || '#gray' }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <h3 className="font-medium text-sm truncate">{deal.title}</h3>
+            <span className="text-sm font-semibold text-primary shrink-0">
+              {formatCurrency(deal.value)}
+            </span>
+          </div>
+          {deal.company && (
+            <p className="text-xs text-muted-foreground mb-2 truncate">{deal.company.name}</p>
+          )}
+          <div className="flex items-center gap-2 text-xs flex-wrap">
+            {stage && (
+              <span
+                className="px-2 py-0.5 rounded-full"
+                style={{
+                  backgroundColor: `${stage.color}20`,
+                  color: stage.color,
+                }}
+              >
+                {stage.name}
+              </span>
+            )}
+            {deal.expectedCloseDate && (
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <Calendar className="h-3 w-3" />
+                {new Date(deal.expectedCloseDate).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </span>
+            )}
+            {deal.contact && (
+              <span className="flex items-center gap-1 text-muted-foreground truncate">
+                <User className="h-3 w-3" />
+                {deal.contact.displayName || `${deal.contact.firstName} ${deal.contact.lastName}`}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
 export default function DealsPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('kanban');
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'kanban'
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedDeal, setSelectedDeal] = useState(null);
   const [page, setPage] = useState(1);
   const limit = 50;
 
   // Modal states
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showViewSheet, setShowViewSheet] = useState(false);
   const [showWinModal, setShowWinModal] = useState(false);
   const [showLoseModal, setShowLoseModal] = useState(false);
   const [currentDeal, setCurrentDeal] = useState(null);
@@ -128,6 +188,7 @@ export default function DealsPage() {
     page,
     limit,
     search: searchQuery || undefined,
+    status: statusFilter !== 'all' ? statusFilter : undefined,
   });
 
   // Mutations
@@ -392,44 +453,101 @@ export default function DealsPage() {
     );
   }
 
-  // Action buttons for HubLayout
-  const actionButtons = (
-    <div className="flex items-center gap-2">
-      <Button variant="outline" size="sm">
-        <Filter className="h-4 w-4 mr-2" />
-        Filters
-        <ChevronDown className="h-4 w-4 ml-2" />
-      </Button>
-      <div className="flex items-center border rounded-lg">
-        <Button
-          variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
-          size="sm"
-          onClick={() => setViewMode('kanban')}
-        >
-          <LayoutGrid className="h-4 w-4 mr-1" />
-          Board
-        </Button>
-        <Button
-          variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-          size="sm"
-          onClick={() => setViewMode('list')}
-        >
-          <List className="h-4 w-4 mr-1" />
-          List
-        </Button>
+  // FixedMenuPanel configuration
+  const fixedMenuConfig = {
+    primaryActions: [{ id: 'create', label: 'Add Deal', icon: Plus, variant: 'default' }],
+    secondaryActions: [
+      {
+        id: 'view-kanban',
+        label: 'Board',
+        icon: LayoutGrid,
+        variant: viewMode === 'kanban' ? 'secondary' : 'ghost',
+      },
+      {
+        id: 'view-list',
+        label: 'List',
+        icon: List,
+        variant: viewMode === 'list' ? 'secondary' : 'ghost',
+      },
+    ],
+    filters: {
+      quickFilters: [
+        { id: 'all', label: 'All' },
+        { id: 'OPEN', label: 'Open' },
+        { id: 'WON', label: 'Won' },
+        { id: 'LOST', label: 'Lost' },
+      ],
+    },
+  };
+
+  // Handle FixedMenuPanel actions
+  const handleMenuAction = (actionId) => {
+    switch (actionId) {
+      case 'create':
+        handleOpenAdd();
+        break;
+      case 'view-kanban':
+        setViewMode('kanban');
+        break;
+      case 'view-list':
+        setViewMode('list');
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Fixed menu list (deals list)
+  const fixedMenuListContent = (
+    <div className="py-2">
+      {/* Search Bar */}
+      <div className="px-4 mb-4">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search deals..."
+            value={searchQuery}
+            onChange={handleSearch}
+            className="pl-10"
+          />
+        </div>
       </div>
-      <Button size="sm" onClick={() => handleOpenAdd()}>
-        <Plus className="h-4 w-4 mr-2" />
-        Add Deal
-      </Button>
+
+      {/* Deals List */}
+      {deals.length === 0 ? (
+        <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+          <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+            <Target className="h-8 w-8 text-slate-400" />
+          </div>
+          <p className="font-medium mb-1">No deals found</p>
+          <p className="text-xs text-muted-foreground mb-4">
+            {searchQuery ? 'Try a different search term' : 'Add your first deal'}
+          </p>
+          {!searchQuery && (
+            <Button size="sm" onClick={() => handleOpenAdd()}>
+              <Plus className="h-4 w-4 mr-1" /> Add Deal
+            </Button>
+          )}
+        </div>
+      ) : (
+        deals.map((deal) => (
+          <DealListItem
+            key={deal.id}
+            deal={deal}
+            isSelected={selectedDeal?.id === deal.id}
+            onClick={() => setSelectedDeal(deal)}
+            stages={stages}
+          />
+        ))
+      )}
     </div>
   );
 
-  // Main content
-  const mainContent = (
+  // Content area - Kanban or Deal Detail
+  const contentArea = (
     <div className="p-6 overflow-y-auto h-full">
-      {/* Kanban View */}
       {viewMode === 'kanban' ? (
+        /* Kanban View */
         <div className="flex gap-4 overflow-x-auto pb-4">
           {stages.map((stage) => {
             const stageDeals = getDealsForStage(stage.id);
@@ -574,139 +692,126 @@ export default function DealsPage() {
             );
           })}
         </div>
-      ) : (
-        /* List View */
-        <Card>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">Deal</th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">Stage</th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">Value</th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">
-                    Probability
-                  </th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">
-                    Close Date
-                  </th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">
-                    Contact
-                  </th>
-                  <th className="p-4 text-left text-sm font-medium text-muted-foreground">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {deals.map((deal) => {
-                  const stage = stages.find((s) => s.id === deal.stageId);
-                  return (
-                    <tr
-                      key={deal.id}
-                      className="border-b hover:bg-muted/50 transition-colors cursor-pointer"
-                      onClick={() => handleOpenView(deal)}
-                    >
-                      <td className="p-4">
-                        <div>
-                          <span className="font-medium">{deal.title}</span>
-                          {deal.company && (
-                            <div className="text-sm text-muted-foreground">{deal.company.name}</div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <span
-                          className="text-xs px-2 py-1 rounded-full"
-                          style={{
-                            backgroundColor: `${stage?.color || '#gray'}20`,
-                            color: stage?.color || '#gray',
-                          }}
-                        >
-                          {stage?.name || 'Unknown'}
-                        </span>
-                      </td>
-                      <td className="p-4 font-medium">{formatCurrency(deal.value)}</td>
-                      <td className="p-4">{deal.probability || 0}%</td>
-                      <td className="p-4">
-                        {deal.expectedCloseDate
-                          ? new Date(deal.expectedCloseDate).toLocaleDateString()
-                          : '-'}
-                      </td>
-                      <td className="p-4">
-                        {deal.contact
-                          ? deal.contact.displayName ||
-                            `${deal.contact.firstName} ${deal.contact.lastName}`
-                          : '-'}
-                      </td>
-                      <td className="p-4">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenView(deal);
-                              }}
-                            >
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenEdit(deal);
-                              }}
-                            >
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setCurrentDeal(deal);
-                                setShowWinModal(true);
-                              }}
-                            >
-                              <Trophy className="h-4 w-4 mr-2 text-green-600" />
-                              Mark as Won
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setCurrentDeal(deal);
-                                setShowLoseModal(true);
-                              }}
-                            >
-                              <X className="h-4 w-4 mr-2 text-red-600" />
-                              Mark as Lost
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDelete(deal);
-                              }}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      ) : selectedDeal ? (
+        /* Deal Detail View */
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-1">{selectedDeal.title}</h2>
+              {selectedDeal.company && (
+                <p className="text-muted-foreground flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  {selectedDeal.company.name}
+                </p>
+              )}
+            </div>
+            <div className="text-right">
+              <p className="text-3xl font-bold text-primary">
+                {formatCurrency(selectedDeal.value)}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {selectedDeal.probability || 0}% probability
+              </p>
+            </div>
           </div>
-        </Card>
+
+          <div className="grid grid-cols-2 gap-6 mb-6">
+            <Card className="p-4">
+              <Label className="text-sm text-muted-foreground mb-2 block">Stage</Label>
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{
+                    backgroundColor:
+                      stages.find((s) => s.id === selectedDeal.stageId)?.color || '#gray',
+                  }}
+                />
+                <span className="font-medium">
+                  {stages.find((s) => s.id === selectedDeal.stageId)?.name || 'Unknown'}
+                </span>
+              </div>
+            </Card>
+
+            {selectedDeal.expectedCloseDate && (
+              <Card className="p-4">
+                <Label className="text-sm text-muted-foreground mb-2 block">
+                  Expected Close Date
+                </Label>
+                <p className="font-medium flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  {new Date(selectedDeal.expectedCloseDate).toLocaleDateString()}
+                </p>
+              </Card>
+            )}
+
+            {selectedDeal.contact && (
+              <Card className="p-4">
+                <Label className="text-sm text-muted-foreground mb-2 block">Contact</Label>
+                <p className="font-medium flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  {selectedDeal.contact.displayName ||
+                    `${selectedDeal.contact.firstName} ${selectedDeal.contact.lastName}`}
+                </p>
+              </Card>
+            )}
+
+            <Card className="p-4">
+              <Label className="text-sm text-muted-foreground mb-2 block">Created</Label>
+              <p className="font-medium">
+                {selectedDeal.createdAt
+                  ? new Date(selectedDeal.createdAt).toLocaleDateString()
+                  : '-'}
+              </p>
+            </Card>
+          </div>
+
+          {selectedDeal.description && (
+            <Card className="p-4 mb-6">
+              <Label className="text-sm text-muted-foreground mb-2 block">Description</Label>
+              <p className="text-sm whitespace-pre-wrap">{selectedDeal.description}</p>
+            </Card>
+          )}
+
+          <div className="flex gap-3">
+            <Button className="flex-1" onClick={() => handleOpenEdit(selectedDeal)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Deal
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 text-green-600 hover:text-green-700"
+              onClick={() => {
+                setCurrentDeal(selectedDeal);
+                setShowWinModal(true);
+              }}
+            >
+              <Trophy className="h-4 w-4 mr-2" />
+              Mark as Won
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1 text-red-600 hover:text-red-700"
+              onClick={() => {
+                setCurrentDeal(selectedDeal);
+                setShowLoseModal(true);
+              }}
+            >
+              <X className="h-4 w-4 mr-2" />
+              Mark as Lost
+            </Button>
+          </div>
+        </div>
+      ) : (
+        /* Empty State */
+        <div className="flex flex-col items-center justify-center h-full text-center">
+          <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
+            <Target className="h-8 w-8 text-slate-400" />
+          </div>
+          <h3 className="text-lg font-medium mb-2">No deal selected</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Select a deal from the list to view details
+          </p>
+        </div>
       )}
     </div>
   );
@@ -714,20 +819,23 @@ export default function DealsPage() {
   return (
     <>
       <HubLayout
-        hubId="pipeline"
+        hubId="crm"
         title="Deals"
         description="Track and manage your sales pipeline"
         stats={layoutStats}
-        searchValue={searchQuery}
-        onSearchChange={(value) => {
-          setSearchQuery(value);
-          setPage(1);
-        }}
-        searchPlaceholder="Search deals..."
-        actions={actionButtons}
-        showFixedMenu={false}
+        showFixedMenu={true}
+        fixedMenuFilters={
+          <FixedMenuPanel
+            config={fixedMenuConfig}
+            activeFilter={statusFilter}
+            onFilterChange={setStatusFilter}
+            onAction={handleMenuAction}
+            className="p-4"
+          />
+        }
+        fixedMenuList={fixedMenuListContent}
       >
-        {mainContent}
+        {contentArea}
       </HubLayout>
 
       {/* Add Deal Modal */}
@@ -1003,131 +1111,6 @@ export default function DealsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* View Deal Sheet */}
-      <Sheet open={showViewSheet} onOpenChange={setShowViewSheet}>
-        <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Deal Details</SheetTitle>
-            <SheetDescription>View and manage deal information</SheetDescription>
-          </SheetHeader>
-          {currentDeal && (
-            <div className="mt-6 space-y-6">
-              {/* Deal Header */}
-              <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <DollarSign className="h-8 w-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold">{currentDeal.title}</h3>
-                  <p className="text-2xl font-bold text-primary">
-                    {formatCurrency(currentDeal.value)}
-                  </p>
-                </div>
-              </div>
-
-              {/* Deal Info */}
-              <div className="space-y-4">
-                <div className="flex items-center justify-between py-2 border-b">
-                  <span className="text-sm text-muted-foreground">Stage</span>
-                  <span
-                    className="text-xs px-2 py-1 rounded-full"
-                    style={{
-                      backgroundColor: `${stages.find((s) => s.id === currentDeal.stageId)?.color || '#gray'}20`,
-                      color: stages.find((s) => s.id === currentDeal.stageId)?.color || '#gray',
-                    }}
-                  >
-                    {stages.find((s) => s.id === currentDeal.stageId)?.name || 'Unknown'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-2 border-b">
-                  <span className="text-sm text-muted-foreground">Probability</span>
-                  <span className="text-sm">{currentDeal.probability || 0}%</span>
-                </div>
-                <div className="flex items-center justify-between py-2 border-b">
-                  <span className="text-sm text-muted-foreground">Expected Close</span>
-                  <span className="text-sm">
-                    {currentDeal.expectedCloseDate
-                      ? new Date(currentDeal.expectedCloseDate).toLocaleDateString()
-                      : '-'}
-                  </span>
-                </div>
-                {currentDeal.company && (
-                  <div className="flex items-center justify-between py-2 border-b">
-                    <span className="text-sm text-muted-foreground">Company</span>
-                    <span className="text-sm flex items-center gap-1">
-                      <Building2 className="h-4 w-4" />
-                      {currentDeal.company.name}
-                    </span>
-                  </div>
-                )}
-                {currentDeal.contact && (
-                  <div className="flex items-center justify-between py-2 border-b">
-                    <span className="text-sm text-muted-foreground">Contact</span>
-                    <span className="text-sm flex items-center gap-1">
-                      <User className="h-4 w-4" />
-                      {currentDeal.contact.displayName ||
-                        `${currentDeal.contact.firstName} ${currentDeal.contact.lastName}`}
-                    </span>
-                  </div>
-                )}
-                {currentDeal.description && (
-                  <div className="py-2 border-b">
-                    <span className="text-sm text-muted-foreground">Description</span>
-                    <p className="text-sm mt-1">{currentDeal.description}</p>
-                  </div>
-                )}
-                <div className="flex items-center justify-between py-2 border-b">
-                  <span className="text-sm text-muted-foreground">Created</span>
-                  <span className="text-sm">
-                    {currentDeal.createdAt
-                      ? new Date(currentDeal.createdAt).toLocaleDateString()
-                      : '-'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="space-y-2 pt-4">
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => {
-                      setShowViewSheet(false);
-                      handleOpenEdit(currentDeal);
-                    }}
-                  >
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button
-                    className="flex-1 bg-green-600 hover:bg-green-700"
-                    onClick={() => {
-                      setShowViewSheet(false);
-                      setShowWinModal(true);
-                    }}
-                  >
-                    <Trophy className="h-4 w-4 mr-2" />
-                    Won
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    className="flex-1"
-                    onClick={() => {
-                      setShowViewSheet(false);
-                      setShowLoseModal(true);
-                    }}
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Lost
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
     </>
   );
 }

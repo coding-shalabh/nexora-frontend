@@ -54,21 +54,18 @@ function NoteCard({ note, onEdit, onDelete, onTogglePin, isDeleting }) {
   const isPinned = note.isPinned;
   const isPrivate = note.isPrivate;
   const author = note.user || { firstName: 'U', lastName: '', displayName: 'Unknown' };
-  const initials = `${author.firstName?.[0] || ''}${author.lastName?.[0] || ''}`.toUpperCase() || 'U';
+  const initials =
+    `${author.firstName?.[0] || ''}${author.lastName?.[0] || ''}`.toUpperCase() || 'U';
 
   return (
     <div
       className={cn(
         'p-2 rounded-lg relative group',
-        isPrivate
-          ? 'bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50'
-          : 'bg-muted/30',
+        isPrivate ? 'bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50' : 'bg-muted/30',
         isPinned && 'ring-1 ring-primary/30'
       )}
     >
-      {isPinned && (
-        <Pin className="absolute -top-1 -right-1 h-3 w-3 text-primary fill-primary" />
-      )}
+      {isPinned && <Pin className="absolute -top-1 -right-1 h-3 w-3 text-primary fill-primary" />}
       <div className="flex items-center gap-1.5 mb-1">
         <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center">
           <span className="text-[7px] font-medium text-primary">{initials}</span>
@@ -134,18 +131,13 @@ export function NotesPanel({ threadId, compact = false }) {
   const [deletingNote, setDeletingNote] = useState(null);
 
   // API hooks
-  const {
-    data: notesData,
-    isLoading,
-    isError,
-    refetch,
-  } = useConversationNotes(threadId);
+  const { data: notesData, isLoading, isError, refetch } = useConversationNotes(threadId);
 
   const createNoteMutation = useCreateNote();
   const updateNoteMutation = useUpdateNote();
   const deleteNoteMutation = useDeleteNote();
 
-  const notes = notesData?.data || [];
+  const notes = notesData || [];
 
   // Sort notes: pinned first, then by date
   const sortedNotes = [...notes].sort((a, b) => {
@@ -378,9 +370,7 @@ export function NotesPanel({ threadId, compact = false }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteNoteMutation.isPending}>
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteNoteMutation.isPending}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteNote}
               className="bg-destructive hover:bg-destructive/90"

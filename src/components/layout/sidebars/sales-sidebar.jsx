@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext, useMemo } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { usePathname, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   Briefcase,
@@ -22,345 +22,421 @@ import {
   LayoutGrid,
   Trophy,
   Plus,
-  Upload,
   Download,
-  Users,
+  CheckCircle,
   Clock,
-  AlertTriangle,
+  RefreshCw,
   DollarSign,
+  Layers,
+  Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-/**
- * Sales Hub Sidebar Navigation Items
- * Flat list - no collapsible sections
- */
-const salesNavigation = [
+// ═══════════════════════════════════════════════════════════════════════════════
+// NAVIGATION SECTIONS - Core sidebar categories
+// ═══════════════════════════════════════════════════════════════════════════════
+const navigationSections = [
   {
-    title: 'Workspace',
-    href: '/sales/workspace',
-    icon: LayoutGrid,
-    description: 'Sales dashboard',
+    id: 'core',
+    title: 'Core',
+    subtitle: 'Sales tools & pipeline',
+    icon: Briefcase,
+    // Items grouped by category for accordion display in SubMenu
+    groups: [
+      {
+        id: 'overview',
+        title: null, // No header for overview
+        items: [{ title: 'Overview', href: '/sales', icon: TrendingUp }],
+      },
+      {
+        id: 'leads',
+        title: 'Leads',
+        items: [
+          { title: 'Leads', href: '/sales/leads', icon: Target },
+          { title: 'Prospecting', href: '/sales/prospecting', icon: Target },
+        ],
+      },
+      {
+        id: 'pipeline',
+        title: 'Pipeline',
+        items: [
+          { title: 'Pipeline', href: '/sales/pipeline', icon: LineChart },
+          { title: 'Deals', href: '/sales/deals', icon: Briefcase },
+        ],
+      },
+      {
+        id: 'quotes',
+        title: 'Quotes',
+        items: [
+          { title: 'Quotes', href: '/sales/quotes', icon: FileText },
+          { title: 'Products', href: '/sales/products', icon: LayoutGrid },
+        ],
+      },
+      {
+        id: 'forecasting',
+        title: 'Forecasting',
+        items: [
+          { title: 'Forecasts', href: '/sales/forecasts', icon: TrendingUp },
+          { title: 'Goals', href: '/sales/goals', icon: Target },
+        ],
+      },
+      {
+        id: 'workspace',
+        title: 'Workspace',
+        items: [
+          { title: 'Workspace', href: '/sales/workspace', icon: LayoutGrid },
+          { title: 'Documents', href: '/sales/documents', icon: Files },
+        ],
+      },
+      {
+        id: 'tools',
+        title: 'Tools',
+        items: [
+          { title: 'Sequences', href: '/sales/sequences', icon: RefreshCw },
+          { title: 'Playbooks', href: '/sales/playbooks', icon: ClipboardList },
+          { title: 'Coaching', href: '/sales/coaching', icon: Trophy },
+        ],
+      },
+      {
+        id: 'analytics',
+        title: 'Analytics',
+        items: [
+          { title: 'Reports', href: '/sales/reports', icon: LineChart },
+          { title: 'Leaderboard', href: '/sales/leaderboard', icon: Trophy },
+        ],
+      },
+      {
+        id: 'ai',
+        title: 'AI',
+        items: [
+          { title: 'AI Forecasting', href: '/sales/ai-forecast', icon: TrendingUp },
+          { title: 'Call Intelligence', href: '/sales/call-intelligence', icon: Target },
+          { title: 'Deal Insights', href: '/sales/deal-insights', icon: LineChart },
+        ],
+      },
+    ],
+    // Flat items for stats/header (first item of each group)
+    items: [{ title: 'Overview', href: '/sales', icon: TrendingUp }],
   },
-  { title: 'Deals', href: '/sales/deals', icon: Briefcase, description: 'Manage pipeline' },
-  { title: 'Leads', href: '/sales/leads', icon: UserPlus, description: 'Lead management' },
-  { title: 'Accounts', href: '/sales/accounts', icon: Building2, description: 'Company accounts' },
-  { title: 'Quotes', href: '/sales/quotes', icon: FileText, description: 'Sales quotes' },
-  { title: 'Sequences', href: '/sales/sequences', icon: Zap, description: 'Sales automation' },
   {
-    title: 'Playbooks',
-    href: '/sales/playbooks',
-    icon: ClipboardList,
-    description: 'Sales processes',
+    id: 'config',
+    title: 'Config',
+    subtitle: 'Settings',
+    icon: Settings,
+    items: [{ title: 'Settings', href: '/sales/settings', icon: Settings }],
   },
-  { title: 'Documents', href: '/sales/documents', icon: Files, description: 'Sales collateral' },
-  { title: 'Prospecting', href: '/sales/prospecting', icon: Target, description: 'Find prospects' },
-  {
-    title: 'Forecasts',
-    href: '/sales/forecasts',
-    icon: LineChart,
-    description: 'Revenue forecasts',
-  },
-  {
-    title: 'Leaderboard',
-    href: '/sales/leaderboard',
-    icon: Trophy,
-    description: 'Team performance',
-  },
-  { title: 'Analytics', href: '/sales/analytics', icon: TrendingUp, description: 'Sales metrics' },
-  { title: 'Settings', href: '/sales/settings', icon: Settings, description: 'Configure sales' },
 ];
 
-/**
- * Fixed Action Buttons (always visible at top)
- */
-const fixedActions = [
-  { id: 'add', title: 'Add Deal', href: '/sales/deals/new', icon: Plus, variant: 'default' },
-  { id: 'lead', title: 'Add Lead', href: '/sales/leads/new', icon: UserPlus, variant: 'outline' },
-];
+// ═══════════════════════════════════════════════════════════════════════════════
+// CONTEXT FOR SHARING SELECTED SECTION
+// ═══════════════════════════════════════════════════════════════════════════════
+const SalesContext = createContext(null);
 
-/**
- * Quick Filters for Deals page
- */
-const dealsFilters = [
-  { id: 'all', label: 'All Deals', icon: null },
-  { id: 'mine', label: 'My Deals', icon: Users },
-  { id: 'closing', label: 'Closing Soon', icon: Clock },
-  { id: 'stale', label: 'Stale', icon: AlertTriangle },
-  { id: 'won', label: 'Won', icon: Trophy },
-];
+export function useSalesContext() {
+  const context = useContext(SalesContext);
+  if (!context) {
+    throw new Error('useSalesContext must be used within SalesProvider');
+  }
+  return context;
+}
 
-/**
- * Value Filters
- */
-const valueFilters = [
-  { id: 'all', label: 'All Values' },
-  { id: 'high', label: '$50K+' },
-  { id: 'medium', label: '$10K-$50K' },
-  { id: 'low', label: '<$10K' },
-];
-
-export function SalesSidebar({ onAction }) {
+// ═══════════════════════════════════════════════════════════════════════════════
+// SALES PROVIDER (Wraps everything to share state)
+// ═══════════════════════════════════════════════════════════════════════════════
+export function SalesProvider({ children }) {
   const pathname = usePathname();
+  const [selectedSection, setSelectedSection] = useState('core');
+
+  // Find which section contains the active item
+  useEffect(() => {
+    for (const section of navigationSections) {
+      for (const item of section.items) {
+        if (pathname === item.href || pathname.startsWith(item.href + '/')) {
+          setSelectedSection(section.id);
+          return;
+        }
+      }
+    }
+  }, [pathname]);
+
+  const currentSection = useMemo(
+    () => navigationSections.find((s) => s.id === selectedSection),
+    [selectedSection]
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      currentSection,
+      selectedSection,
+      setSelectedSection,
+      navigationSections,
+      pathname,
+    }),
+    [currentSection, selectedSection, pathname]
+  );
+
+  return <SalesContext.Provider value={contextValue}>{children}</SalesContext.Provider>;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SALES SIDEBAR (CORE MENU WITH COLLAPSIBLE SECTIONS)
+// ═══════════════════════════════════════════════════════════════════════════════
+export function SalesSidebar() {
+  const { pathname } = useSalesContext();
+  const router = useRouter();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [activeValueFilter, setActiveValueFilter] = useState('all');
-  const [showMyTeamOnly, setShowMyTeamOnly] = useState(false);
+  const [expandedSections, setExpandedSections] = useState(['leads', 'pipeline', 'quotes']);
 
-  // Check if we're on the deals page
-  const isDealsPage = pathname.includes('/sales/deals');
-
-  // Load collapsed state from localStorage
+  // Load collapsed state
   useEffect(() => {
     const saved = localStorage.getItem('sales-sidebar-collapsed');
-    if (saved !== null) {
-      setIsCollapsed(JSON.parse(saved));
-    }
+    if (saved !== null) setIsCollapsed(JSON.parse(saved));
   }, []);
 
-  // Save collapsed state
+  const isActive = (href) => pathname === href || pathname.startsWith(href + '/');
+
+  // Toggle section expansion
+  const toggleSection = (sectionId) => {
+    setExpandedSections((prev) =>
+      prev.includes(sectionId) ? prev.filter((id) => id !== sectionId) : [...prev, sectionId]
+    );
+  };
+
   const toggleCollapsed = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
     localStorage.setItem('sales-sidebar-collapsed', JSON.stringify(newState));
   };
 
-  const isActive = (href) => {
-    return pathname === href || pathname.startsWith(href + '/');
-  };
-
-  const handleAction = (actionId) => {
-    if (onAction) {
-      onAction(actionId);
-    }
-  };
-
-  const NavItem = ({ item, showDescription = false }) => {
-    const active = isActive(item.href);
-
-    const linkContent = (
-      <div
-        className={cn(
-          'flex items-center gap-3 px-3 py-2 rounded-lg transition-all overflow-hidden',
-          active && 'text-white',
-          !active && 'text-gray-700 hover:bg-white/50 hover:text-gray-900',
-          isCollapsed && 'justify-center px-2 py-2'
-        )}
-        style={active ? { background: '#0004c3' } : undefined}
-      >
-        <item.icon
-          className={cn(
-            'shrink-0',
-            isCollapsed ? 'h-5 w-5' : 'h-4 w-4',
-            active ? 'text-white' : 'text-gray-500'
-          )}
-        />
-        {!isCollapsed && (
-          <div className="flex-1 min-w-0 overflow-hidden">
-            <span
-              className={cn(
-                'text-sm font-medium whitespace-nowrap',
-                active ? 'text-white' : 'text-gray-900'
-              )}
-            >
-              {item.title}
-            </span>
-            {showDescription && item.description && (
-              <p
-                className={cn(
-                  'text-xs truncate mt-0.5',
-                  active ? 'text-white/70' : 'text-gray-500'
-                )}
-              >
-                {item.description}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
-    );
-
-    if (isCollapsed) {
-      return (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link href={item.href}>{linkContent}</Link>
-          </TooltipTrigger>
-          <TooltipContent
-            side="right"
-            className="flex flex-col gap-1 bg-white border-0 px-3 py-2 shadow-lg"
-          >
-            <span className="font-medium text-gray-900">{item.title}</span>
-            {item.description && <span className="text-xs text-gray-500">{item.description}</span>}
-          </TooltipContent>
-        </Tooltip>
-      );
-    }
-
-    return <Link href={item.href}>{linkContent}</Link>;
-  };
+  // Get the Core section which has all the groups
+  const coreSection = navigationSections.find((s) => s.id === 'core');
+  const configSection = navigationSections.find((s) => s.id === 'config');
 
   return (
     <TooltipProvider delayDuration={0}>
       <motion.aside
         initial={false}
-        animate={{ width: isCollapsed ? 64 : 260 }}
-        transition={{
-          type: 'spring',
-          stiffness: 300,
-          damping: 30,
-          mass: 0.8,
-        }}
+        animate={{ width: isCollapsed ? 64 : 220 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }}
         className="relative h-full flex flex-col bg-transparent"
       >
-        {/* Fixed Action Buttons (always visible) */}
-        {!isCollapsed && (
-          <div className="px-3 py-3 border-b border-gray-200">
-            <div className="flex flex-wrap gap-2">
-              {fixedActions.map((action) => {
-                const Icon = action.icon;
-                if (action.href) {
+        {/* Core Menu Items with Collapsible Sections */}
+        <nav
+          className="flex-1 overflow-y-auto py-3 px-2"
+          style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
+        >
+          <div className="space-y-1">
+            {/* Overview - always visible */}
+            {coreSection?.groups
+              ?.find((g) => g.id === 'overview')
+              ?.items.map((item) => {
+                const active = isActive(item.href);
+                const ItemIcon = item.icon;
+
+                if (isCollapsed) {
                   return (
-                    <Link key={action.id} href={action.href} className="flex-1">
-                      <Button
-                        variant={action.variant || 'default'}
-                        size="sm"
-                        className="w-full"
-                        style={action.variant === 'default' ? { background: '#0004c3' } : undefined}
+                    <Tooltip key={item.href}>
+                      <TooltipTrigger asChild>
+                        <Link href={item.href}>
+                          <div
+                            className={cn(
+                              'w-full flex items-center justify-center p-2 rounded-lg transition-all',
+                              active
+                                ? 'bg-gray-100 text-brand shadow-sm'
+                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-700'
+                            )}
+                          >
+                            <ItemIcon className="h-5 w-5" />
+                          </div>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        className="bg-white border border-gray-200 shadow-lg"
                       >
-                        <Icon className="h-4 w-4 mr-1" />
-                        {action.title}
-                      </Button>
-                    </Link>
+                        <span className="font-medium text-gray-800">{item.title}</span>
+                      </TooltipContent>
+                    </Tooltip>
                   );
                 }
+
                 return (
-                  <Button
-                    key={action.id}
-                    variant={action.variant || 'outline'}
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => handleAction(action.onClick || action.id)}
-                  >
-                    <Icon className="h-4 w-4 mr-1" />
-                    {action.title}
-                  </Button>
+                  <Link key={item.href} href={item.href}>
+                    <div
+                      className={cn(
+                        'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all',
+                        active
+                          ? 'bg-gray-100 text-brand shadow-sm font-medium'
+                          : 'text-gray-700 hover:bg-gray-100 hover:text-gray-800'
+                      )}
+                    >
+                      <ItemIcon
+                        className={cn('h-4 w-4 shrink-0', active ? 'text-brand' : 'text-gray-500')}
+                      />
+                      <span className="text-sm truncate">{item.title}</span>
+                    </div>
+                  </Link>
                 );
               })}
-            </div>
-          </div>
-        )}
 
-        {/* Collapsed state: show action buttons as icons */}
-        {isCollapsed && (
-          <div className="px-2 py-2 border-b border-gray-200 space-y-1">
-            {fixedActions.map((action) => {
-              const Icon = action.icon;
-              const content = (
-                <Button
-                  variant={action.variant === 'default' ? 'default' : 'ghost'}
-                  size="icon"
-                  className="w-full h-10"
-                  style={action.variant === 'default' ? { background: '#0004c3' } : undefined}
-                  onClick={() => !action.href && handleAction(action.onClick || action.id)}
-                >
-                  <Icon className="h-5 w-5" />
-                </Button>
-              );
-              return (
-                <Tooltip key={action.id}>
-                  <TooltipTrigger asChild>
-                    {action.href ? <Link href={action.href}>{content}</Link> : content}
-                  </TooltipTrigger>
-                  <TooltipContent side="right" className="bg-white border-0 shadow-lg">
-                    {action.title}
-                  </TooltipContent>
-                </Tooltip>
-              );
-            })}
-          </div>
-        )}
+            {/* Collapsible Sections */}
+            {coreSection?.groups
+              ?.filter((g) => g.id !== 'overview')
+              .map((group) => {
+                const isExpanded = expandedSections.includes(group.id);
+                const hasActiveItem = group.items.some((item) => isActive(item.href));
+                const GroupIcon = group.items[0]?.icon || Target;
 
-        {/* Navigation Links - Flat list (no section headers) */}
-        <nav className="flex-1 overflow-y-auto py-3 px-3">
-          <div className="space-y-0.5">
-            {salesNavigation.map((item) => (
-              <NavItem key={item.href} item={item} />
-            ))}
+                if (isCollapsed) {
+                  return (
+                    <Tooltip key={group.id}>
+                      <TooltipTrigger asChild>
+                        <Link href={group.items[0]?.href || '#'}>
+                          <div
+                            className={cn(
+                              'w-full flex items-center justify-center p-2 rounded-lg transition-all',
+                              hasActiveItem
+                                ? 'bg-gray-100 text-brand shadow-sm'
+                                : 'text-gray-600 hover:bg-gray-100 hover:text-gray-700'
+                            )}
+                          >
+                            <GroupIcon className="h-5 w-5" />
+                          </div>
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="right"
+                        className="bg-white border border-gray-200 shadow-lg"
+                      >
+                        <span className="font-medium text-gray-800">{group.title}</span>
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                }
+
+                return (
+                  <div key={group.id} className="mt-1">
+                    {/* Section Header - Clickable to expand/collapse */}
+                    <button
+                      onClick={() => toggleSection(group.id)}
+                      className={cn(
+                        'w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-all text-left',
+                        hasActiveItem
+                          ? 'text-brand font-medium'
+                          : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                      )}
+                    >
+                      <GroupIcon
+                        className={cn(
+                          'h-4 w-4 shrink-0',
+                          hasActiveItem ? 'text-brand' : 'text-gray-400'
+                        )}
+                      />
+                      <span className="text-sm flex-1 truncate">{group.title}</span>
+                      <ChevronRight
+                        className={cn(
+                          'h-3 w-3 transition-transform',
+                          isExpanded ? 'rotate-90' : ''
+                        )}
+                      />
+                    </button>
+
+                    {/* Section Items - Collapsible */}
+                    {isExpanded && (
+                      <div className="ml-4 pl-2 border-l border-gray-200 mt-1 space-y-0.5">
+                        {group.items.map((item) => {
+                          const active = isActive(item.href);
+                          const ItemIcon = item.icon;
+
+                          return (
+                            <Link key={item.href} href={item.href}>
+                              <div
+                                className={cn(
+                                  'flex items-center gap-2 px-2 py-1.5 rounded-md transition-all text-sm',
+                                  active
+                                    ? 'bg-gray-100 text-brand font-medium'
+                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
+                                )}
+                              >
+                                <ItemIcon
+                                  className={cn(
+                                    'h-3.5 w-3.5 shrink-0',
+                                    active ? 'text-brand' : 'text-gray-400'
+                                  )}
+                                />
+                                <span className="truncate">{item.title}</span>
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+            {/* Config Section */}
+            {configSection && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                {configSection.items.map((item) => {
+                  const active = isActive(item.href);
+                  const ItemIcon = item.icon;
+
+                  if (isCollapsed) {
+                    return (
+                      <Tooltip key={item.href}>
+                        <TooltipTrigger asChild>
+                          <Link href={item.href}>
+                            <div
+                              className={cn(
+                                'w-full flex items-center justify-center p-2 rounded-lg transition-all',
+                                active
+                                  ? 'bg-gray-100 text-brand shadow-sm'
+                                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-700'
+                              )}
+                            >
+                              <ItemIcon className="h-5 w-5" />
+                            </div>
+                          </Link>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="right"
+                          className="bg-white border border-gray-200 shadow-lg"
+                        >
+                          <span className="font-medium text-gray-800">{item.title}</span>
+                        </TooltipContent>
+                      </Tooltip>
+                    );
+                  }
+
+                  return (
+                    <Link key={item.href} href={item.href}>
+                      <div
+                        className={cn(
+                          'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all',
+                          active
+                            ? 'bg-gray-100 text-brand shadow-sm font-medium'
+                            : 'text-gray-700 hover:bg-gray-100 hover:text-gray-800'
+                        )}
+                      >
+                        <ItemIcon
+                          className={cn(
+                            'h-4 w-4 shrink-0',
+                            active ? 'text-brand' : 'text-gray-500'
+                          )}
+                        />
+                        <span className="text-sm truncate">{item.title}</span>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </nav>
 
-        {/* Deal Filters (shown when on Deals page) */}
-        {isDealsPage && !isCollapsed && (
-          <div className="px-3 py-3 border-t border-gray-200">
-            <div className="space-y-3">
-              {/* Quick Filters */}
-              <div className="space-y-2">
-                <span className="text-xs font-medium text-gray-500">Filter Deals</span>
-                <div className="flex flex-wrap gap-1">
-                  {dealsFilters.map((filter) => {
-                    const FilterIcon = filter.icon;
-                    const isFilterActive = activeFilter === filter.id;
-                    return (
-                      <Button
-                        key={filter.id}
-                        variant={isFilterActive ? 'secondary' : 'ghost'}
-                        size="sm"
-                        className={cn(
-                          'h-7 text-xs',
-                          isFilterActive && 'bg-primary/10 text-primary'
-                        )}
-                        onClick={() => setActiveFilter(filter.id)}
-                      >
-                        {FilterIcon && <FilterIcon className="h-3 w-3 mr-1" />}
-                        {filter.label}
-                      </Button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Value Filters */}
-              <div className="space-y-2">
-                <span className="text-xs font-medium text-gray-500">Deal Value</span>
-                <div className="flex flex-wrap gap-1">
-                  {valueFilters.map((filter) => {
-                    const isFilterActive = activeValueFilter === filter.id;
-                    return (
-                      <Button
-                        key={filter.id}
-                        variant={isFilterActive ? 'secondary' : 'ghost'}
-                        size="sm"
-                        className={cn(
-                          'h-7 text-xs',
-                          isFilterActive && 'bg-primary/10 text-primary'
-                        )}
-                        onClick={() => setActiveValueFilter(filter.id)}
-                      >
-                        {filter.id !== 'all' && <DollarSign className="h-3 w-3 mr-0.5" />}
-                        {filter.label}
-                      </Button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* My Team Only Toggle */}
-              <div className="flex items-center justify-between py-1">
-                <span className="text-xs text-gray-500">My Team Only</span>
-                <Switch
-                  checked={showMyTeamOnly}
-                  onCheckedChange={setShowMyTeamOnly}
-                  className="h-4 w-7"
-                />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Collapse Toggle Button */}
+        {/* Collapse Toggle */}
         <Button
           variant="outline"
           size="icon"
@@ -371,5 +447,419 @@ export function SalesSidebar({ onAction }) {
         </Button>
       </motion.aside>
     </TooltipProvider>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PAGE-SPECIFIC STATS CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════════════════
+const pageStats = {
+  '/sales': [
+    { value: '6', label: 'Deals', icon: Briefcase, bg: 'bg-blue-50', color: 'text-blue-600' },
+    {
+      value: '$220K',
+      label: 'Pipeline',
+      icon: DollarSign,
+      bg: 'bg-green-50',
+      color: 'text-green-600',
+    },
+    {
+      value: '$36K',
+      label: 'Avg Deal',
+      icon: TrendingUp,
+      bg: 'bg-purple-50',
+      color: 'text-purple-600',
+    },
+    { value: '5', label: 'Stages', icon: Layers, bg: 'bg-amber-50', color: 'text-amber-600' },
+  ],
+  '/sales/pipeline': [
+    { value: '6', label: 'Deals', icon: Briefcase, bg: 'bg-blue-50', color: 'text-blue-600' },
+    {
+      value: '$220K',
+      label: 'Pipeline',
+      icon: DollarSign,
+      bg: 'bg-green-50',
+      color: 'text-green-600',
+    },
+    {
+      value: '$36K',
+      label: 'Avg Deal',
+      icon: TrendingUp,
+      bg: 'bg-purple-50',
+      color: 'text-purple-600',
+    },
+    { value: '5', label: 'Stages', icon: Layers, bg: 'bg-amber-50', color: 'text-amber-600' },
+  ],
+  '/sales/workspace': [
+    { value: '0', label: 'Pipeline', icon: DollarSign, bg: 'bg-blue-50', color: 'text-blue-600' },
+    {
+      value: '0',
+      label: 'Open Deals',
+      icon: Briefcase,
+      bg: 'bg-green-50',
+      color: 'text-green-600',
+    },
+    {
+      value: '0',
+      label: 'This Month',
+      icon: TrendingUp,
+      bg: 'bg-purple-50',
+      color: 'text-purple-600',
+    },
+    { value: '0', label: 'Won', icon: Trophy, bg: 'bg-amber-50', color: 'text-amber-600' },
+  ],
+  '/sales/deals': [
+    { value: '0', label: 'Total', icon: Briefcase, bg: 'bg-blue-50', color: 'text-blue-600' },
+    { value: '0', label: 'Open', icon: Clock, bg: 'bg-green-50', color: 'text-green-600' },
+    { value: '0', label: 'Won', icon: CheckCircle, bg: 'bg-purple-50', color: 'text-purple-600' },
+    { value: '$0', label: 'Value', icon: DollarSign, bg: 'bg-amber-50', color: 'text-amber-600' },
+  ],
+  '/sales/leads': [
+    { value: '0', label: 'Total', icon: UserPlus, bg: 'bg-blue-50', color: 'text-blue-600' },
+    { value: '0', label: 'New', icon: Clock, bg: 'bg-green-50', color: 'text-green-600' },
+    {
+      value: '0',
+      label: 'Qualified',
+      icon: CheckCircle,
+      bg: 'bg-purple-50',
+      color: 'text-purple-600',
+    },
+    {
+      value: '0%',
+      label: 'Conversion',
+      icon: TrendingUp,
+      bg: 'bg-amber-50',
+      color: 'text-amber-600',
+    },
+  ],
+  '/sales/accounts': [
+    { value: '0', label: 'Total', icon: Building2, bg: 'bg-blue-50', color: 'text-blue-600' },
+    { value: '0', label: 'Active', icon: CheckCircle, bg: 'bg-green-50', color: 'text-green-600' },
+    { value: '0', label: 'Deals', icon: Briefcase, bg: 'bg-purple-50', color: 'text-purple-600' },
+    { value: '$0', label: 'Revenue', icon: DollarSign, bg: 'bg-amber-50', color: 'text-amber-600' },
+  ],
+  '/sales/quotes': [
+    { value: '0', label: 'Total', icon: FileText, bg: 'bg-blue-50', color: 'text-blue-600' },
+    { value: '0', label: 'Pending', icon: Clock, bg: 'bg-green-50', color: 'text-green-600' },
+    {
+      value: '0',
+      label: 'Accepted',
+      icon: CheckCircle,
+      bg: 'bg-purple-50',
+      color: 'text-purple-600',
+    },
+    { value: '$0', label: 'Value', icon: DollarSign, bg: 'bg-amber-50', color: 'text-amber-600' },
+  ],
+  '/sales/forecasts': [
+    { value: '$0', label: 'Target', icon: Target, bg: 'bg-blue-50', color: 'text-blue-600' },
+    { value: '$0', label: 'Forecast', icon: LineChart, bg: 'bg-green-50', color: 'text-green-600' },
+    {
+      value: '0%',
+      label: 'Achieved',
+      icon: TrendingUp,
+      bg: 'bg-purple-50',
+      color: 'text-purple-600',
+    },
+    { value: '0', label: 'Deals', icon: Briefcase, bg: 'bg-amber-50', color: 'text-amber-600' },
+  ],
+  '/sales/leaderboard': [
+    { value: '0', label: 'Reps', icon: Trophy, bg: 'bg-blue-50', color: 'text-blue-600' },
+    { value: '$0', label: 'Total', icon: DollarSign, bg: 'bg-green-50', color: 'text-green-600' },
+    {
+      value: '0',
+      label: 'Deals Won',
+      icon: CheckCircle,
+      bg: 'bg-purple-50',
+      color: 'text-purple-600',
+    },
+    {
+      value: '0%',
+      label: 'Win Rate',
+      icon: TrendingUp,
+      bg: 'bg-amber-50',
+      color: 'text-amber-600',
+    },
+  ],
+  '/sales/analytics': [
+    { value: '0', label: 'Reports', icon: TrendingUp, bg: 'bg-blue-50', color: 'text-blue-600' },
+    { value: '0', label: 'Metrics', icon: LineChart, bg: 'bg-green-50', color: 'text-green-600' },
+    { value: '0', label: 'Insights', icon: Target, bg: 'bg-purple-50', color: 'text-purple-600' },
+    { value: '0', label: 'Alerts', icon: Zap, bg: 'bg-amber-50', color: 'text-amber-600' },
+  ],
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PAGE-SPECIFIC ACTIONS CONFIGURATION
+// ═══════════════════════════════════════════════════════════════════════════════
+const pageActions = {
+  '/sales': [
+    { icon: 'download', label: 'Export', variant: 'outline' },
+    { icon: 'upload', label: 'Import', variant: 'outline' },
+    { icon: 'plus', label: 'Add Deal', variant: 'default' },
+  ],
+  '/sales/pipeline': [
+    { icon: 'download', label: 'Export', variant: 'outline' },
+    { icon: 'upload', label: 'Import', variant: 'outline' },
+    { icon: 'plus', label: 'Add Deal', variant: 'default' },
+  ],
+  '/sales/workspace': [],
+  '/sales/deals': [
+    { icon: 'download', label: 'Export', variant: 'outline' },
+    { icon: 'plus', label: 'Add Deal', variant: 'default' },
+  ],
+  '/sales/leads': [
+    { icon: 'download', label: 'Export', variant: 'outline' },
+    { icon: 'plus', label: 'Add Lead', variant: 'default' },
+  ],
+  '/sales/accounts': [
+    { icon: 'download', label: 'Export', variant: 'outline' },
+    { icon: 'plus', label: 'Add Account', variant: 'default' },
+  ],
+  '/sales/quotes': [{ icon: 'plus', label: 'Create Quote', variant: 'default' }],
+  '/sales/sequences': [{ icon: 'plus', label: 'New Sequence', variant: 'default' }],
+  '/sales/playbooks': [{ icon: 'plus', label: 'New Playbook', variant: 'default' }],
+  '/sales/documents': [{ icon: 'plus', label: 'Upload', variant: 'default' }],
+  '/sales/prospecting': [{ icon: 'plus', label: 'New Search', variant: 'default' }],
+  '/sales/forecasts': [],
+  '/sales/leaderboard': [],
+  '/sales/analytics': [],
+  '/sales/settings': [],
+};
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SALES HEADER (Status bar with title and stats)
+// ═══════════════════════════════════════════════════════════════════════════════
+export function SalesHeader() {
+  const { currentSection, pathname } = useSalesContext();
+  const [refreshing, setRefreshing] = useState(false);
+
+  if (!currentSection) return null;
+
+  // Find the active sub-menu item
+  const activeItem = currentSection.items
+    .filter((item) => pathname === item.href || pathname.startsWith(item.href + '/'))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+
+  // Get page-specific stats
+  const stats = pageStats[pathname] ||
+    pageStats[activeItem?.href] || [
+      {
+        value: currentSection.items.length,
+        label: 'Items',
+        icon: Settings,
+        bg: 'bg-blue-50',
+        color: 'text-blue-600',
+      },
+    ];
+
+  // Get page-specific actions
+  const actions = pageActions[pathname] || pageActions[activeItem?.href] || [];
+
+  const getActionIcon = (iconName) => {
+    switch (iconName) {
+      case 'plus':
+        return Plus;
+      case 'download':
+        return Download;
+      case 'upload':
+        return Upload;
+      default:
+        return Plus;
+    }
+  };
+
+  return (
+    <TooltipProvider delayDuration={0}>
+      <div className="shrink-0 bg-white border-b border-gray-300 rounded-2xl shadow-sm">
+        <div className="flex items-center justify-between px-4 py-2.5">
+          <div className="flex items-center gap-4">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-gray-400">{currentSection.title}</span>
+              {activeItem && (
+                <>
+                  <span className="text-gray-300">/</span>
+                  <span className="text-gray-700 font-medium">{activeItem.title}</span>
+                </>
+              )}
+            </div>
+
+            <div className="w-px h-4 bg-gray-300" />
+
+            {/* Stats Boxes */}
+            <div className="flex items-center gap-3">
+              {stats.map((stat, index) => {
+                const StatIcon = stat.icon;
+                return (
+                  <div
+                    key={index}
+                    className={cn('flex items-center gap-1.5 px-2.5 py-1 rounded-lg', stat.bg)}
+                  >
+                    <StatIcon className={cn('h-3.5 w-3.5', stat.color)} />
+                    <span className={cn('text-sm font-semibold', stat.color)}>{stat.value}</span>
+                    <span className="text-[10px] text-gray-400">{stat.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-1.5">
+            {actions.map((action, index) => {
+              const ActionIcon = getActionIcon(action.icon);
+              return (
+                <Tooltip key={index}>
+                  <TooltipTrigger asChild>
+                    <button
+                      className={cn(
+                        'h-7 w-7 rounded-lg flex items-center justify-center transition-colors',
+                        action.variant === 'outline'
+                          ? 'border border-gray-300 hover:bg-gray-50 text-gray-600'
+                          : 'bg-gray-900 hover:bg-gray-800 text-white'
+                      )}
+                    >
+                      <ActionIcon className="h-3.5 w-3.5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="text-xs">
+                    {action.label}
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setRefreshing(true)}
+                  disabled={refreshing}
+                  className="h-7 w-7 rounded-lg flex items-center justify-center hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw className={cn('h-3.5 w-3.5', refreshing && 'animate-spin')} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="text-xs">
+                Refresh
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
+      </div>
+    </TooltipProvider>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SALES SUB-MENU PANEL (Grouped items with accordion sections)
+// ═══════════════════════════════════════════════════════════════════════════════
+export function SalesSubMenu() {
+  const { currentSection, pathname } = useSalesContext();
+  const isActive = (href) => pathname === href || pathname.startsWith(href + '/');
+
+  if (!currentSection) return null;
+
+  // Check if section has grouped items or flat items
+  const hasGroups = currentSection.groups && currentSection.groups.length > 0;
+
+  return (
+    <aside className="relative flex flex-col shrink-0 rounded-2xl w-[280px] bg-white shadow-sm overflow-hidden border border-gray-300">
+      <nav
+        className="flex-1 overflow-y-auto p-3"
+        style={{ scrollbarWidth: 'thin', scrollbarColor: '#d1d5db transparent' }}
+      >
+        {hasGroups ? (
+          // Render grouped items with section headers (accordion style)
+          <div className="space-y-1">
+            {currentSection.groups.map((group) => (
+              <div key={group.id} className={group.title ? 'mt-4 first:mt-0' : ''}>
+                {/* Section header */}
+                {group.title && (
+                  <h3 className="px-3 mb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    {group.title}
+                  </h3>
+                )}
+                {/* Section items */}
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const active = isActive(item.href);
+                    const ItemIcon = item.icon;
+
+                    return (
+                      <Link key={item.href} href={item.href}>
+                        <div
+                          className={cn(
+                            'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all',
+                            active
+                              ? 'bg-gray-100 text-brand shadow-sm'
+                              : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                          )}
+                        >
+                          <ItemIcon
+                            className={cn(
+                              'shrink-0 h-4 w-4',
+                              active ? 'text-brand' : 'text-gray-500'
+                            )}
+                          />
+                          <span
+                            className={cn(
+                              'text-sm font-medium flex-1 whitespace-nowrap',
+                              active ? 'text-brand' : 'text-gray-900'
+                            )}
+                          >
+                            {item.title}
+                          </span>
+                          {active && <div className="w-1.5 h-1.5 rounded-full bg-brand" />}
+                        </div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // Render flat items (original behavior)
+          <div className="space-y-1">
+            {currentSection.items.map((item) => {
+              const active = isActive(item.href);
+              const ItemIcon = item.icon;
+
+              return (
+                <Link key={item.href} href={item.href}>
+                  <div
+                    className={cn(
+                      'flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all',
+                      active
+                        ? 'bg-gray-100 text-brand shadow-sm'
+                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-800'
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'flex items-center justify-center h-9 w-9 rounded-lg shrink-0',
+                        active ? 'bg-brand' : 'bg-gray-100'
+                      )}
+                    >
+                      <ItemIcon
+                        className={cn('h-4 w-4', active ? 'text-white' : 'text-gray-500')}
+                      />
+                    </div>
+                    <span
+                      className={cn(
+                        'text-sm font-medium flex-1',
+                        active ? 'text-brand' : 'text-gray-800'
+                      )}
+                    >
+                      {item.title}
+                    </span>
+                    {active && <div className="w-1.5 h-1.5 rounded-full bg-brand" />}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </nav>
+    </aside>
   );
 }

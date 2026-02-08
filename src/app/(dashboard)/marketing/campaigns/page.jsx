@@ -74,6 +74,8 @@ import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
+import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 const statusConfig = {
   DRAFT: { label: 'Draft', color: 'bg-gray-100 text-gray-700', icon: AlertCircle },
@@ -334,282 +336,394 @@ export default function CampaignsPage() {
       campaign.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Marketing Campaigns</h1>
-          <p className="text-muted-foreground">
-            Create and manage multi-channel marketing campaigns
-          </p>
-        </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Campaign
+  // Stats for HubLayout
+  const hubStats = [
+    createStat('Active', counts.active || 0, Play, 'purple'),
+    createStat('Messages Sent', stats.campaigns?.sent || 0, Users, 'blue'),
+    createStat('Opened', stats.campaigns?.opened || 0, TrendingUp, 'green'),
+    createStat('Conversions', stats.campaigns?.converted || 0, Target, 'orange'),
+  ];
+
+  // FixedMenuPanel configuration
+  const fixedMenuConfig = {
+    primaryActions: [{ id: 'create', label: 'New Campaign', icon: Plus, variant: 'default' }],
+    filters: {
+      quickFilters: [
+        { id: 'all', label: 'All' },
+        { id: 'DRAFT', label: 'Draft' },
+        { id: 'SCHEDULED', label: 'Scheduled' },
+        { id: 'ACTIVE', label: 'Active' },
+        { id: 'PAUSED', label: 'Paused' },
+        { id: 'COMPLETED', label: 'Completed' },
+      ],
+    },
+  };
+
+  // Empty state component
+  const EmptyState = () => (
+    <div className="p-12 text-center">
+      <Megaphone className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+      <h3 className="text-lg font-semibold">No campaigns yet</h3>
+      <p className="text-muted-foreground mb-4">
+        {searchQuery || statusFilter !== 'all'
+          ? 'Try adjusting your filters'
+          : 'Create your first marketing campaign to engage your audience'}
+      </p>
+      {!searchQuery && statusFilter === 'all' && (
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Create Campaign
         </Button>
-      </div>
+      )}
+    </div>
+  );
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <Megaphone className="h-5 w-5 text-purple-600" />
-              <Badge variant="secondary">{counts.total || 0}</Badge>
-            </div>
-            <p className="text-2xl font-bold mt-2">{counts.active || 0}</p>
-            <p className="text-sm text-muted-foreground">Active Campaigns</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <Users className="h-5 w-5 text-blue-600" />
-              {stats.rates?.deliveryRate && (
-                <Badge variant="secondary">{stats.rates.deliveryRate}%</Badge>
-              )}
-            </div>
-            <p className="text-2xl font-bold mt-2">
-              {stats.campaigns?.sent?.toLocaleString() || 0}
-            </p>
-            <p className="text-sm text-muted-foreground">Messages Sent</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <TrendingUp className="h-5 w-5 text-green-600" />
-              {stats.rates?.openRate && <Badge variant="secondary">{stats.rates.openRate}%</Badge>}
-            </div>
-            <p className="text-2xl font-bold mt-2">
-              {stats.campaigns?.opened?.toLocaleString() || 0}
-            </p>
-            <p className="text-sm text-muted-foreground">Messages Opened</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <Target className="h-5 w-5 text-orange-600" />
-              {stats.rates?.conversionRate && (
-                <Badge variant="secondary">{stats.rates.conversionRate}%</Badge>
-              )}
-            </div>
-            <p className="text-2xl font-bold mt-2">
-              {stats.campaigns?.converted?.toLocaleString() || 0}
-            </p>
-            <p className="text-sm text-muted-foreground">Conversions</p>
-          </CardContent>
-        </Card>
-      </div>
+  // Campaign card component
+  const CampaignCard = ({ campaign }) => {
+    const status = statusConfig[campaign.status] || statusConfig.DRAFT;
+    const type = typeConfig[campaign.type] || typeConfig.CUSTOM;
+    const StatusIcon = status.icon;
+    const TypeIcon = type.icon;
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search campaigns..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="DRAFT">Draft</SelectItem>
-            <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-            <SelectItem value="ACTIVE">Active</SelectItem>
-            <SelectItem value="PAUSED">Paused</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Types</SelectItem>
-            <SelectItem value="BROADCAST">Broadcast</SelectItem>
-            <SelectItem value="DRIP">Drip</SelectItem>
-            <SelectItem value="NURTURE">Nurture</SelectItem>
-            <SelectItem value="PROMOTIONAL">Promotional</SelectItem>
-            <SelectItem value="ONBOARDING">Onboarding</SelectItem>
-            <SelectItem value="REENGAGEMENT">Re-engagement</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Campaigns Table */}
-      <Card>
-        <CardContent className="p-0">
-          {isLoading ? (
-            <div className="p-6 space-y-4">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
+    return (
+      <Card
+        className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+        onClick={() => setSelectedCampaign(campaign)}
+      >
+        <div className="flex items-start gap-4">
+          <div
+            className={cn(
+              'h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center',
+              type.color
+            )}
+          >
+            <TypeIcon className="h-5 w-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h3 className="font-medium">{campaign.name}</h3>
+                <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                  {campaign.description || 'No description'}
+                </p>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                  <Button variant="ghost" size="icon">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewAnalytics(campaign);
+                    }}
+                  >
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    View Analytics
+                  </DropdownMenuItem>
+                  {campaign.status === 'DRAFT' && (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        activateMutation.mutate(campaign.id);
+                      }}
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Activate
+                    </DropdownMenuItem>
+                  )}
+                  {campaign.status === 'ACTIVE' && (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        pauseMutation.mutate(campaign.id);
+                      }}
+                    >
+                      <Pause className="h-4 w-4 mr-2" />
+                      Pause
+                    </DropdownMenuItem>
+                  )}
+                  {campaign.status === 'PAUSED' && (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        activateMutation.mutate(campaign.id);
+                      }}
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Resume
+                    </DropdownMenuItem>
+                  )}
+                  {['ACTIVE', 'PAUSED'].includes(campaign.status) && (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        completeMutation.mutate(campaign.id);
+                      }}
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                      Mark Complete
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      duplicateMutation.mutate(campaign.id);
+                    }}
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Duplicate
+                  </DropdownMenuItem>
+                  {campaign.status === 'DRAFT' && (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteMutation.mutate(campaign.id);
+                      }}
+                      className="text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
-          ) : filteredCampaigns.length === 0 ? (
-            <div className="p-12 text-center">
-              <Megaphone className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold">No campaigns yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Create your first marketing campaign to engage your audience
-              </p>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Campaign
-              </Button>
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Campaign</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Channels</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Performance</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCampaigns.map((campaign) => {
-                  const status = statusConfig[campaign.status] || statusConfig.DRAFT;
-                  const type = typeConfig[campaign.type] || typeConfig.CUSTOM;
-                  const StatusIcon = status.icon;
-                  const TypeIcon = type.icon;
-
+            <div className="flex items-center gap-3 mt-3">
+              <Badge variant="outline">{type.label}</Badge>
+              <Badge className={cn('gap-1', status.color)}>
+                <StatusIcon className="h-3 w-3" />
+                {status.label}
+              </Badge>
+              <div className="flex gap-1">
+                {(campaign.channels || []).map((ch) => {
+                  const channel = channelIcons[ch.toLowerCase()];
+                  if (!channel) return null;
+                  const ChannelIcon = channel.icon;
                   return (
-                    <TableRow key={campaign.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className={cn('p-2 rounded-lg bg-gray-100', type.color)}>
-                            <TypeIcon className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <p className="font-medium">{campaign.name}</p>
-                            <p className="text-sm text-muted-foreground truncate max-w-[200px]">
-                              {campaign.description || 'No description'}
-                            </p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{type.label}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          {(campaign.channels || []).map((ch) => {
-                            const channel = channelIcons[ch.toLowerCase()];
-                            if (!channel) return null;
-                            const ChannelIcon = channel.icon;
-                            return (
-                              <div
-                                key={ch}
-                                className={cn('p-1 rounded', channel.color)}
-                                title={channel.label}
-                              >
-                                <ChannelIcon className="h-3 w-3" />
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge className={cn('gap-1', status.color)}>
-                          <StatusIcon className="h-3 w-3" />
-                          {status.label}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="text-sm">
-                          <span className="font-medium">
-                            {campaign.sentCount?.toLocaleString() || 0}
-                          </span>
-                          <span className="text-muted-foreground"> sent</span>
-                          {campaign.openedCount > 0 && (
-                            <>
-                              <span className="mx-1">·</span>
-                              <span className="font-medium">
-                                {campaign.openedCount.toLocaleString()}
-                              </span>
-                              <span className="text-muted-foreground"> opened</span>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleViewAnalytics(campaign)}>
-                              <BarChart3 className="h-4 w-4 mr-2" />
-                              View Analytics
-                            </DropdownMenuItem>
-                            {campaign.status === 'DRAFT' && (
-                              <DropdownMenuItem
-                                onClick={() => activateMutation.mutate(campaign.id)}
-                              >
-                                <Play className="h-4 w-4 mr-2" />
-                                Activate
-                              </DropdownMenuItem>
-                            )}
-                            {campaign.status === 'ACTIVE' && (
-                              <DropdownMenuItem onClick={() => pauseMutation.mutate(campaign.id)}>
-                                <Pause className="h-4 w-4 mr-2" />
-                                Pause
-                              </DropdownMenuItem>
-                            )}
-                            {campaign.status === 'PAUSED' && (
-                              <DropdownMenuItem
-                                onClick={() => activateMutation.mutate(campaign.id)}
-                              >
-                                <Play className="h-4 w-4 mr-2" />
-                                Resume
-                              </DropdownMenuItem>
-                            )}
-                            {['ACTIVE', 'PAUSED'].includes(campaign.status) && (
-                              <DropdownMenuItem
-                                onClick={() => completeMutation.mutate(campaign.id)}
-                              >
-                                <CheckCircle2 className="h-4 w-4 mr-2" />
-                                Mark Complete
-                              </DropdownMenuItem>
-                            )}
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => duplicateMutation.mutate(campaign.id)}>
-                              <Copy className="h-4 w-4 mr-2" />
-                              Duplicate
-                            </DropdownMenuItem>
-                            {campaign.status === 'DRAFT' && (
-                              <DropdownMenuItem
-                                onClick={() => deleteMutation.mutate(campaign.id)}
-                                className="text-red-600"
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete
-                              </DropdownMenuItem>
-                            )}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                    <div
+                      key={ch}
+                      className={cn('p-1 rounded', channel.color)}
+                      title={channel.label}
+                    >
+                      <ChannelIcon className="h-3 w-3" />
+                    </div>
                   );
                 })}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
+              </div>
+              <div className="text-sm text-muted-foreground ml-auto">
+                <span className="font-medium">{campaign.sentCount?.toLocaleString() || 0}</span>{' '}
+                sent
+                {campaign.openedCount > 0 && (
+                  <>
+                    <span className="mx-1">·</span>
+                    <span className="font-medium">
+                      {campaign.openedCount.toLocaleString()}
+                    </span>{' '}
+                    opened
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </Card>
+    );
+  };
+
+  return (
+    <>
+      <HubLayout
+        hubId="marketing"
+        showTopBar={false}
+        showSidebar={false}
+        title="Campaigns"
+        description="Create and manage multi-channel marketing campaigns"
+        stats={hubStats}
+        fixedMenuFilters={
+          <FixedMenuPanel
+            config={fixedMenuConfig}
+            activeFilter={statusFilter}
+            onFilterChange={setStatusFilter}
+            onAction={(id) => id === 'create' && setIsCreateDialogOpen(true)}
+            className="p-4"
+          />
+        }
+        fixedMenuList={
+          <div className="space-y-2 p-4">
+            {/* Search Bar */}
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search campaigns..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+
+            {/* Type Filter */}
+            <Select value={typeFilter} onValueChange={setTypeFilter}>
+              <SelectTrigger>
+                <SelectValue placeholder="All Types" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="BROADCAST">Broadcast</SelectItem>
+                <SelectItem value="DRIP">Drip</SelectItem>
+                <SelectItem value="NURTURE">Nurture</SelectItem>
+                <SelectItem value="PROMOTIONAL">Promotional</SelectItem>
+                <SelectItem value="ONBOARDING">Onboarding</SelectItem>
+                <SelectItem value="REENGAGEMENT">Re-engagement</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Campaigns List */}
+            {isLoading ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredCampaigns.length === 0 ? (
+              <EmptyState />
+            ) : (
+              filteredCampaigns.map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} />
+              ))
+            )}
+          </div>
+        }
+      >
+        {/* Campaign Analytics View in Content Area */}
+        {selectedCampaign && (
+          <div className="h-full overflow-y-auto p-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold">{selectedCampaign.name}</h2>
+              <p className="text-muted-foreground">{selectedCampaign.description}</p>
+            </div>
+
+            {isAnalyticsDialogOpen && analyticsData?.data ? (
+              <div className="space-y-6">
+                {/* Stats Grid */}
+                <div className="grid grid-cols-4 gap-4">
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <p className="text-2xl font-bold">
+                        {analyticsData.data.stats?.sent?.toLocaleString() || 0}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Sent</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <p className="text-2xl font-bold">
+                        {analyticsData.data.stats?.delivered?.toLocaleString() || 0}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Delivered</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <p className="text-2xl font-bold">
+                        {analyticsData.data.stats?.opened?.toLocaleString() || 0}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Opened</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4 text-center">
+                      <p className="text-2xl font-bold">
+                        {analyticsData.data.stats?.clicked?.toLocaleString() || 0}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Clicked</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Rates */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm font-medium">Performance Rates</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Delivery Rate</span>
+                        <span className="font-medium">
+                          {analyticsData.data.rates?.deliveryRate || 0}%
+                        </span>
+                      </div>
+                      <Progress value={parseFloat(analyticsData.data.rates?.deliveryRate) || 0} />
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Open Rate</span>
+                        <span className="font-medium">
+                          {analyticsData.data.rates?.openRate || 0}%
+                        </span>
+                      </div>
+                      <Progress value={parseFloat(analyticsData.data.rates?.openRate) || 0} />
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Click Rate</span>
+                        <span className="font-medium">
+                          {analyticsData.data.rates?.clickRate || 0}%
+                        </span>
+                      </div>
+                      <Progress value={parseFloat(analyticsData.data.rates?.clickRate) || 0} />
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span>Conversion Rate</span>
+                        <span className="font-medium">
+                          {analyticsData.data.rates?.conversionRate || 0}%
+                        </span>
+                      </div>
+                      <Progress value={parseFloat(analyticsData.data.rates?.conversionRate) || 0} />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Broadcasts & Sequences */}
+                <div className="grid grid-cols-2 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">Broadcasts</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold">
+                        {analyticsData.data.broadcasts?.count || 0}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Total broadcasts in campaign</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">Sequences</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold">
+                        {analyticsData.data.sequences?.enrollments || 0}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Sequence enrollments</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            ) : (
+              <div className="py-8 text-center text-muted-foreground">
+                <Button onClick={() => handleViewAnalytics(selectedCampaign)}>
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Load Analytics
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </HubLayout>
 
       {/* Create Campaign Dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -787,135 +901,6 @@ export default function CampaignsPage() {
           </form>
         </DialogContent>
       </Dialog>
-
-      {/* Analytics Dialog */}
-      <Dialog open={isAnalyticsDialogOpen} onOpenChange={setIsAnalyticsDialogOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>Campaign Analytics</DialogTitle>
-            <DialogDescription>{selectedCampaign?.name}</DialogDescription>
-          </DialogHeader>
-          {isLoadingAnalytics ? (
-            <div className="space-y-4 py-4">
-              <Skeleton className="h-20 w-full" />
-              <Skeleton className="h-20 w-full" />
-            </div>
-          ) : analyticsData?.data ? (
-            <div className="space-y-6">
-              {/* Stats Grid */}
-              <div className="grid grid-cols-4 gap-4">
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold">
-                      {analyticsData.data.stats?.sent?.toLocaleString() || 0}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Sent</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold">
-                      {analyticsData.data.stats?.delivered?.toLocaleString() || 0}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Delivered</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold">
-                      {analyticsData.data.stats?.opened?.toLocaleString() || 0}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Opened</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardContent className="p-4 text-center">
-                    <p className="text-2xl font-bold">
-                      {analyticsData.data.stats?.clicked?.toLocaleString() || 0}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Clicked</p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Rates */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm font-medium">Performance Rates</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Delivery Rate</span>
-                      <span className="font-medium">
-                        {analyticsData.data.rates?.deliveryRate || 0}%
-                      </span>
-                    </div>
-                    <Progress value={parseFloat(analyticsData.data.rates?.deliveryRate) || 0} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Open Rate</span>
-                      <span className="font-medium">
-                        {analyticsData.data.rates?.openRate || 0}%
-                      </span>
-                    </div>
-                    <Progress value={parseFloat(analyticsData.data.rates?.openRate) || 0} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Click Rate</span>
-                      <span className="font-medium">
-                        {analyticsData.data.rates?.clickRate || 0}%
-                      </span>
-                    </div>
-                    <Progress value={parseFloat(analyticsData.data.rates?.clickRate) || 0} />
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Conversion Rate</span>
-                      <span className="font-medium">
-                        {analyticsData.data.rates?.conversionRate || 0}%
-                      </span>
-                    </div>
-                    <Progress value={parseFloat(analyticsData.data.rates?.conversionRate) || 0} />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Broadcasts & Sequences */}
-              <div className="grid grid-cols-2 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium">Broadcasts</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">
-                      {analyticsData.data.broadcasts?.count || 0}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Total broadcasts in campaign</p>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium">Sequences</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold">
-                      {analyticsData.data.sequences?.enrollments || 0}
-                    </p>
-                    <p className="text-sm text-muted-foreground">Sequence enrollments</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          ) : (
-            <div className="py-8 text-center text-muted-foreground">
-              No analytics data available
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
+    </>
   );
 }

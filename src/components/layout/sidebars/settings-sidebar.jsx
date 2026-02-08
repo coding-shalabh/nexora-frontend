@@ -61,6 +61,17 @@ const WhatsAppIcon = ({ className }) => (
 // ═══════════════════════════════════════════════════════════════════════════════
 const navigationSections = [
   {
+    id: 'account',
+    title: 'Account',
+    subtitle: 'Personal settings',
+    icon: Users,
+    items: [
+      { title: 'Profile', href: '/settings/profile', icon: Users },
+      { title: 'Preferences', href: '/settings/preferences', icon: Settings },
+      { title: 'Notifications', href: '/settings/notifications', icon: Zap },
+    ],
+  },
+  {
     id: 'organization',
     title: 'Organization',
     subtitle: 'Workspace management',

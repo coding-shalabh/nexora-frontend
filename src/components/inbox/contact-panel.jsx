@@ -251,6 +251,7 @@ export function ContactPanel({
   onEmail,
   onWhatsApp,
   onSms,
+  onCreateTicket,
 }) {
   const [contact, setContact] = useState(null);
   const [contactLoading, setContactLoading] = useState(true);
@@ -584,11 +585,20 @@ export function ContactPanel({
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() =>
+                      onCreateTicket &&
+                      onCreateTicket(contactId, contactName, contactEmail || contactPhone)
+                    }
+                    disabled={!contactId || !onCreateTicket}
+                  >
                     <Ticket className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="bottom">Ticket</TooltipContent>
+                <TooltipContent side="bottom">Create Ticket</TooltipContent>
               </Tooltip>
             </div>
           </TooltipProvider>

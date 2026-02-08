@@ -74,20 +74,8 @@ import {
   useRemoveTeamMember,
 } from '@/hooks/use-users';
 import { cn } from '@/lib/utils';
-
-// Animation variants
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } },
-};
+import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 // Default roles fallback
 const defaultRoles = ['Admin', 'Manager', 'Agent', 'Viewer'];
@@ -105,8 +93,8 @@ const teamColors = [
 ];
 
 const tabs = [
-  { id: 'users', label: 'Users', icon: Users },
-  { id: 'invitations', label: 'Pending Invitations', icon: Mail },
+  { id: 'users', label: 'Users' },
+  { id: 'invitations', label: 'Invitations' },
 ];
 
 const getInitials = (name) => {
@@ -456,350 +444,360 @@ export default function UsersPage() {
     return matchesSearch && matchesRole && matchesTeam;
   });
 
-  return (
-    <motion.div
-      className="flex-1 p-6 space-y-6 overflow-auto"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {/* Tabs */}
-      <motion.div
-        variants={itemVariants}
-        className="bg-white rounded-2xl p-1.5 shadow-sm inline-flex"
-      >
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
-              activeTab === tab.id
-                ? 'bg-gray-900 text-white'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-            )}
-          >
-            <tab.icon className="h-4 w-4" />
-            {tab.label}
-          </button>
-        ))}
-      </motion.div>
+  // Calculate stats
+  const stats = [
+    createStat('Total Users', usersData.length, Users, 'blue'),
+    createStat(
+      'Active',
+      usersData.filter((u) => u.status === 'active').length,
+      CheckCircle2,
+      'green'
+    ),
+    createStat('Teams', teamsData.length, Shield, 'purple'),
+    createStat('Pending', pendingInvitations.length, Mail, 'orange'),
+  ];
 
-      {/* Users Tab */}
+  // FixedMenuPanel configuration
+  const fixedMenuConfig = {
+    primaryActions: [{ id: 'invite', label: 'Invite User', icon: UserPlus, variant: 'default' }],
+    secondaryActions: [],
+    filters: {
+      quickFilters: tabs.map((tab) => ({ id: tab.id, label: tab.label })),
+    },
+  };
+
+  // Handle FixedMenuPanel actions
+  const handleMenuAction = (actionId) => {
+    if (actionId === 'invite') {
+      setShowInviteDialog(true);
+    }
+  };
+
+  // Fixed menu list content
+  const fixedMenuListContent = (
+    <div className="py-2">
       {activeTab === 'users' && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
-        >
-          {/* Filters */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm">
-            <div className="flex flex-wrap gap-3 items-center">
-              <div className="flex-1 min-w-[200px]">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                  <Input
-                    placeholder="Search users..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 h-10 rounded-xl bg-gray-50"
-                  />
-                </div>
-              </div>
-              <Select value={roleFilter} onValueChange={setRoleFilter}>
-                <SelectTrigger className="w-[130px] h-10 rounded-xl bg-gray-50">
-                  <SelectValue placeholder="Role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Roles</SelectItem>
-                  {roles.map((role) => (
-                    <SelectItem key={role} value={role}>
-                      {role}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={teamFilter} onValueChange={setTeamFilter}>
-                <SelectTrigger className="w-[140px] h-10 rounded-xl bg-gray-50">
-                  <SelectValue placeholder="Team" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Teams</SelectItem>
-                  {teamsData.map((team) => (
-                    <SelectItem key={team.id} value={team.name}>
-                      {team.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <>
+          {/* Search Bar */}
+          <div className="px-4 mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search users..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </div>
 
+          {/* Role & Team Filters */}
+          <div className="px-4 mb-4 flex gap-2">
+            <Select value={roleFilter} onValueChange={setRoleFilter}>
+              <SelectTrigger className="h-8 text-xs flex-1">
+                <Shield className="h-3 w-3 mr-1" />
+                <SelectValue placeholder="Role" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="text-xs">
+                  All Roles
+                </SelectItem>
+                {roles.map((role) => (
+                  <SelectItem key={role} value={role} className="text-xs">
+                    {role}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={teamFilter} onValueChange={setTeamFilter}>
+              <SelectTrigger className="h-8 text-xs flex-1">
+                <Users className="h-3 w-3 mr-1" />
+                <SelectValue placeholder="Team" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="text-xs">
+                  All Teams
+                </SelectItem>
+                {teamsData.map((team) => (
+                  <SelectItem key={team.id} value={team.name} className="text-xs">
+                    {team.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Users List */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm">
-            {usersLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                <span className="ml-2 text-gray-500">Loading users...</span>
+          {usersLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+              <span className="ml-2 text-sm text-gray-500">Loading users...</span>
+            </div>
+          ) : filteredUsers.length === 0 ? (
+            <div className="text-center py-12 px-4">
+              <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <Users className="h-7 w-7 text-gray-400" />
               </div>
-            ) : filteredUsers.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                  <Users className="h-7 w-7 text-gray-400" />
-                </div>
-                <p className="text-lg font-medium text-gray-900">No users found</p>
-                <p className="text-sm text-gray-500 mb-4">
-                  {searchQuery || roleFilter !== 'all' || teamFilter !== 'all'
-                    ? 'Try adjusting your filters'
-                    : 'Invite team members to get started'}
-                </p>
-                <Button onClick={() => setShowInviteDialog(true)} className="rounded-xl">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Invite User
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredUsers.map((user, index) => {
-                  const userName = getUserName(user);
-                  const userRole = getUserRole(user);
-                  const userTeam = getUserTeam(user);
-                  const userStatus = user.status || 'active';
-                  const statusStyles = getStatusStyles(userStatus);
-                  const roleStyles = getRoleStyles(userRole);
+              <p className="text-sm font-medium text-gray-900 mb-1">No users found</p>
+              <p className="text-xs text-gray-500 mb-4">
+                {searchQuery || roleFilter !== 'all' || teamFilter !== 'all'
+                  ? 'Try adjusting your filters'
+                  : 'Invite team members to get started'}
+              </p>
+              <Button onClick={() => setShowInviteDialog(true)} size="sm">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Invite User
+              </Button>
+            </div>
+          ) : (
+            <div className="px-2">
+              {filteredUsers.map((user, index) => {
+                const userName = getUserName(user);
+                const userRole = getUserRole(user);
+                const userTeam = getUserTeam(user);
+                const userStatus = user.status || 'active';
+                const statusStyles = getStatusStyles(userStatus);
+                const roleStyles = getRoleStyles(userRole);
 
-                  return (
-                    <motion.div
-                      key={user.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.03 }}
-                      className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all group"
-                    >
-                      <Avatar className="h-11 w-11">
-                        <AvatarImage src={user.avatar || user.profileImage} />
-                        <AvatarFallback className="bg-blue-50 text-blue-600 font-medium">
-                          {getInitials(userName)}
-                        </AvatarFallback>
-                      </Avatar>
+                return (
+                  <motion.div
+                    key={user.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    className="flex items-center gap-3 p-3 mb-2 rounded-xl border border-gray-200 hover:border-gray-300 hover:bg-gray-50/50 transition-all"
+                  >
+                    <Avatar className="h-10 w-10 shrink-0">
+                      <AvatarImage src={user.avatar || user.profileImage} />
+                      <AvatarFallback className="bg-blue-50 text-blue-600 font-medium text-xs">
+                        {getInitials(userName)}
+                      </AvatarFallback>
+                    </Avatar>
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-gray-900">{userName}</p>
-                          <Badge
-                            className={cn(
-                              'px-2 py-0.5 text-[10px]',
-                              roleStyles.bg,
-                              roleStyles.color
-                            )}
-                          >
-                            {userRole}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-500">{user.email}</p>
-                      </div>
-
-                      {userTeam && (
-                        <div className="hidden md:block text-center">
-                          <p className="text-sm text-gray-900">{userTeam}</p>
-                          <p className="text-xs text-gray-400">Team</p>
-                        </div>
-                      )}
-
-                      <div className="hidden lg:block text-center">
-                        <Badge className={cn('px-2 py-0.5', statusStyles.bg, statusStyles.color)}>
-                          {userStatus}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <p className="font-medium text-sm text-gray-900 truncate">{userName}</p>
+                        <Badge
+                          className={cn('px-1.5 py-0 text-[10px]', roleStyles.bg, roleStyles.color)}
+                        >
+                          {userRole}
                         </Badge>
                       </div>
+                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      {userTeam && <p className="text-[10px] text-gray-400 mt-0.5">{userTeam}</p>}
+                    </div>
 
-                      <div className="hidden lg:flex items-center justify-center w-12">
-                        {user.twoFactorEnabled ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600" />
-                        ) : (
-                          <XCircle className="h-5 w-5 text-gray-300" />
-                        )}
-                      </div>
-
-                      {(user.lastActive || user.lastLoginAt || user.updatedAt) && (
-                        <div className="hidden md:block text-right w-24">
-                          <p className="text-sm text-gray-500">
-                            {new Date(
-                              user.lastActive || user.lastLoginAt || user.updatedAt
-                            ).toLocaleDateString()}
-                          </p>
-                        </div>
-                      )}
-
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-lg">
-                            <MoreHorizontal className="h-4 w-4 text-gray-400" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl">
-                          <DropdownMenuItem
-                            onClick={() => handleEditUser(user)}
-                            className="rounded-lg"
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit User
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="rounded-lg">
-                            <Shield className="mr-2 h-4 w-4" />
-                            Change Role
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-red-600 rounded-lg"
-                            onClick={() => handleDeleteUser(user)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Remove User
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </motion.div>
-      )}
-
-      {/* Invitations Tab */}
-      {activeTab === 'invitations' && (
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="bg-white rounded-2xl p-6 shadow-sm">
-            {invitationsLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
-                <span className="ml-2 text-gray-500">Loading invitations...</span>
-              </div>
-            ) : pendingInvitations.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                  <Mail className="h-7 w-7 text-gray-400" />
-                </div>
-                <p className="text-lg font-medium text-gray-900">No pending invitations</p>
-                <p className="text-sm text-gray-500 mb-4">Invite team members to get started</p>
-                <Button onClick={() => setShowInviteDialog(true)} className="rounded-xl">
-                  <UserPlus className="mr-2 h-4 w-4" />
-                  Invite User
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {pendingInvitations.map((invitation, index) => {
-                  const inviterName =
-                    invitation.invitedBy?.name ||
-                    invitation.invitedByUser?.name ||
-                    `${invitation.invitedBy?.firstName || ''} ${invitation.invitedBy?.lastName || ''}`.trim() ||
-                    'Unknown';
-                  const invitationRole =
-                    invitation.role?.name || invitation.role || invitation.roleName || 'Agent';
-                  const invitationTeam =
-                    invitation.team?.name || invitation.team || invitation.teamName;
-
-                  return (
-                    <motion.div
-                      key={invitation.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.03 }}
-                      className="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="h-11 w-11 rounded-xl bg-orange-50 flex items-center justify-center">
-                        <Mail className="h-5 w-5 text-orange-600" />
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-gray-900">{invitation.email}</p>
-                        <p className="text-sm text-gray-500">Invited by {inviterName}</p>
-                      </div>
-
-                      <Badge className="bg-blue-50 text-blue-700">{invitationRole}</Badge>
-                      {invitationTeam && (
-                        <Badge className="bg-gray-100 text-gray-600">{invitationTeam}</Badge>
-                      )}
-
-                      {(invitation.expiresAt || invitation.expirationDate) && (
-                        <div className="text-right">
-                          <p className="text-sm text-gray-500">
-                            Expires{' '}
-                            {new Date(
-                              invitation.expiresAt || invitation.expirationDate
-                            ).toLocaleDateString()}
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="flex gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="rounded-lg"
-                          disabled={resendInvitationMutation.isPending}
-                          onClick={async () => {
-                            try {
-                              await resendInvitationMutation.mutateAsync(invitation.id);
-                              toast({
-                                title: 'Invitation Resent',
-                                description: `Invitation resent to ${invitation.email}`,
-                              });
-                            } catch (error) {
-                              toast({
-                                title: 'Error',
-                                description:
-                                  error.response?.data?.message || 'Failed to resend invitation',
-                                variant: 'destructive',
-                              });
-                            }
-                          }}
-                        >
-                          {resendInvitationMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            'Resend'
-                          )}
-                        </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="rounded-lg text-red-600 hover:text-red-700"
-                          disabled={revokeInvitationMutation.isPending}
-                          onClick={async () => {
-                            try {
-                              await revokeInvitationMutation.mutateAsync(invitation.id);
-                              toast({
-                                title: 'Invitation Revoked',
-                                description: `Invitation to ${invitation.email} has been revoked`,
-                              });
-                            } catch (error) {
-                              toast({
-                                title: 'Error',
-                                description:
-                                  error.response?.data?.message || 'Failed to revoke invitation',
-                                variant: 'destructive',
-                              });
-                            }
-                          }}
+                          className="h-7 w-7 p-0 rounded-lg shrink-0"
                         >
-                          {revokeInvitationMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            'Revoke'
-                          )}
+                          <MoreHorizontal className="h-4 w-4 text-gray-400" />
                         </Button>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </motion.div>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="rounded-xl">
+                        <DropdownMenuItem
+                          onClick={() => handleEditUser(user)}
+                          className="rounded-lg text-xs"
+                        >
+                          <Edit className="mr-2 h-3 w-3" />
+                          Edit User
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="rounded-lg text-xs">
+                          <Shield className="mr-2 h-3 w-3" />
+                          Change Role
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="text-red-600 rounded-lg text-xs"
+                          onClick={() => handleDeleteUser(user)}
+                        >
+                          <Trash2 className="mr-2 h-3 w-3" />
+                          Remove User
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </>
       )}
+
+      {activeTab === 'invitations' && (
+        <div className="px-2">
+          {invitationsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+              <span className="ml-2 text-sm text-gray-500">Loading invitations...</span>
+            </div>
+          ) : pendingInvitations.length === 0 ? (
+            <div className="text-center py-12 px-4">
+              <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <Mail className="h-7 w-7 text-gray-400" />
+              </div>
+              <p className="text-sm font-medium text-gray-900 mb-1">No pending invitations</p>
+              <p className="text-xs text-gray-500 mb-4">Invite team members to get started</p>
+              <Button onClick={() => setShowInviteDialog(true)} size="sm">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Invite User
+              </Button>
+            </div>
+          ) : (
+            pendingInvitations.map((invitation, index) => {
+              const inviterName =
+                invitation.invitedBy?.name ||
+                invitation.invitedByUser?.name ||
+                `${invitation.invitedBy?.firstName || ''} ${invitation.invitedBy?.lastName || ''}`.trim() ||
+                'Unknown';
+              const invitationRole =
+                invitation.role?.name || invitation.role || invitation.roleName || 'Agent';
+              const invitationTeam =
+                invitation.team?.name || invitation.team || invitation.teamName;
+
+              return (
+                <motion.div
+                  key={invitation.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.03 }}
+                  className="p-3 mb-2 rounded-xl hover:bg-gray-50 transition-colors border border-gray-200"
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="h-10 w-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
+                      <Mail className="h-5 w-5 text-orange-600" />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm text-gray-900 truncate">
+                        {invitation.email}
+                      </p>
+                      <p className="text-xs text-gray-500">Invited by {inviterName}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="bg-blue-50 text-blue-700 text-[10px]">{invitationRole}</Badge>
+                    {invitationTeam && (
+                      <Badge className="bg-gray-100 text-gray-600 text-[10px]">
+                        {invitationTeam}
+                      </Badge>
+                    )}
+                  </div>
+
+                  {(invitation.expiresAt || invitation.expirationDate) && (
+                    <p className="text-[10px] text-gray-500 mb-2">
+                      Expires{' '}
+                      {new Date(
+                        invitation.expiresAt || invitation.expirationDate
+                      ).toLocaleDateString()}
+                    </p>
+                  )}
+
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-lg flex-1 h-8 text-xs"
+                      disabled={resendInvitationMutation.isPending}
+                      onClick={async () => {
+                        try {
+                          await resendInvitationMutation.mutateAsync(invitation.id);
+                          toast({
+                            title: 'Invitation Resent',
+                            description: `Invitation resent to ${invitation.email}`,
+                          });
+                        } catch (error) {
+                          toast({
+                            title: 'Error',
+                            description:
+                              error.response?.data?.message || 'Failed to resend invitation',
+                            variant: 'destructive',
+                          });
+                        }
+                      }}
+                    >
+                      {resendInvitationMutation.isPending ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        'Resend'
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-lg flex-1 h-8 text-xs text-red-600 hover:text-red-700"
+                      disabled={revokeInvitationMutation.isPending}
+                      onClick={async () => {
+                        try {
+                          await revokeInvitationMutation.mutateAsync(invitation.id);
+                          toast({
+                            title: 'Invitation Revoked',
+                            description: `Invitation to ${invitation.email} has been revoked`,
+                          });
+                        } catch (error) {
+                          toast({
+                            title: 'Error',
+                            description:
+                              error.response?.data?.message || 'Failed to revoke invitation',
+                            variant: 'destructive',
+                          });
+                        }
+                      }}
+                    >
+                      {revokeInvitationMutation.isPending ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        'Revoke'
+                      )}
+                    </Button>
+                  </div>
+                </motion.div>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+  // Content area - Empty state for settings pages typically
+  const contentArea = (
+    <div className="flex flex-col items-center justify-center h-full p-8">
+      <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center mb-4">
+        <Users className="h-10 w-10 text-blue-600" />
+      </div>
+      <h3 className="font-semibold text-lg mb-2">User Management</h3>
+      <p className="text-sm text-muted-foreground text-center max-w-md mb-6">
+        Select a user from the sidebar to view details, or invite new team members to your
+        workspace.
+      </p>
+    </div>
+  );
+
+  return (
+    <>
+      <HubLayout
+        hubId="settings"
+        title="Users"
+        description="Manage users, teams, and invitations"
+        stats={stats}
+        showFixedMenu={true}
+        fixedMenuFilters={
+          <FixedMenuPanel
+            config={fixedMenuConfig}
+            activeFilter={activeTab}
+            onFilterChange={setActiveTab}
+            onAction={handleMenuAction}
+          />
+        }
+        fixedMenuList={fixedMenuListContent}
+      >
+        {contentArea}
+      </HubLayout>
 
       {/* Invite User Dialog */}
       <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
@@ -1279,6 +1277,6 @@ export default function UsersPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </motion.div>
+    </>
   );
 }

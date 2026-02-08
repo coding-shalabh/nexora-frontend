@@ -76,3 +76,24 @@ export function useAddTicketComment() {
     },
   });
 }
+
+export function usePipelines(type) {
+  return useQuery({
+    queryKey: ['pipelines', type],
+    queryFn: async () => {
+      const result = await api.get('/pipeline/pipelines', { params: { type } });
+      return result;
+    },
+  });
+}
+
+export function useStages(pipelineId) {
+  return useQuery({
+    queryKey: ['stages', pipelineId],
+    queryFn: async () => {
+      const result = await api.get('/pipeline/stages', { params: { pipelineId } });
+      return result;
+    },
+    enabled: !!pipelineId,
+  });
+}

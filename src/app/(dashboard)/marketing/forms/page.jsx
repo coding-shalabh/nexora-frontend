@@ -270,13 +270,16 @@ export default function FormsPage() {
 
   return (
     <HubLayout
+      hubId="marketing"
+      showTopBar={false}
+      showSidebar={false}
       title="Forms"
       description="Create and manage lead capture forms"
       stats={layoutStats}
       searchValue={searchQuery}
       onSearchChange={handleSearch}
       searchPlaceholder="Search forms..."
-      actionButtons={actionButtons}
+      actions={actionButtons}
       showFixedMenu={false}
     >
       {mainContent}

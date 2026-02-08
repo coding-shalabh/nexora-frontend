@@ -22,9 +22,9 @@ const useSubscription = () => {
   };
 };
 
-// Organize hubs by category
+// Organize hubs by category (Pipeline merged into Sales, Tickets merged into Service)
 const hubsByCategory = {
-  customer: [HUBS.SALES, HUBS.MARKETING, HUBS.SERVICE],
+  customer: [HUBS.CRM, HUBS.SALES, HUBS.MARKETING, HUBS.SERVICE],
   operations: [HUBS.PROJECTS, HUBS.HR, HUBS.INVENTORY],
   finance: [HUBS.COMMERCE, HUBS.FINANCE],
   platform: [HUBS.ANALYTICS, HUBS.AUTOMATION, HUBS.SETTINGS],
@@ -43,10 +43,17 @@ export function HubSwitcher() {
   const { plan, isAdmin } = useSubscription();
 
   // Determine current hub from pathname
+  // NOTE: /pipeline redirects to Sales, /tickets redirects to Service
   const getCurrentHub = () => {
+    if (pathname.startsWith('/crm')) return HUBS.CRM;
     if (pathname.startsWith('/sales') || pathname.startsWith('/pipeline')) return HUBS.SALES;
     if (pathname.startsWith('/marketing') || pathname.startsWith('/forms')) return HUBS.MARKETING;
-    if (pathname.startsWith('/service') || pathname.startsWith('/tickets') || pathname.startsWith('/kb')) return HUBS.SERVICE;
+    if (
+      pathname.startsWith('/service') ||
+      pathname.startsWith('/tickets') ||
+      pathname.startsWith('/kb')
+    )
+      return HUBS.SERVICE;
     if (pathname.startsWith('/commerce') || pathname.startsWith('/billing')) return HUBS.COMMERCE;
     if (pathname.startsWith('/projects')) return HUBS.PROJECTS;
     if (pathname.startsWith('/hr')) return HUBS.HR;
@@ -55,7 +62,7 @@ export function HubSwitcher() {
     if (pathname.startsWith('/analytics')) return HUBS.ANALYTICS;
     if (pathname.startsWith('/automation')) return HUBS.AUTOMATION;
     if (pathname.startsWith('/settings')) return HUBS.SETTINGS;
-    return HUBS.SALES;
+    return HUBS.CRM;
   };
 
   const currentHub = getCurrentHub();
@@ -83,11 +90,13 @@ export function HubSwitcher() {
           !hasAccess && 'opacity-50'
         )}
       >
-        <div className={cn(
-          'flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br',
-          hub.color,
-          !hasAccess && 'grayscale'
-        )}>
+        <div
+          className={cn(
+            'flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br',
+            hub.color,
+            !hasAccess && 'grayscale'
+          )}
+        >
           <HubIcon className="h-3.5 w-3.5 text-white" />
         </div>
         <div className="flex-1">
@@ -103,10 +112,12 @@ export function HubSwitcher() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-9 gap-2 px-2">
-          <div className={cn(
-            'flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br',
-            currentHub.color
-          )}>
+          <div
+            className={cn(
+              'flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br',
+              currentHub.color
+            )}
+          >
             <Icon className="h-3.5 w-3.5 text-white" />
           </div>
           <span className="hidden sm:inline text-sm font-medium">{currentHub.shortName}</span>

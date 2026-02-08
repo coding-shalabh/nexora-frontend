@@ -11,7 +11,6 @@ import {
   X,
   MessageSquare,
   Users,
-  Kanban,
   Building2,
   DollarSign,
   Calendar,
@@ -30,7 +29,7 @@ import {
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-// Quick create items
+// Quick create items - updated paths for merged hubs
 const quickCreateItems = [
   { label: 'Contact', href: '/crm/contacts/new', icon: Users, color: 'from-blue-500 to-cyan-500' },
   {
@@ -41,24 +40,29 @@ const quickCreateItems = [
   },
   {
     label: 'Deal',
-    href: '/pipeline/deals/new',
+    href: '/sales/deals/new',
     icon: DollarSign,
     color: 'from-green-500 to-emerald-500',
   },
-  { label: 'Ticket', href: '/tickets/new', icon: Ticket, color: 'from-orange-500 to-red-500' },
+  {
+    label: 'Ticket',
+    href: '/service/tickets/new',
+    icon: Ticket,
+    color: 'from-orange-500 to-red-500',
+  },
   { label: 'Task', href: '/tasks/new', icon: FileText, color: 'from-amber-500 to-orange-500' },
   { label: 'Meeting', href: '/calendar/new', icon: Calendar, color: 'from-pink-500 to-rose-500' },
 ];
 
 // Hub navigation items - all hubs with consistent blue branding
+// NOTE: Pipeline merged into Sales, Tickets merged into Service
 const hubItems = [
   { label: 'Inbox', href: '/inbox', icon: Inbox },
   { label: 'CRM', href: '/crm/contacts', icon: Users },
-  { label: 'Pipeline', href: '/pipeline/deals', icon: Kanban },
   { label: 'Sales', href: '/sales/deals', icon: TrendingUp },
   { label: 'Marketing', href: '/marketing/campaigns', icon: Megaphone },
-  { label: 'Service', href: '/tickets', icon: HeadphonesIcon },
-  { label: 'Commerce', href: '/commerce/products', icon: ShoppingCart },
+  { label: 'Service', href: '/service/tickets', icon: HeadphonesIcon },
+  { label: 'Commerce', href: '/commerce/orders', icon: ShoppingCart },
   { label: 'HR', href: '/hr/employees', icon: UserCog },
   { label: 'Projects', href: '/projects', icon: FolderKanban },
   { label: 'Analytics', href: '/analytics/dashboards', icon: BarChart3 },

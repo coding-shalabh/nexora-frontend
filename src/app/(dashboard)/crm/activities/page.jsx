@@ -80,7 +80,6 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
 
 const activityIcons = {
   CALL: Phone,
@@ -356,72 +355,27 @@ export default function ActivitiesPage() {
     }
   };
 
-  // Compute stats for the layout
-  const completedCount = activities.filter((a) => a.completed).length;
-  const pendingCount = activities.filter((a) => !a.completed).length;
-  const callsCount = activities.filter((a) => a.type === 'CALL').length;
-  const tasksCount = activities.filter((a) => a.type === 'TASK').length;
-
-  const layoutStats = [
-    createStat('Total', meta.total, CheckSquare, 'blue'),
-    createStat('Pending', pendingCount, Clock, 'amber'),
-    createStat('Completed', completedCount, Check, 'green'),
-    createStat('Calls', callsCount, Phone, 'purple'),
-  ];
-
-  // Action buttons for the top bar
-  const actionButtons = (
-    <Button size="sm" onClick={handleOpenAdd} className="h-8">
-      <Plus className="h-4 w-4 mr-1" />
-      Add Activity
-    </Button>
-  );
-
   // Loading state
   if (isLoading) {
     return (
-      <HubLayout
-        hubId="crm"
-        title="Activities"
-        description="Track calls, meetings, tasks, and notes"
-        stats={layoutStats}
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder="Search activities..."
-        actions={actionButtons}
-        showFixedMenu={false}
-      >
-        <div className="flex items-center justify-center h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      </HubLayout>
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <HubLayout
-        hubId="crm"
-        title="Activities"
-        description="Track calls, meetings, tasks, and notes"
-        stats={layoutStats}
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder="Search activities..."
-        actions={actionButtons}
-        showFixedMenu={false}
-      >
-        <div className="flex flex-col items-center justify-center h-[400px] gap-4">
-          <AlertCircle className="h-12 w-12 text-destructive" />
-          <p className="text-lg font-medium">Failed to load activities</p>
-          <p className="text-sm text-muted-foreground">{error.message}</p>
-          <Button onClick={() => refetch()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Try Again
-          </Button>
-        </div>
-      </HubLayout>
+      <div className="flex flex-col items-center justify-center h-full gap-4">
+        <AlertCircle className="h-12 w-12 text-destructive" />
+        <p className="text-lg font-medium">Failed to load activities</p>
+        <p className="text-sm text-muted-foreground">{error.message}</p>
+        <Button onClick={() => refetch()}>
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Try Again
+        </Button>
+      </div>
     );
   }
 
@@ -975,19 +929,7 @@ export default function ActivitiesPage() {
 
   return (
     <>
-      <HubLayout
-        hubId="crm"
-        title="Activities"
-        description="Track calls, meetings, tasks, and notes"
-        stats={layoutStats}
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder="Search activities..."
-        actions={actionButtons}
-        showFixedMenu={false}
-      >
-        {mainContent}
-      </HubLayout>
+      {mainContent}
 
       {/* Add Activity Modal */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
