@@ -1,33 +1,12 @@
 'use client';
 
-import { Building2, Download, Plus, TrendingUp, BarChart3 } from 'lucide-react';
+import { Building2, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 export default function CompanyReportsPage() {
-  const stats = [
-    createStat('Companies', '0', Building2, 'blue'),
-    createStat('New', '0', Plus, 'green'),
-    createStat('Revenue', '$0', TrendingUp, 'purple'),
-    createStat('Size Avg', '0', BarChart3, 'amber'),
-  ];
-
   return (
-    <HubLayout
-      hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Company Reports"
-      description="Analyze your company accounts"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button variant="outline">
-          <Download className="h-4 w-4 mr-2" />
-          Export
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="crm" pageTitle="Company Reports" fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6">
         <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
           <Building2 className="h-12 w-12 text-muted-foreground mb-4" />
@@ -37,6 +16,6 @@ export default function CompanyReportsPage() {
           </p>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

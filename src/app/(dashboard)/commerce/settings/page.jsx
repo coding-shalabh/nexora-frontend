@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const settingsSections = [
   {
@@ -48,13 +48,7 @@ export default function CommerceSettingsPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="commerce"
-      title="Commerce Settings"
-      description="Configure your commerce preferences"
-      stats={stats}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="commerce" pageTitle="Commerce Settings" stats={stats} fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="grid md:grid-cols-2 gap-6">
           {settingsSections.map((section) => (
@@ -141,6 +135,6 @@ export default function CommerceSettingsPage() {
           </CardContent>
         </Card>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

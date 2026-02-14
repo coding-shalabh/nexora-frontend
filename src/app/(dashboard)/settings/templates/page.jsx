@@ -35,6 +35,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 // Animation variants
 const containerVariants = {
@@ -99,8 +100,7 @@ const templates = [
     channel: 'whatsapp',
     category: 'authentication',
     status: 'approved',
-    content:
-      'Your verification code is {{1}}. Valid for {{2}} minutes. Do not share this code.',
+    content: 'Your verification code is {{1}}. Valid for {{2}} minutes. Do not share this code.',
     variables: ['otp_code', 'validity_minutes'],
     usageCount: 8567,
     lastUsed: '5 min ago',
@@ -149,8 +149,7 @@ const templates = [
     category: 'marketing',
     status: 'approved',
     subject: 'This Week at {{company_name}} - {{date}}',
-    content:
-      '<h1>Hello {{first_name}},</h1><p>Here are the highlights from this week...</p>',
+    content: '<h1>Hello {{first_name}},</h1><p>Here are the highlights from this week...</p>',
     variables: ['company_name', 'date', 'first_name'],
     usageCount: 2345,
     lastUsed: '1 day ago',
@@ -165,8 +164,7 @@ const templates = [
     channel: 'whatsapp',
     category: 'marketing',
     status: 'pending',
-    content:
-      'Big Holiday Sale! Get {{1}}% off on all products. Use code {{2}}. Shop now: {{3}}',
+    content: 'Big Holiday Sale! Get {{1}}% off on all products. Use code {{2}}. Shop now: {{3}}',
     variables: ['discount_percent', 'promo_code', 'shop_url'],
     usageCount: 0,
     lastUsed: 'Never',
@@ -182,8 +180,7 @@ const templates = [
     status: 'rejected',
     rejectionReason: 'Missing unsubscribe link',
     subject: 'Your Appointment is Confirmed',
-    content:
-      '<p>Dear {{name}}, your appointment on {{date}} at {{time}} is confirmed.</p>',
+    content: '<p>Dear {{name}}, your appointment on {{date}} at {{time}} is confirmed.</p>',
     variables: ['name', 'date', 'time'],
     usageCount: 0,
     lastUsed: 'Never',
@@ -221,10 +218,7 @@ function TemplateCard({ template, onEdit, onDelete, onDuplicate, onPreview }) {
   const ChannelIcon = channelCfg?.icon || FileText;
 
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      className="bg-white rounded-2xl p-5 shadow-sm"
-    >
+    <motion.div whileHover={{ y: -2 }} className="bg-white rounded-2xl p-5 shadow-sm">
       <div className="flex items-start justify-between gap-4 mb-4">
         <div className="flex items-start gap-3 min-w-0">
           <div
@@ -266,10 +260,7 @@ function TemplateCard({ template, onEdit, onDelete, onDuplicate, onPreview }) {
                 Duplicate
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-red-600"
-                onClick={() => onDelete(template.id)}
-              >
+              <DropdownMenuItem className="text-red-600" onClick={() => onDelete(template.id)}>
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
               </DropdownMenuItem>
@@ -298,9 +289,7 @@ function TemplateCard({ template, onEdit, onDelete, onDuplicate, onPreview }) {
       {/* Content Preview */}
       <div className="p-3.5 rounded-xl bg-gray-50 mb-4">
         {template.subject && (
-          <p className="text-xs font-medium mb-1.5 text-gray-500">
-            Subject: {template.subject}
-          </p>
+          <p className="text-xs font-medium mb-1.5 text-gray-500">Subject: {template.subject}</p>
         )}
         <p className="text-sm text-gray-700 line-clamp-2 leading-relaxed">
           {template.content.replace(/<[^>]*>/g, '')}
@@ -373,12 +362,7 @@ function CreateTemplateModal({ isOpen, onClose, onCreate }) {
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-semibold text-gray-900">Create Template</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="h-8 w-8 p-0 rounded-lg"
-          >
+          <Button variant="ghost" size="sm" onClick={onClose} className="h-8 w-8 p-0 rounded-lg">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -442,9 +426,7 @@ function CreateTemplateModal({ isOpen, onClose, onCreate }) {
                 <Input
                   placeholder="1207165432109876"
                   value={formData.dltTemplateId}
-                  onChange={(e) =>
-                    setFormData({ ...formData, dltTemplateId: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, dltTemplateId: e.target.value })}
                   className="h-11 rounded-xl bg-gray-50 border-0"
                 />
               </div>
@@ -454,11 +436,7 @@ function CreateTemplateModal({ isOpen, onClose, onCreate }) {
               <Button variant="outline" onClick={onClose} className="rounded-xl">
                 Cancel
               </Button>
-              <Button
-                onClick={() => setStep(2)}
-                disabled={!formData.name}
-                className="rounded-xl"
-              >
+              <Button onClick={() => setStep(2)} disabled={!formData.name} className="rounded-xl">
                 Next: Content
               </Button>
             </div>
@@ -510,8 +488,8 @@ function CreateTemplateModal({ isOpen, onClose, onCreate }) {
                   <AlertTriangle className="h-4 w-4" /> Marketing Template
                 </p>
                 <p className="text-xs mt-1 text-amber-600">
-                  Marketing templates require Meta approval and may take 24-48 hours. Ensure
-                  you have user opt-in before sending.
+                  Marketing templates require Meta approval and may take 24-48 hours. Ensure you
+                  have user opt-in before sending.
                 </p>
               </div>
             )}
@@ -579,279 +557,279 @@ export default function TemplateGovernancePage() {
   };
 
   return (
-    <motion.div
-      className="flex-1 p-6 space-y-6 overflow-auto"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {/* Header with Stats */}
-      <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-2xl bg-primary/5 flex items-center justify-center">
-              <FileText className="h-7 w-7 text-primary" />
+    <UnifiedLayout hubId="settings" pageTitle="Message Templates" fixedMenu={null}>
+      <motion.div
+        className="flex-1 p-6 space-y-6 overflow-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        {/* Header with Stats */}
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-2xl bg-primary/5 flex items-center justify-center">
+                <FileText className="h-7 w-7 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">Template Governance</h1>
+                <p className="text-sm text-gray-500">
+                  Manage message templates across all channels
+                </p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">Template Governance</h1>
-              <p className="text-sm text-gray-500">
-                Manage message templates across all channels
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" className="rounded-xl">
-              <Upload className="h-4 w-4 mr-2" /> Import
-            </Button>
-            <Button onClick={() => setShowCreateModal(true)} className="rounded-xl">
-              <Plus className="h-4 w-4 mr-2" /> Create Template
-            </Button>
-          </div>
-        </div>
-
-        {/* Stats Bar */}
-        <div className="mt-6 flex items-center gap-8">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center">
-              <Sparkles className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-              <p className="text-xs text-gray-500">Total Templates</p>
-            </div>
-          </div>
-          <div className="h-10 w-px bg-gray-100" />
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
-              <p className="text-xs text-gray-500">Approved</p>
-            </div>
-          </div>
-          <div className="h-10 w-px bg-gray-100" />
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center">
-              <Clock className="h-5 w-5 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
-              <p className="text-xs text-gray-500">Pending</p>
-            </div>
-          </div>
-          <div className="h-10 w-px bg-gray-100" />
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center">
-              <X className="h-5 w-5 text-red-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.rejected}</p>
-              <p className="text-xs text-gray-500">Rejected</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Filters */}
-      <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 shadow-sm">
-        <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
-          <div className="relative flex-1 w-full lg:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search templates..."
-              className="pl-10 h-10 rounded-xl bg-gray-50 border-0"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500 whitespace-nowrap">Channel:</span>
-              <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
-                <Button
-                  variant={channelFilter === 'all' ? 'secondary' : 'ghost'}
-                  size="sm"
-                  onClick={() => setChannelFilter('all')}
-                  className="rounded-lg"
-                >
-                  All
-                </Button>
-                {Object.entries(channelConfig).map(([key, cfg]) => {
-                  const Icon = cfg.icon;
-                  return (
-                    <Button
-                      key={key}
-                      variant={channelFilter === key ? 'secondary' : 'ghost'}
-                      size="sm"
-                      onClick={() => setChannelFilter(key)}
-                      className={cn('rounded-lg', channelFilter !== key && cfg.color)}
-                    >
-                      <Icon className="h-4 w-4" />
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500 whitespace-nowrap">Status:</span>
-              <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
-                {['all', 'approved', 'pending', 'rejected'].map((status) => (
-                  <Button
-                    key={status}
-                    variant={statusFilter === status ? 'secondary' : 'ghost'}
-                    size="sm"
-                    onClick={() => setStatusFilter(status)}
-                    className="capitalize rounded-lg"
-                  >
-                    {status}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Templates Grid */}
-      <motion.div variants={itemVariants}>
-        {filteredTemplates.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-sm">
-            <div className="text-center py-16">
-              <div className="h-16 w-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
-                <FileText className="h-8 w-8 text-gray-400" />
-              </div>
-              <p className="text-lg font-medium text-gray-900">No templates found</p>
-              <p className="text-sm text-gray-500 mb-4">
-                Create your first template to get started
-              </p>
+              <Button variant="outline" className="rounded-xl">
+                <Upload className="h-4 w-4 mr-2" /> Import
+              </Button>
               <Button onClick={() => setShowCreateModal(true)} className="rounded-xl">
                 <Plus className="h-4 w-4 mr-2" /> Create Template
               </Button>
             </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <AnimatePresence>
-              {filteredTemplates.map((template, index) => (
-                <motion.div
-                  key={template.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.03 }}
-                >
-                  <TemplateCard
-                    template={template}
-                    onEdit={() => console.log('Edit:', template.id)}
-                    onDelete={(id) =>
-                      setTemplatesList((prev) => prev.filter((t) => t.id !== id))
-                    }
-                    onDuplicate={() => console.log('Duplicate:', template.id)}
-                    onPreview={setPreviewTemplate}
-                  />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
-      </motion.div>
 
-      {/* Create Modal */}
-      <CreateTemplateModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreate={(data) => {
-          setTemplatesList((prev) => [
-            ...prev,
-            {
-              id: `${Date.now()}`,
-              ...data,
-              variables: data.content.match(/\{\{[^}]+\}\}|\{#var#\}/g) || [],
-              usageCount: 0,
-              lastUsed: 'Never',
-              createdBy: 'You',
-              createdAt: new Date().toISOString().split('T')[0],
-              version: 1,
-            },
-          ]);
-        }}
-      />
-
-      {/* Preview Modal */}
-      {previewTemplate && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-          onClick={() => setPreviewTemplate(null)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white w-full max-w-lg rounded-2xl p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">Template Preview</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setPreviewTemplate(null)}
-                className="h-8 w-8 p-0 rounded-lg"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+          {/* Stats Bar */}
+          <div className="mt-6 flex items-center gap-8">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-xs text-gray-500">Total Templates</p>
+              </div>
             </div>
-            <div className="space-y-4">
+            <div className="h-10 w-px bg-gray-100" />
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{stats.approved}</p>
+                <p className="text-xs text-gray-500">Approved</p>
+              </div>
+            </div>
+            <div className="h-10 w-px bg-gray-100" />
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                <Clock className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
+                <p className="text-xs text-gray-500">Pending</p>
+              </div>
+            </div>
+            <div className="h-10 w-px bg-gray-100" />
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-red-50 flex items-center justify-center">
+                <X className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{stats.rejected}</p>
+                <p className="text-xs text-gray-500">Rejected</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Filters */}
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-5 shadow-sm">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
+            <div className="relative flex-1 w-full lg:max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search templates..."
+                className="pl-10 h-10 rounded-xl bg-gray-50 border-0"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-2">
-                <StatusBadge status={previewTemplate.status} />
-                <span
-                  className={cn(
-                    'text-xs px-2.5 py-1 rounded-lg capitalize',
-                    categoryColors[previewTemplate.category]
-                  )}
-                >
-                  {previewTemplate.category}
-                </span>
-              </div>
-              {previewTemplate.subject && (
-                <div>
-                  <p className="text-sm text-gray-500">Subject</p>
-                  <p className="font-medium text-gray-900">{previewTemplate.subject}</p>
+                <span className="text-sm text-gray-500 whitespace-nowrap">Channel:</span>
+                <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+                  <Button
+                    variant={channelFilter === 'all' ? 'secondary' : 'ghost'}
+                    size="sm"
+                    onClick={() => setChannelFilter('all')}
+                    className="rounded-lg"
+                  >
+                    All
+                  </Button>
+                  {Object.entries(channelConfig).map(([key, cfg]) => {
+                    const Icon = cfg.icon;
+                    return (
+                      <Button
+                        key={key}
+                        variant={channelFilter === key ? 'secondary' : 'ghost'}
+                        size="sm"
+                        onClick={() => setChannelFilter(key)}
+                        className={cn('rounded-lg', channelFilter !== key && cfg.color)}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </Button>
+                    );
+                  })}
                 </div>
-              )}
-              <div>
-                <p className="text-sm text-gray-500 mb-2">Content</p>
-                <div className="p-4 rounded-xl bg-gray-50 font-mono text-sm whitespace-pre-wrap text-gray-700">
-                  {previewTemplate.content.replace(/<[^>]*>/g, '')}
-                </div>
               </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-2">Variables</p>
-                <div className="flex flex-wrap gap-2">
-                  {previewTemplate.variables.map((v, i) => (
-                    <span
-                      key={i}
-                      className="text-sm px-3 py-1 rounded-lg bg-primary/5 text-primary font-mono"
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500 whitespace-nowrap">Status:</span>
+                <div className="flex items-center gap-1 bg-gray-100 rounded-xl p-1">
+                  {['all', 'approved', 'pending', 'rejected'].map((status) => (
+                    <Button
+                      key={status}
+                      variant={statusFilter === status ? 'secondary' : 'ghost'}
+                      size="sm"
+                      onClick={() => setStatusFilter(status)}
+                      className="capitalize rounded-lg"
                     >
-                      {v}
-                    </span>
+                      {status}
+                    </Button>
                   ))}
                 </div>
               </div>
-              <div className="text-xs text-gray-500 pt-4 border-t border-gray-100">
-                <p>
-                  Created by {previewTemplate.createdBy} on {previewTemplate.createdAt}
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Templates Grid */}
+        <motion.div variants={itemVariants}>
+          {filteredTemplates.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-sm">
+              <div className="text-center py-16">
+                <div className="h-16 w-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-8 w-8 text-gray-400" />
+                </div>
+                <p className="text-lg font-medium text-gray-900">No templates found</p>
+                <p className="text-sm text-gray-500 mb-4">
+                  Create your first template to get started
                 </p>
-                <p>
-                  Used {previewTemplate.usageCount.toLocaleString()} times • Version{' '}
-                  {previewTemplate.version}
-                </p>
+                <Button onClick={() => setShowCreateModal(true)} className="rounded-xl">
+                  <Plus className="h-4 w-4 mr-2" /> Create Template
+                </Button>
               </div>
             </div>
-          </motion.div>
-        </div>
-      )}
-    </motion.div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <AnimatePresence>
+                {filteredTemplates.map((template, index) => (
+                  <motion.div
+                    key={template.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                  >
+                    <TemplateCard
+                      template={template}
+                      onEdit={() => console.log('Edit:', template.id)}
+                      onDelete={(id) => setTemplatesList((prev) => prev.filter((t) => t.id !== id))}
+                      onDuplicate={() => console.log('Duplicate:', template.id)}
+                      onPreview={setPreviewTemplate}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Create Modal */}
+        <CreateTemplateModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onCreate={(data) => {
+            setTemplatesList((prev) => [
+              ...prev,
+              {
+                id: `${Date.now()}`,
+                ...data,
+                variables: data.content.match(/\{\{[^}]+\}\}|\{#var#\}/g) || [],
+                usageCount: 0,
+                lastUsed: 'Never',
+                createdBy: 'You',
+                createdAt: new Date().toISOString().split('T')[0],
+                version: 1,
+              },
+            ]);
+          }}
+        />
+
+        {/* Preview Modal */}
+        {previewTemplate && (
+          <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+            onClick={() => setPreviewTemplate(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="bg-white w-full max-w-lg rounded-2xl p-6 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">Template Preview</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setPreviewTemplate(null)}
+                  className="h-8 w-8 p-0 rounded-lg"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <StatusBadge status={previewTemplate.status} />
+                  <span
+                    className={cn(
+                      'text-xs px-2.5 py-1 rounded-lg capitalize',
+                      categoryColors[previewTemplate.category]
+                    )}
+                  >
+                    {previewTemplate.category}
+                  </span>
+                </div>
+                {previewTemplate.subject && (
+                  <div>
+                    <p className="text-sm text-gray-500">Subject</p>
+                    <p className="font-medium text-gray-900">{previewTemplate.subject}</p>
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Content</p>
+                  <div className="p-4 rounded-xl bg-gray-50 font-mono text-sm whitespace-pre-wrap text-gray-700">
+                    {previewTemplate.content.replace(/<[^>]*>/g, '')}
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500 mb-2">Variables</p>
+                  <div className="flex flex-wrap gap-2">
+                    {previewTemplate.variables.map((v, i) => (
+                      <span
+                        key={i}
+                        className="text-sm px-3 py-1 rounded-lg bg-primary/5 text-primary font-mono"
+                      >
+                        {v}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 pt-4 border-t border-gray-100">
+                  <p>
+                    Created by {previewTemplate.createdBy} on {previewTemplate.createdAt}
+                  </p>
+                  <p>
+                    Used {previewTemplate.usageCount.toLocaleString()} times • Version{' '}
+                    {previewTemplate.version}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </motion.div>
+    </UnifiedLayout>
   );
 }

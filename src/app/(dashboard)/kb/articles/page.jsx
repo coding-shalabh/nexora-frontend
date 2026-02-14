@@ -24,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const mockArticles = [
   {
@@ -104,19 +104,7 @@ export default function KBArticlesPage() {
   };
 
   return (
-    <HubLayout
-      hubId="service"
-      title="Knowledge Base Articles"
-      description="Manage help articles and documentation"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Article
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="home" pageTitle="Knowledge Base Articles" stats={stats} fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-md">
@@ -180,6 +168,6 @@ export default function KBArticlesPage() {
           </CardContent>
         </Card>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

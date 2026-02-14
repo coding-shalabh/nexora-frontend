@@ -32,7 +32,7 @@ import {
   TestTube,
 } from 'lucide-react';
 
-import { HubLayout } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -349,36 +349,16 @@ export default function NotificationsPage() {
 
   if (isLoading) {
     return (
-      <HubLayout
-        hubId="settings"
-        showFixedMenu={false}
-        title="Notification Settings"
-        description="Choose how and when you want to be notified"
-      >
+      <UnifiedLayout hubId="settings" pageTitle="Notification Settings" fixedMenu={null}>
         <div className="flex-1 flex items-center justify-center p-6">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
-      </HubLayout>
+      </UnifiedLayout>
     );
   }
 
   return (
-    <HubLayout
-      hubId="settings"
-      showFixedMenu={false}
-      title="Notification Settings"
-      description="Choose how and when you want to be notified"
-      actions={
-        <Button onClick={handleSave} disabled={isSaving}>
-          {isSaving ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="mr-2 h-4 w-4" />
-          )}
-          {isSaving ? 'Saving...' : 'Save Changes'}
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="settings" pageTitle="Notification Settings" fixedMenu={null}>
       <div className="flex-1 space-y-6 p-6 overflow-auto">
         {/* Quick Settings */}
         <div className="grid gap-4 md:grid-cols-3">
@@ -1189,6 +1169,6 @@ export default function NotificationsPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

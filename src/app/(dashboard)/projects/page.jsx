@@ -48,7 +48,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { useProjects, useCreateProject, useUpdateProject, useDeleteProject } from '@/hooks';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 const statusConfig = {
   PLANNING: { label: 'Planning', color: 'bg-gray-500', icon: Clock },
@@ -167,19 +167,17 @@ export default function ProjectsPage() {
     );
   }
 
+  const actions = [
+    createAction('New Project', Plus, () => setIsCreateOpen(true), { primary: true }),
+  ];
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="projects"
-      title="Projects"
-      description="Manage and track your projects"
+      pageTitle="Projects"
       stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button onClick={() => setIsCreateOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Project
-        </Button>
-      }
+      actions={actions}
+      fixedMenu={null}
     >
       <div className="h-full overflow-y-auto p-6 space-y-6">
         {/* Filters */}
@@ -621,6 +619,6 @@ export default function ProjectsPage() {
           </form>
         </DialogContent>
       </Dialog>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

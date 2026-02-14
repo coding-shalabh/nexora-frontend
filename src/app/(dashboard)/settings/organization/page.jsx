@@ -35,7 +35,7 @@ import {
 import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/auth-context';
-import { HubLayout } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 // Animation variants for inner content
 const itemVariants = {
@@ -114,14 +114,17 @@ const tabs = [
 
 export default function OrganizationPage() {
   const [organization, setOrganization] = useState(defaultOrganizationData);
+  const [companyId, setCompanyId] = useState(null); // Track company ID for updates
   const [activeTab, setActiveTab] = useState('general');
   const [copied, setCopied] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
   const [isSavingBrandColor, setIsSavingBrandColor] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const logoInputRef = useRef(null);
+  const faviconInputRef = useRef(null);
   const colorInputRef = useRef(null);
   const { toast } = useToast();
   const { checkAuth, user } = useAuth();
@@ -143,6 +146,11 @@ export default function OrganizationPage() {
         const tenant = tenantResponse.data;
         const orgSettings = orgSettingsResponse.data?.data || {};
         const company = companyResponse.data?.[0] || {}; // Get first company (main company)
+
+        // Store company ID for updates
+        if (company.id) {
+          setCompanyId(company.id);
+        }
 
         setOrganization({
           id: tenant.id,
@@ -286,6 +294,105 @@ export default function OrganizationPage() {
     }
   };
 
+  // Handle favicon file selection and upload
+  const handleFaviconUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file type',
+        description: 'Please select an image file (ICO or PNG)',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate file size (100KB max for favicon)
+    if (file.size > 100 * 1024) {
+      toast({
+        title: 'File too large',
+        description: 'Favicon must be less than 100KB',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsUploadingFavicon(true);
+
+    try {
+      // Convert to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64Image = reader.result;
+
+        try {
+          // Upload to server
+          const uploadResponse = await api.post('/uploads/favicon', {
+            image: base64Image,
+          });
+
+          if (uploadResponse?.success) {
+            const faviconUrl = uploadResponse.data.url;
+
+            // Update organization settings with new favicon URL
+            await api.patch('/settings/organization', {
+              settings: {
+                ...(organization.settings || {}),
+                faviconUrl,
+              },
+            });
+
+            // Update local state
+            setOrganization((prev) => ({
+              ...prev,
+              settings: { ...(prev.settings || {}), faviconUrl },
+            }));
+
+            // Refresh auth context
+            await checkAuth(true);
+
+            toast({
+              title: 'Favicon uploaded',
+              description: 'Your organization favicon has been updated successfully.',
+            });
+          } else {
+            throw new Error(uploadResponse?.message || 'Upload failed');
+          }
+        } catch (err) {
+          console.error('Favicon upload error:', err);
+          toast({
+            title: 'Upload failed',
+            description: err.message || 'Failed to upload favicon. Please try again.',
+            variant: 'destructive',
+          });
+        } finally {
+          setIsUploadingFavicon(false);
+        }
+      };
+
+      reader.onerror = () => {
+        toast({
+          title: 'Read error',
+          description: 'Failed to read the selected file',
+          variant: 'destructive',
+        });
+        setIsUploadingFavicon(false);
+      };
+
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('File handling error:', err);
+      setIsUploadingFavicon(false);
+    }
+
+    // Reset file input
+    if (faviconInputRef.current) {
+      faviconInputRef.current.value = '';
+    }
+  };
+
   // Handle brand color change
   const handleBrandColorChange = async (color) => {
     const previousColor = organization.brandColor;
@@ -369,9 +476,8 @@ export default function OrganizationPage() {
     setIsSaving(true);
 
     try {
-      // Build payload - only include non-empty values for URL/email fields
-      // to avoid Zod validation errors
-      const payload = {
+      // Build organization settings payload
+      const orgPayload = {
         name: organization.name,
         phone: organization.phone,
         address: organization.address,
@@ -383,16 +489,34 @@ export default function OrganizationPage() {
 
       // Only include email if it's a valid non-empty value
       if (organization.email && organization.email.trim()) {
-        payload.email = organization.email.trim();
+        orgPayload.email = organization.email.trim();
       }
 
       // Only include website if it's a valid non-empty value
       if (organization.website && organization.website.trim()) {
-        payload.website = organization.website.trim();
+        orgPayload.website = organization.website.trim();
       }
 
+      // Build company data payload (for city, state, country, postalCode, description)
+      const companyPayload = {
+        name: organization.name,
+        address: organization.address,
+        city: organization.city || '',
+        state: organization.state || '',
+        country: organization.country || 'India',
+        postalCode: organization.postalCode || '',
+        industry: organization.industry,
+        size: organization.size,
+        description: organization.description || '',
+      };
+
       // Save organization settings
-      await api.patch('/settings/organization', payload);
+      await api.patch('/settings/organization', orgPayload);
+
+      // Save company data if we have a company ID
+      if (companyId) {
+        await api.patch(`/crm/companies/${companyId}`, companyPayload);
+      }
 
       // Refresh auth context to update any cached data
       await checkAuth(true);
@@ -416,31 +540,21 @@ export default function OrganizationPage() {
   // Show loading state
   if (isLoading) {
     return (
-      <HubLayout
-        hubId="settings"
-        title="Organization Settings"
-        description="Manage your organization details, branding, and preferences"
-        showFixedMenu={false}
-      >
+      <UnifiedLayout hubId="settings" pageTitle="Organization Settings" fixedMenu={null}>
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
             <p className="text-gray-500">Loading organization data...</p>
           </div>
         </div>
-      </HubLayout>
+      </UnifiedLayout>
     );
   }
 
   // Show error state
   if (error) {
     return (
-      <HubLayout
-        hubId="settings"
-        title="Organization Settings"
-        description="Manage your organization details, branding, and preferences"
-        showFixedMenu={false}
-      >
+      <UnifiedLayout hubId="settings" pageTitle="Organization Settings" fixedMenu={null}>
         <div className="flex-1 flex items-center justify-center p-6">
           <div className="text-center">
             <div className="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
@@ -450,17 +564,12 @@ export default function OrganizationPage() {
             <p className="text-gray-500 text-sm">{error}</p>
           </div>
         </div>
-      </HubLayout>
+      </UnifiedLayout>
     );
   }
 
   return (
-    <HubLayout
-      hubId="settings"
-      title="Organization Settings"
-      description="Manage your organization details, branding, and preferences"
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="settings" pageTitle="Organization Settings" fixedMenu={null}>
       {/* Organization Header Card */}
       <motion.div
         variants={itemVariants}
@@ -962,14 +1071,42 @@ export default function OrganizationPage() {
               <div className="p-5 rounded-xl bg-gray-50">
                 <Label className="text-gray-700 mb-4 block">Favicon</Label>
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-lg bg-white shadow-sm flex items-center justify-center">
-                    <span className="text-xs text-gray-400">32px</span>
+                  <div className="h-12 w-12 rounded-lg bg-white shadow-sm flex items-center justify-center overflow-hidden">
+                    {organization.settings?.faviconUrl ? (
+                      <img
+                        src={organization.settings.faviconUrl}
+                        alt="Favicon preview"
+                        className="w-full h-full object-contain"
+                      />
+                    ) : (
+                      <span className="text-xs text-gray-400">32px</span>
+                    )}
                   </div>
                   <div className="space-y-2">
-                    <Button variant="outline" size="sm" className="rounded-lg">
-                      Upload Favicon
+                    <input
+                      type="file"
+                      ref={faviconInputRef}
+                      onChange={handleFaviconUpload}
+                      accept="image/png,image/x-icon,image/vnd.microsoft.icon"
+                      className="hidden"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-lg"
+                      onClick={() => faviconInputRef.current?.click()}
+                      disabled={isUploadingFavicon}
+                    >
+                      {isUploadingFavicon ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Uploading...
+                        </>
+                      ) : (
+                        'Upload Favicon'
+                      )}
                     </Button>
-                    <p className="text-xs text-gray-500">ICO or PNG, 32x32px</p>
+                    <p className="text-xs text-gray-500">ICO or PNG, max 100KB</p>
                   </div>
                 </div>
               </div>
@@ -1108,6 +1245,6 @@ export default function OrganizationPage() {
           </div>
         </motion.div>
       )}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

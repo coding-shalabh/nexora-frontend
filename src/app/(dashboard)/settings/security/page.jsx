@@ -27,7 +27,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { HubLayout } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 // Animation variants
 const containerVariants = {
@@ -168,24 +168,7 @@ export default function SecurityPage() {
   );
 
   return (
-    <HubLayout
-      hubId="settings"
-      showFixedMenu={false}
-      title="Security"
-      description="Manage workspace security settings and monitor activity"
-      actions={
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search activity..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-11 w-64 pl-10 pr-4 rounded-xl bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20"
-          />
-        </div>
-      }
-    >
+    <UnifiedLayout hubId="settings" pageTitle="Security" fixedMenu={null}>
       <motion.div
         className="flex-1 p-6 space-y-6 overflow-auto"
         variants={containerVariants}
@@ -409,6 +392,6 @@ export default function SecurityPage() {
           </motion.div>
         </div>
       </motion.div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

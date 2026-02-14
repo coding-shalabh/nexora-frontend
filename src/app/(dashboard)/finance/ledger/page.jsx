@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const ledgerEntries = [
   {
@@ -101,130 +102,139 @@ export default function LedgerPage() {
 
   const currentAccount = accounts.find((a) => a.value === selectedAccount);
 
+  const layoutStats = [
+    createStat('Total Accounts', '24', BookText, 'blue'),
+    createStat('Total Debit', '₹45.2L', ArrowUpRight, 'green'),
+    createStat('Total Credit', '₹42.8L', ArrowDownRight, 'red'),
+    createStat('Net Balance', '₹2.4L', Calendar, 'purple'),
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">General Ledger</h1>
-          <p className="text-muted-foreground">View account transactions and balances</p>
+    <UnifiedLayout hubId="finance" pageTitle="General Ledger" stats={layoutStats} fixedMenu={null}>
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">General Ledger</h1>
+            <p className="text-muted-foreground">View account transactions and balances</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              Date Range
+            </Button>
+            <Button variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
-            <Calendar className="h-4 w-4" />
-            Date Range
-          </Button>
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="md:col-span-2">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <Select value={selectedAccount} onValueChange={setSelectedAccount}>
-                <SelectTrigger className="w-[250px]">
-                  <SelectValue placeholder="Select Account" />
-                </SelectTrigger>
-                <SelectContent>
-                  {accounts.map((account) => (
-                    <SelectItem key={account.value} value={account.value}>
-                      {account.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search transactions..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <Card>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card className="md:col-span-2">
             <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground">Current Balance</p>
-              <p
-                className={cn(
-                  'text-2xl font-bold',
-                  currentAccount?.balance >= 0 ? 'text-green-600' : 'text-red-600'
-                )}
-              >
-                {formatCurrency(currentAccount?.balance || 0)}
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">{currentAccount?.label}</p>
+              <div className="flex items-center gap-4">
+                <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+                  <SelectTrigger className="w-[250px]">
+                    <SelectValue placeholder="Select Account" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {accounts.map((account) => (
+                      <SelectItem key={account.value} value={account.value}>
+                        {account.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search transactions..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
-        </motion.div>
-      </div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <BookText className="h-4 w-4" />
-            {currentAccount?.label} - Transactions
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Reference</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Debit</TableHead>
-                <TableHead className="text-right">Credit</TableHead>
-                <TableHead className="text-right">Balance</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {ledgerEntries.map((entry, index) => (
-                <motion.tr
-                  key={entry.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="border-b cursor-pointer hover:bg-muted/50"
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-sm text-muted-foreground">Current Balance</p>
+                <p
+                  className={cn(
+                    'text-2xl font-bold',
+                    currentAccount?.balance >= 0 ? 'text-green-600' : 'text-red-600'
+                  )}
                 >
-                  <TableCell>{entry.date}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{entry.reference}</Badge>
-                  </TableCell>
-                  <TableCell>{entry.description}</TableCell>
-                  <TableCell className="text-right">
-                    {entry.debit > 0 && (
-                      <span className="text-green-600 flex items-center justify-end gap-1">
-                        <ArrowUpRight className="h-3 w-3" />
-                        {formatCurrency(entry.debit)}
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {entry.credit > 0 && (
-                      <span className="text-red-600 flex items-center justify-end gap-1">
-                        <ArrowDownRight className="h-3 w-3" />
-                        {formatCurrency(entry.credit)}
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(entry.balance)}
-                  </TableCell>
-                </motion.tr>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+                  {formatCurrency(currentAccount?.balance || 0)}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">{currentAccount?.label}</p>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <BookText className="h-4 w-4" />
+              {currentAccount?.label} - Transactions
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Reference</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead className="text-right">Debit</TableHead>
+                  <TableHead className="text-right">Credit</TableHead>
+                  <TableHead className="text-right">Balance</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {ledgerEntries.map((entry, index) => (
+                  <motion.tr
+                    key={entry.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="border-b cursor-pointer hover:bg-muted/50"
+                  >
+                    <TableCell>{entry.date}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{entry.reference}</Badge>
+                    </TableCell>
+                    <TableCell>{entry.description}</TableCell>
+                    <TableCell className="text-right">
+                      {entry.debit > 0 && (
+                        <span className="text-green-600 flex items-center justify-end gap-1">
+                          <ArrowUpRight className="h-3 w-3" />
+                          {formatCurrency(entry.debit)}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {entry.credit > 0 && (
+                        <span className="text-red-600 flex items-center justify-end gap-1">
+                          <ArrowDownRight className="h-3 w-3" />
+                          {formatCurrency(entry.credit)}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatCurrency(entry.balance)}
+                    </TableCell>
+                  </motion.tr>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </UnifiedLayout>
   );
 }

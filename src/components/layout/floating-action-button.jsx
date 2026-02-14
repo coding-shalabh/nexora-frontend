@@ -26,6 +26,8 @@ import {
   Settings,
   Inbox,
   UserCog,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -74,14 +76,15 @@ export function FloatingActionButton() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null); // 'ai', 'hubs', 'add'
 
-  const toggleMenu = (menu) => {
-    if (activeMenu === menu) {
+  const togglePanel = () => {
+    setIsOpen(!isOpen);
+    if (isOpen) {
       setActiveMenu(null);
-      setIsOpen(false);
-    } else {
-      setActiveMenu(menu);
-      setIsOpen(true);
     }
+  };
+
+  const toggleMenu = (menu) => {
+    setActiveMenu(activeMenu === menu ? null : menu);
   };
 
   const closeAll = () => {
@@ -91,215 +94,228 @@ export function FloatingActionButton() {
 
   return (
     <TooltipProvider delayDuration={0}>
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-        {/* Expanded Menu Items */}
+      {/* Fixed right-side panel */}
+      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50 flex items-center">
+        {/* Expandable Panel */}
         <AnimatePresence>
-          {activeMenu === 'add' && (
+          {isOpen && (
             <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.8 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="flex flex-col gap-2 mb-2"
+              initial={{ x: 400, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: 400, opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="bg-white dark:bg-gray-900 rounded-l-3xl shadow-2xl border-l border-t border-b border-gray-200 dark:border-gray-700 overflow-hidden"
+              style={{ width: '320px', maxHeight: '80vh' }}
             >
-              {quickCreateItems.map((item, index) => (
-                <motion.div
-                  key={item.label}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ delay: index * 0.05 }}
-                >
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Link
-                        href={item.href}
-                        onClick={closeAll}
-                        className={cn(
-                          'flex h-12 w-12 items-center justify-center rounded-full shadow-lg',
-                          'bg-gradient-to-br text-white transition-transform hover:scale-110',
-                          item.color
-                        )}
-                      >
-                        <item.icon className="h-5 w-5" />
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="left" className="bg-gray-900 text-white border-0">
-                      {item.label}
-                    </TooltipContent>
-                  </Tooltip>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-
-          {activeMenu === 'hubs' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.8 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="flex flex-col gap-2 mb-2 items-end"
-            >
-              {hubItems.map((item, index) => (
-                <motion.div
-                  key={item.label}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 20 }}
-                  transition={{ delay: index * 0.03 }}
-                >
-                  <Link
-                    href={item.href}
+              {/* Panel Header */}
+              <div className="bg-gradient-to-r from-brand to-brand/90 text-white p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-lg">Quick Actions</h3>
+                  <button
                     onClick={closeAll}
-                    className="group flex items-center gap-2"
+                    className="h-8 w-8 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors"
                   >
-                    {/* Text pill - appears on left on hover */}
-                    <span className="px-3 py-1.5 rounded-full bg-white text-brand text-sm font-medium whitespace-nowrap opacity-0 scale-90 translate-x-2 group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-0 transition-all duration-200 shadow-lg">
-                      {item.label}
-                    </span>
-                    {/* Icon circle - always visible */}
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-lg flex-shrink-0 transition-transform duration-200 group-hover:scale-110">
-                      <item.icon className="h-5 w-5 text-brand" />
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
 
-          {activeMenu === 'ai' && (
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.8 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="mb-2"
-            >
-              <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-4 w-72 border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
-                    <Sparkles className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-sm">Nexora AI</h4>
-                    <p className="text-xs text-muted-foreground">Your AI assistant</p>
-                  </div>
+                {/* Menu Tabs */}
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => toggleMenu('add')}
+                    className={cn(
+                      'flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+                      activeMenu === 'add'
+                        ? 'bg-white text-brand'
+                        : 'bg-white/10 hover:bg-white/20 text-white'
+                    )}
+                  >
+                    <Plus className="h-4 w-4 inline mr-1" />
+                    Create
+                  </button>
+                  <button
+                    onClick={() => toggleMenu('hubs')}
+                    className={cn(
+                      'flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+                      activeMenu === 'hubs'
+                        ? 'bg-white text-brand'
+                        : 'bg-white/10 hover:bg-white/20 text-white'
+                    )}
+                  >
+                    <LayoutGrid className="h-4 w-4 inline mr-1" />
+                    Hubs
+                  </button>
+                  <button
+                    onClick={() => toggleMenu('ai')}
+                    className={cn(
+                      'flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all',
+                      activeMenu === 'ai'
+                        ? 'bg-white text-brand'
+                        : 'bg-white/10 hover:bg-white/20 text-white'
+                    )}
+                  >
+                    <Sparkles className="h-4 w-4 inline mr-1" />
+                    AI
+                  </button>
                 </div>
-                <div className="space-y-2">
-                  <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4 text-primary" />
-                    Ask a question
-                  </button>
-                  <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-green-500" />
-                    Summarize contacts
-                  </button>
-                  <button className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-sm flex items-center gap-2">
-                    <DollarSign className="h-4 w-4 text-emerald-500" />
-                    Analyze deals
-                  </button>
-                </div>
+              </div>
+
+              {/* Panel Content */}
+              <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(80vh - 140px)' }}>
+                <AnimatePresence mode="wait">
+                  {activeMenu === 'add' && (
+                    <motion.div
+                      key="add"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-2"
+                    >
+                      {quickCreateItems.map((item) => (
+                        <Link
+                          key={item.label}
+                          href={item.href}
+                          onClick={closeAll}
+                          className={cn(
+                            'flex items-center gap-3 p-3 rounded-xl transition-all',
+                            'hover:shadow-md group bg-gradient-to-br',
+                            item.color
+                          )}
+                        >
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/20 text-white">
+                            <item.icon className="h-5 w-5" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-white">Create {item.label}</p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-white/60 group-hover:text-white transition-colors" />
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+
+                  {activeMenu === 'hubs' && (
+                    <motion.div
+                      key="hubs"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-2"
+                    >
+                      {hubItems.map((item) => (
+                        <Link
+                          key={item.label}
+                          href={item.href}
+                          onClick={closeAll}
+                          className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
+                        >
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10">
+                            <item.icon className="h-5 w-5 text-brand" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900 dark:text-white">
+                              {item.label}
+                            </p>
+                          </div>
+                          <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-brand transition-colors" />
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+
+                  {activeMenu === 'ai' && (
+                    <motion.div
+                      key="ai"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-3"
+                    >
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                          <Sparkles className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-sm">Nexora AI</h4>
+                          <p className="text-xs text-muted-foreground">Your AI assistant</p>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <button className="w-full text-left px-3 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-3">
+                          <MessageSquare className="h-5 w-5 text-primary" />
+                          <span className="text-sm font-medium">Ask a question</span>
+                        </button>
+                        <button className="w-full text-left px-3 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-3">
+                          <FileText className="h-5 w-5 text-green-500" />
+                          <span className="text-sm font-medium">Summarize contacts</span>
+                        </button>
+                        <button className="w-full text-left px-3 py-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center gap-3">
+                          <DollarSign className="h-5 w-5 text-emerald-500" />
+                          <span className="text-sm font-medium">Analyze deals</span>
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {!activeMenu && (
+                    <motion.div
+                      key="empty"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="text-center py-12 text-muted-foreground"
+                    >
+                      <LayoutGrid className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                      <p className="text-sm">Select a tab above to get started</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Main FAB Container */}
-        <motion.div
-          layout
-          className="flex items-center gap-1 p-1.5 rounded-full shadow-2xl bg-brand"
+        {/* Arrow Tab - Always visible, stuck to right edge */}
+        <motion.button
+          onClick={togglePanel}
+          className={cn(
+            'flex items-center justify-center rounded-l-xl shadow-lg transition-all',
+            'bg-brand text-white hover:bg-brand/90',
+            isOpen ? 'h-16 w-10' : 'h-20 w-12'
+          )}
+          whileHover={{ x: -4 }}
+          whileTap={{ scale: 0.95 }}
           style={{
             boxShadow:
               '0 10px 40px -10px rgba(var(--brand-color-rgb), 0.5), 0 4px 20px -5px rgba(var(--brand-color-rgb), 0.4)',
           }}
         >
-          {/* AI Chat Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => toggleMenu('ai')}
-                className={cn(
-                  'flex h-11 w-11 items-center justify-center rounded-full transition-all',
-                  activeMenu === 'ai'
-                    ? 'bg-white text-brand'
-                    : 'bg-white/10 text-white hover:bg-white/20'
-                )}
-              >
-                <Sparkles className="h-5 w-5" />
-              </motion.button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="bg-gray-900 text-white border-0">
-              AI Assistant
-            </TooltipContent>
-          </Tooltip>
-
-          {/* Hubs Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => toggleMenu('hubs')}
-                className={cn(
-                  'flex h-11 w-11 items-center justify-center rounded-full transition-all',
-                  activeMenu === 'hubs'
-                    ? 'bg-white text-brand'
-                    : 'bg-white/10 text-white hover:bg-white/20'
-                )}
-              >
-                <LayoutGrid className="h-5 w-5" />
-              </motion.button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="bg-gray-900 text-white border-0">
-              All Hubs
-            </TooltipContent>
-          </Tooltip>
-
-          {/* Add Button */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => toggleMenu('add')}
-                className={cn(
-                  'flex h-11 w-11 items-center justify-center rounded-full transition-all',
-                  activeMenu === 'add'
-                    ? 'bg-white text-brand'
-                    : 'bg-white/10 text-white hover:bg-white/20'
-                )}
-              >
-                <motion.div
-                  animate={{ rotate: activeMenu === 'add' ? 45 : 0 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                >
-                  <Plus className="h-5 w-5" />
-                </motion.div>
-              </motion.button>
-            </TooltipTrigger>
-            <TooltipContent side="top" className="bg-gray-900 text-white border-0">
-              Quick Create
-            </TooltipContent>
-          </Tooltip>
-        </motion.div>
-
-        {/* Backdrop with blur for closing */}
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-              animate={{ opacity: 1, backdropFilter: 'blur(8px)' }}
-              exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[-1] bg-black/20"
-              onClick={closeAll}
-            />
-          )}
-        </AnimatePresence>
+          <motion.div
+            animate={{ rotate: isOpen ? 0 : 0 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+          >
+            {isOpen ? <ChevronRight className="h-6 w-6" /> : <ChevronLeft className="h-6 w-6" />}
+          </motion.div>
+        </motion.button>
       </div>
+
+      {/* Backdrop with blur for closing */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm"
+            onClick={closeAll}
+          />
+        )}
+      </AnimatePresence>
     </TooltipProvider>
   );
 }

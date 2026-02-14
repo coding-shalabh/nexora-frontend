@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { UnifiedLayout } from '@/components/layout/unified';
 import {
   Zap,
   Plus,
@@ -193,265 +194,270 @@ export default function TriggersPage() {
   const totalFires = triggers.reduce((acc, t) => acc + t.fires, 0);
 
   return (
-    <motion.div
-      className="flex-1 space-y-6 p-6"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
-      {/* Stats Row */}
-      <motion.div variants={itemVariants} className="grid gap-4 md:grid-cols-4">
-        <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-4 border border-yellow-200/50">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
-              <Zap className="h-5 w-5 text-yellow-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-yellow-900">{triggers.length}</p>
-              <p className="text-xs text-yellow-600/80">Total Triggers</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-4 border border-green-200/50">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-              <Play className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-green-900">{activeCount}</p>
-              <p className="text-xs text-green-600/80">Active</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-4 border border-purple-200/50">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-              <Activity className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-purple-900">{totalFires}</p>
-              <p className="text-xs text-purple-600/80">Total Fires</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-200/50">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-              <Target className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-blue-900">
-                {triggerCategories.reduce((acc, c) => acc + c.triggers.length, 0)}
-              </p>
-              <p className="text-xs text-blue-600/80">Available Types</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Tabs */}
-      <motion.div variants={itemVariants}>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <div className="flex items-center justify-between gap-4">
-            <TabsList className="bg-white rounded-xl p-1 shadow-sm border">
-              <TabsTrigger
-                value="active"
-                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
-              >
-                <Play className="h-4 w-4" />
-                Active ({activeCount})
-              </TabsTrigger>
-              <TabsTrigger
-                value="all"
-                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
-              >
-                <Zap className="h-4 w-4" />
-                All ({triggers.length})
-              </TabsTrigger>
-              <TabsTrigger
-                value="available"
-                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
-              >
-                <Sparkles className="h-4 w-4" />
-                Available Types
-              </TabsTrigger>
-            </TabsList>
+    <UnifiedLayout hubId="settings" pageTitle="Triggers" fixedMenu={null}>
+      <motion.div
+        className="flex-1 space-y-6 p-6"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        {/* Stats Row */}
+        <motion.div variants={itemVariants} className="grid gap-4 md:grid-cols-4">
+          <div className="bg-gradient-to-br from-yellow-50 to-amber-50 rounded-2xl p-4 border border-yellow-200/50">
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  placeholder="Search triggers..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-[250px]"
-                />
+              <div className="h-10 w-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
+                <Zap className="h-5 w-5 text-yellow-600" />
               </div>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Create Trigger
-              </Button>
+              <div>
+                <p className="text-2xl font-bold text-yellow-900">{triggers.length}</p>
+                <p className="text-xs text-yellow-600/80">Total Triggers</p>
+              </div>
             </div>
           </div>
-
-          {/* Active Triggers Tab */}
-          <TabsContent value="active" className="space-y-4 mt-0">
-            <TriggerList triggers={filteredTriggers} toggleTrigger={toggleTrigger} />
-          </TabsContent>
-
-          {/* All Triggers Tab */}
-          <TabsContent value="all" className="space-y-4 mt-0">
-            <TriggerList triggers={filteredTriggers} toggleTrigger={toggleTrigger} />
-          </TabsContent>
-
-          {/* Available Types Tab */}
-          <TabsContent value="available" className="space-y-4 mt-0">
-            <div className="grid gap-4 md:grid-cols-3">
-              {triggerCategories.map((category) => {
-                const CategoryIcon = category.icon;
-                const colors = colorClasses[category.color];
-                return (
-                  <div
-                    key={category.id}
-                    className={`${colors.bg} rounded-2xl border ${colors.border} p-5`}
-                  >
-                    <div className="flex items-center gap-3 mb-4">
-                      <div
-                        className={`h-10 w-10 rounded-xl ${colors.icon} flex items-center justify-center`}
-                      >
-                        <CategoryIcon className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <h3 className={`font-semibold ${colors.text}`}>{category.name}</h3>
-                        <p className={`text-xs ${colors.subtext}`}>
-                          {category.triggers.length} triggers
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      {category.triggers.map((trigger) => (
-                        <div
-                          key={trigger.id}
-                          className="p-3 bg-white/60 rounded-xl hover:bg-white/80 cursor-pointer transition-colors"
-                        >
-                          <p className={`font-medium text-sm ${colors.text}`}>{trigger.name}</p>
-                          <p className={`text-xs ${colors.subtext}`}>{trigger.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <Button variant="outline" size="sm" className="w-full mt-4">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Use Trigger
-                    </Button>
-                  </div>
-                );
-              })}
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-4 border border-green-200/50">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                <Play className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-green-900">{activeCount}</p>
+                <p className="text-xs text-green-600/80">Active</p>
+              </div>
             </div>
-          </TabsContent>
-        </Tabs>
-      </motion.div>
+          </div>
+          <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-4 border border-purple-200/50">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                <Activity className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-purple-900">{totalFires}</p>
+                <p className="text-xs text-purple-600/80">Total Fires</p>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-200/50">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                <Target className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-blue-900">
+                  {triggerCategories.reduce((acc, c) => acc + c.triggers.length, 0)}
+                </p>
+                <p className="text-xs text-blue-600/80">Available Types</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
-      {/* Info Accordion */}
-      <motion.div variants={itemVariants}>
-        <Accordion type="single" collapsible className="space-y-3">
-          <AccordionItem
-            value="what-are-triggers"
-            className="bg-gradient-to-br from-yellow-50/50 to-amber-50/50 rounded-2xl border border-yellow-200/50 px-6"
-          >
-            <AccordionTrigger className="hover:no-underline py-4">
+        {/* Tabs */}
+        <motion.div variants={itemVariants}>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+            <div className="flex items-center justify-between gap-4">
+              <TabsList className="bg-white rounded-xl p-1 shadow-sm border">
+                <TabsTrigger
+                  value="active"
+                  className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
+                >
+                  <Play className="h-4 w-4" />
+                  Active ({activeCount})
+                </TabsTrigger>
+                <TabsTrigger
+                  value="all"
+                  className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
+                >
+                  <Zap className="h-4 w-4" />
+                  All ({triggers.length})
+                </TabsTrigger>
+                <TabsTrigger
+                  value="available"
+                  className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Available Types
+                </TabsTrigger>
+              </TabsList>
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
-                  <HelpCircle className="h-5 w-5 text-yellow-600" />
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search triggers..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 w-[250px]"
+                  />
                 </div>
-                <div className="text-left">
-                  <h3 className="font-semibold text-yellow-900">What are Triggers?</h3>
-                  <p className="text-sm text-yellow-600/80">Events that start your automations</p>
-                </div>
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Trigger
+                </Button>
               </div>
-            </AccordionTrigger>
-            <AccordionContent className="pb-4">
-              <div className="grid gap-4 md:grid-cols-3 pt-2">
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-600 font-semibold text-sm shrink-0">
-                    1
-                  </div>
-                  <div>
-                    <p className="font-medium text-yellow-900">Events</p>
-                    <p className="text-sm text-yellow-700/70">
-                      Triggers fire when specific events happen (contact created, message received)
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-600 font-semibold text-sm shrink-0">
-                    2
-                  </div>
-                  <div>
-                    <p className="font-medium text-yellow-900">Conditions</p>
-                    <p className="text-sm text-yellow-700/70">
-                      Add filters to only fire when certain conditions are met
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-600 font-semibold text-sm shrink-0">
-                    3
-                  </div>
-                  <div>
-                    <p className="font-medium text-yellow-900">Actions</p>
-                    <p className="text-sm text-yellow-700/70">
-                      Connect to workflows to execute automated actions
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
+            </div>
 
-          <AccordionItem
-            value="best-practices"
-            className="bg-gradient-to-br from-green-50/50 to-emerald-50/50 rounded-2xl border border-green-200/50 px-6"
-          >
-            <AccordionTrigger className="hover:no-underline py-4">
-              <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
-                </div>
-                <div className="text-left">
-                  <h3 className="font-semibold text-green-900">Best Practices</h3>
-                  <p className="text-sm text-green-600/80">Tips for effective trigger setup</p>
-                </div>
+            {/* Active Triggers Tab */}
+            <TabsContent value="active" className="space-y-4 mt-0">
+              <TriggerList triggers={filteredTriggers} toggleTrigger={toggleTrigger} />
+            </TabsContent>
+
+            {/* All Triggers Tab */}
+            <TabsContent value="all" className="space-y-4 mt-0">
+              <TriggerList triggers={filteredTriggers} toggleTrigger={toggleTrigger} />
+            </TabsContent>
+
+            {/* Available Types Tab */}
+            <TabsContent value="available" className="space-y-4 mt-0">
+              <div className="grid gap-4 md:grid-cols-3">
+                {triggerCategories.map((category) => {
+                  const CategoryIcon = category.icon;
+                  const colors = colorClasses[category.color];
+                  return (
+                    <div
+                      key={category.id}
+                      className={`${colors.bg} rounded-2xl border ${colors.border} p-5`}
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div
+                          className={`h-10 w-10 rounded-xl ${colors.icon} flex items-center justify-center`}
+                        >
+                          <CategoryIcon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h3 className={`font-semibold ${colors.text}`}>{category.name}</h3>
+                          <p className={`text-xs ${colors.subtext}`}>
+                            {category.triggers.length} triggers
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        {category.triggers.map((trigger) => (
+                          <div
+                            key={trigger.id}
+                            className="p-3 bg-white/60 rounded-xl hover:bg-white/80 cursor-pointer transition-colors"
+                          >
+                            <p className={`font-medium text-sm ${colors.text}`}>{trigger.name}</p>
+                            <p className={`text-xs ${colors.subtext}`}>{trigger.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <Button variant="outline" size="sm" className="w-full mt-4">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Use Trigger
+                      </Button>
+                    </div>
+                  );
+                })}
               </div>
-            </AccordionTrigger>
-            <AccordionContent className="pb-4">
-              <div className="grid gap-3 md:grid-cols-2 pt-2">
-                <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl">
-                  <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
-                  <span className="text-sm text-green-900">
-                    Use specific conditions to avoid unwanted fires
-                  </span>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
+
+        {/* Info Accordion */}
+        <motion.div variants={itemVariants}>
+          <Accordion type="single" collapsible className="space-y-3">
+            <AccordionItem
+              value="what-are-triggers"
+              className="bg-gradient-to-br from-yellow-50/50 to-amber-50/50 rounded-2xl border border-yellow-200/50 px-6"
+            >
+              <AccordionTrigger className="hover:no-underline py-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
+                    <HelpCircle className="h-5 w-5 text-yellow-600" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-yellow-900">What are Triggers?</h3>
+                    <p className="text-sm text-yellow-600/80">Events that start your automations</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl">
-                  <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
-                  <span className="text-sm text-green-900">
-                    Test triggers with a small dataset first
-                  </span>
+              </AccordionTrigger>
+              <AccordionContent className="pb-4">
+                <div className="grid gap-4 md:grid-cols-3 pt-2">
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-600 font-semibold text-sm shrink-0">
+                      1
+                    </div>
+                    <div>
+                      <p className="font-medium text-yellow-900">Events</p>
+                      <p className="text-sm text-yellow-700/70">
+                        Triggers fire when specific events happen (contact created, message
+                        received)
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-600 font-semibold text-sm shrink-0">
+                      2
+                    </div>
+                    <div>
+                      <p className="font-medium text-yellow-900">Conditions</p>
+                      <p className="text-sm text-yellow-700/70">
+                        Add filters to only fire when certain conditions are met
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="h-8 w-8 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-600 font-semibold text-sm shrink-0">
+                      3
+                    </div>
+                    <div>
+                      <p className="font-medium text-yellow-900">Actions</p>
+                      <p className="text-sm text-yellow-700/70">
+                        Connect to workflows to execute automated actions
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl">
-                  <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
-                  <span className="text-sm text-green-900">
-                    Monitor fire counts to ensure expected behavior
-                  </span>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem
+              value="best-practices"
+              className="bg-gradient-to-br from-green-50/50 to-emerald-50/50 rounded-2xl border border-green-200/50 px-6"
+            >
+              <AccordionTrigger className="hover:no-underline py-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-green-900">Best Practices</h3>
+                    <p className="text-sm text-green-600/80">Tips for effective trigger setup</p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl">
-                  <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
-                  <span className="text-sm text-green-900">Pause triggers during data imports</span>
+              </AccordionTrigger>
+              <AccordionContent className="pb-4">
+                <div className="grid gap-3 md:grid-cols-2 pt-2">
+                  <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl">
+                    <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+                    <span className="text-sm text-green-900">
+                      Use specific conditions to avoid unwanted fires
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl">
+                    <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+                    <span className="text-sm text-green-900">
+                      Test triggers with a small dataset first
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl">
+                    <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+                    <span className="text-sm text-green-900">
+                      Monitor fire counts to ensure expected behavior
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 p-3 bg-white/60 rounded-xl">
+                    <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+                    <span className="text-sm text-green-900">
+                      Pause triggers during data imports
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </UnifiedLayout>
   );
 }
 

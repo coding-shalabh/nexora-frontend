@@ -26,7 +26,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 const offboardingCases = [
@@ -404,27 +404,8 @@ export default function OffboardingPage() {
   );
 
   return (
-    <HubLayout
-      hubId="hr"
-      showTopBar={false}
-      showSidebar={false}
-      title="Offboarding"
-      description="Manage employee exits and transitions"
-      stats={layoutStats}
-      actions={topBarActions}
-      showFixedMenu={true}
-      fixedMenuFilters={
-        <FixedMenuPanel
-          config={fixedMenuConfig}
-          activeFilter={statusFilter}
-          onFilterChange={setStatusFilter}
-          onAction={handleAction}
-          className="p-4"
-        />
-      }
-      fixedMenuList={fixedMenuListContent}
-    >
+    <UnifiedLayout hubId="hr" pageTitle="Offboarding" stats={layoutStats} fixedMenu={null}>
       {contentArea}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

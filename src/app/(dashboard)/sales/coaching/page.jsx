@@ -15,8 +15,8 @@ import {
   Sparkles,
   CheckCircle2,
 } from 'lucide-react';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -83,7 +83,7 @@ const skills = [
 ];
 
 // Coaching stats
-const stats = {
+const coachingStats = {
   totalCalls: 38,
   avgScore: 85,
   improvement: 12,
@@ -92,21 +92,17 @@ const stats = {
 
 export default function CoachingPage() {
   const [activeTab, setActiveTab] = useState('recordings');
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const layoutStats = useMemo(
-    () => [
-      createStat('Calls', stats.totalCalls, Phone, 'blue'),
-      createStat('Avg Score', stats.avgScore, Target, 'green'),
-      createStat('Improvement', `+${stats.improvement}%`, TrendingUp, 'purple'),
-      createStat('Hours', stats.hoursCoached, Clock, 'orange'),
-    ],
-    []
-  );
+  const stats = [
+    createStat('Calls', coachingStats.totalCalls, Phone, 'blue'),
+    createStat('Avg Score', coachingStats.avgScore, Target, 'green'),
+    createStat('Improvement', `+${coachingStats.improvement}%`, TrendingUp, 'purple'),
+    createStat('Hours', coachingStats.hoursCoached, Clock, 'orange'),
+  ];
 
-  const handleSearch = (value) => {
-    setSearchQuery(value);
-  };
+  const actions = [
+    createAction('Get AI Coaching', Sparkles, () => console.log('ai coaching'), { primary: true }),
+  ];
 
   const getScoreColor = (score) => {
     if (score >= 90) return 'text-green-600 bg-green-100';
@@ -115,255 +111,245 @@ export default function CoachingPage() {
     return 'text-red-600 bg-red-100';
   };
 
-  const actionButtons = (
-    <Button>
-      <Sparkles className="h-4 w-4 mr-2" />
-      Get AI Coaching
-    </Button>
-  );
+  return (
+    <UnifiedLayout
+      hubId="sales"
+      pageTitle="Sales Coaching"
+      stats={stats}
+      actions={actions}
+      fixedMenu={null}
+    >
+      <div className="p-6 space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="recordings" className="gap-2">
+              <Video className="h-4 w-4" />
+              Call Recordings
+            </TabsTrigger>
+            <TabsTrigger value="skills" className="gap-2">
+              <Brain className="h-4 w-4" />
+              Skills Analysis
+            </TabsTrigger>
+            <TabsTrigger value="leaderboard" className="gap-2">
+              <Award className="h-4 w-4" />
+              Leaderboard
+            </TabsTrigger>
+          </TabsList>
 
-  const mainContent = (
-    <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="recordings" className="gap-2">
-            <Video className="h-4 w-4" />
-            Call Recordings
-          </TabsTrigger>
-          <TabsTrigger value="skills" className="gap-2">
-            <Brain className="h-4 w-4" />
-            Skills Analysis
-          </TabsTrigger>
-          <TabsTrigger value="leaderboard" className="gap-2">
-            <Award className="h-4 w-4" />
-            Leaderboard
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="recordings" className="space-y-4 mt-4">
-          <div className="space-y-4">
-            {mockRecordings.map((recording, index) => (
-              <motion.div
-                key={recording.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4">
-                      <div className="p-3 rounded-lg bg-primary/10">
-                        <Video className="h-6 w-6 text-primary" />
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold">{recording.title}</h3>
-                          <Badge variant="outline" className={getScoreColor(recording.score)}>
-                            Score: {recording.score}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
-                          <span>{recording.contact}</span>
-                          <span>•</span>
-                          <span>{recording.company}</span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {recording.duration}
-                          </span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <CalendarDays className="h-3 w-3" />
-                            {new Date(recording.date).toLocaleDateString()}
-                          </span>
+          <TabsContent value="recordings" className="space-y-4 mt-4">
+            <div className="space-y-4">
+              {mockRecordings.map((recording, index) => (
+                <motion.div
+                  key={recording.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-6">
+                      <div className="flex items-start gap-4">
+                        <div className="p-3 rounded-lg bg-primary/10">
+                          <Video className="h-6 w-6 text-primary" />
                         </div>
 
-                        <p className="text-sm mb-3">{recording.feedback}</p>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-semibold">{recording.title}</h3>
+                            <Badge variant="outline" className={getScoreColor(recording.score)}>
+                              Score: {recording.score}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                            <span>{recording.contact}</span>
+                            <span>-</span>
+                            <span>{recording.company}</span>
+                            <span>-</span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-3 w-3" />
+                              {recording.duration}
+                            </span>
+                            <span>-</span>
+                            <span className="flex items-center gap-1">
+                              <CalendarDays className="h-3 w-3" />
+                              {new Date(recording.date).toLocaleDateString()}
+                            </span>
+                          </div>
 
-                        <div className="flex flex-wrap gap-4">
-                          <div>
-                            <p className="text-xs text-muted-foreground mb-1">Highlights</p>
-                            <div className="flex flex-wrap gap-1">
-                              {recording.highlights.map((h, idx) => (
-                                <Badge
-                                  key={idx}
-                                  variant="secondary"
-                                  className="text-xs bg-green-50 text-green-700"
-                                >
-                                  <CheckCircle2 className="h-3 w-3 mr-1" />
-                                  {h}
-                                </Badge>
-                              ))}
+                          <p className="text-sm mb-3">{recording.feedback}</p>
+
+                          <div className="flex flex-wrap gap-4">
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1">Highlights</p>
+                              <div className="flex flex-wrap gap-1">
+                                {recording.highlights.map((h, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    variant="secondary"
+                                    className="text-xs bg-green-50 text-green-700"
+                                  >
+                                    <CheckCircle2 className="h-3 w-3 mr-1" />
+                                    {h}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1">Areas to Improve</p>
+                              <div className="flex flex-wrap gap-1">
+                                {recording.improvements.map((i, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    variant="secondary"
+                                    className="text-xs bg-amber-50 text-amber-700"
+                                  >
+                                    {i}
+                                  </Badge>
+                                ))}
+                              </div>
                             </div>
                           </div>
-                          <div>
-                            <p className="text-xs text-muted-foreground mb-1">Areas to Improve</p>
-                            <div className="flex flex-wrap gap-1">
-                              {recording.improvements.map((i, idx) => (
-                                <Badge
-                                  key={idx}
-                                  variant="secondary"
-                                  className="text-xs bg-amber-50 text-amber-700"
-                                >
-                                  {i}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                          <Button variant="outline" size="sm">
+                            <Play className="h-4 w-4 mr-2" />
+                            Play
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            Transcript
+                          </Button>
                         </div>
                       </div>
-
-                      <div className="flex flex-col gap-2">
-                        <Button variant="outline" size="sm">
-                          <Play className="h-4 w-4 mr-2" />
-                          Play
-                        </Button>
-                        <Button variant="ghost" size="sm">
-                          Transcript
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="skills" className="space-y-6 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Skills Breakdown</CardTitle>
-              <CardDescription>Your performance vs team benchmark</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {skills.map((skill) => (
-                <div key={skill.name} className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{skill.name}</span>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={cn(
-                          'font-bold',
-                          skill.score >= skill.benchmark ? 'text-green-600' : 'text-amber-600'
-                        )}
-                      >
-                        {skill.score}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        / {skill.benchmark} benchmark
-                      </span>
-                    </div>
-                  </div>
-                  <div className="relative h-3 bg-muted rounded-full overflow-hidden">
-                    <div
-                      className="absolute inset-y-0 left-0 bg-primary rounded-full"
-                      style={{ width: `${skill.score}%` }}
-                    />
-                    <div
-                      className="absolute inset-y-0 w-0.5 bg-red-500"
-                      style={{ left: `${skill.benchmark}%` }}
-                    />
-                  </div>
-                </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </TabsContent>
 
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-6">
-              <div className="flex gap-4">
-                <div className="p-3 rounded-lg bg-blue-100">
-                  <Sparkles className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-blue-900 mb-1">AI Coaching Recommendation</h3>
-                  <p className="text-sm text-blue-800 mb-3">
-                    Based on your recent calls, focus on improving your objection handling skills.
-                    We recommend practicing responses to pricing and timeline objections.
-                  </p>
-                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-                    Start Practice Session
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="leaderboard" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-amber-500" />
-                Team Leaderboard
-              </CardTitle>
-              <CardDescription>Top performers this month</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {teamLeaderboard.map((member) => (
-                  <div
-                    key={member.rank}
-                    className={cn(
-                      'flex items-center gap-4 p-4 rounded-lg',
-                      member.name === 'You'
-                        ? 'bg-primary/5 border border-primary/20'
-                        : 'hover:bg-muted/50'
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        'w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm',
-                        member.rank === 1
-                          ? 'bg-amber-100 text-amber-700'
-                          : member.rank === 2
-                            ? 'bg-gray-100 text-gray-700'
-                            : member.rank === 3
-                              ? 'bg-orange-100 text-orange-700'
-                              : 'bg-muted text-muted-foreground'
-                      )}
-                    >
-                      {member.rank}
+          <TabsContent value="skills" className="space-y-6 mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Skills Breakdown</CardTitle>
+                <CardDescription>Your performance vs team benchmark</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {skills.map((skill) => (
+                  <div key={skill.name} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{skill.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={cn(
+                            'font-bold',
+                            skill.score >= skill.benchmark ? 'text-green-600' : 'text-amber-600'
+                          )}
+                        >
+                          {skill.score}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          / {skill.benchmark} benchmark
+                        </span>
+                      </div>
                     </div>
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={member.avatar} />
-                      <AvatarFallback>
-                        {member.name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <p className="font-medium">{member.name}</p>
-                      <p className="text-sm text-muted-foreground">{member.calls} calls analyzed</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-lg">{member.score}</p>
-                      <p className="text-sm text-green-600">{member.improvement}</p>
+                    <div className="relative h-3 bg-muted rounded-full overflow-hidden">
+                      <div
+                        className="absolute inset-y-0 left-0 bg-primary rounded-full"
+                        style={{ width: `${skill.score}%` }}
+                      />
+                      <div
+                        className="absolute inset-y-0 w-0.5 bg-red-500"
+                        style={{ left: `${skill.benchmark}%` }}
+                      />
                     </div>
                   </div>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+              </CardContent>
+            </Card>
 
-  return (
-    <HubLayout
-      hubId="sales"
-      title="Sales Coaching"
-      description="AI-powered call analysis and skill development"
-      showSidebar={false}
-      showTopBar={false}
-      showFixedMenu={false}
-    >
-      {mainContent}
-    </HubLayout>
+            <Card className="bg-blue-50 border-blue-200">
+              <CardContent className="p-6">
+                <div className="flex gap-4">
+                  <div className="p-3 rounded-lg bg-blue-100">
+                    <Sparkles className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-blue-900 mb-1">AI Coaching Recommendation</h3>
+                    <p className="text-sm text-blue-800 mb-3">
+                      Based on your recent calls, focus on improving your objection handling skills.
+                      We recommend practicing responses to pricing and timeline objections.
+                    </p>
+                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                      Start Practice Session
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="leaderboard" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="h-5 w-5 text-amber-500" />
+                  Team Leaderboard
+                </CardTitle>
+                <CardDescription>Top performers this month</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {teamLeaderboard.map((member) => (
+                    <div
+                      key={member.rank}
+                      className={cn(
+                        'flex items-center gap-4 p-4 rounded-lg',
+                        member.name === 'You'
+                          ? 'bg-primary/5 border border-primary/20'
+                          : 'hover:bg-muted/50'
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          'w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm',
+                          member.rank === 1
+                            ? 'bg-amber-100 text-amber-700'
+                            : member.rank === 2
+                              ? 'bg-gray-100 text-gray-700'
+                              : member.rank === 3
+                                ? 'bg-orange-100 text-orange-700'
+                                : 'bg-muted text-muted-foreground'
+                        )}
+                      >
+                        {member.rank}
+                      </div>
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={member.avatar} />
+                        <AvatarFallback>
+                          {member.name
+                            .split(' ')
+                            .map((n) => n[0])
+                            .join('')}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="font-medium">{member.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {member.calls} calls analyzed
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-lg">{member.score}</p>
+                        <p className="text-sm text-green-600">{member.improvement}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </UnifiedLayout>
   );
 }

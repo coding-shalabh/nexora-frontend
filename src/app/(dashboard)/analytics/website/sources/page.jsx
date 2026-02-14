@@ -40,6 +40,7 @@ import {
   ExternalLink,
   Hash,
 } from 'lucide-react';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 function formatNumber(num) {
   if (!num) return '0';
@@ -120,256 +121,272 @@ export default function SourcesReportPage() {
     }))
     .sort((a, b) => b.count - a.count);
 
+  const layoutStats = [
+    createStat('Total Sessions', formatNumber(total), TrendingUp, 'primary'),
+    createStat('Direct', formatNumber(sources.direct || 0), Globe, 'blue'),
+    createStat('Organic', formatNumber(sources.organic || 0), Search, 'green'),
+    createStat('Referral', formatNumber(sources.referral || 0), LinkIcon, 'purple'),
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/analytics/website">
-            <Button variant="ghost" size="icon">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold">Traffic Sources</h1>
-            <p className="text-muted-foreground">Understand where your visitors come from</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3">
-          <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-36">
-              <Calendar className="h-4 w-4 mr-2" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7d">Last 7 days</SelectItem>
-              <SelectItem value="30d">Last 30 days</SelectItem>
-              <SelectItem value="90d">Last 90 days</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" size="icon" onClick={() => refetch()}>
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : (
-        <>
-          {/* Total Visitors */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Sessions</p>
-                <p className="text-3xl font-bold">{formatNumber(total)}</p>
-              </div>
-              <div className="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center">
-                <TrendingUp className="h-7 w-7 text-primary" />
-              </div>
+    <UnifiedLayout
+      hubId="analytics"
+      pageTitle="Traffic Sources"
+      stats={layoutStats}
+      fixedMenu={null}
+    >
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link href="/analytics/website">
+              <Button variant="ghost" size="icon">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold">Traffic Sources</h1>
+              <p className="text-muted-foreground">Understand where your visitors come from</p>
             </div>
-          </Card>
-
-          {/* Source Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {sourceList.map((source) => {
-              const Icon = source.icon;
-              return (
-                <Card key={source.key} className="p-4">
-                  <div
-                    className={cn(
-                      'h-10 w-10 rounded-lg flex items-center justify-center mb-3',
-                      source.bgColor
-                    )}
-                  >
-                    <Icon className={cn('h-5 w-5', source.textColor)} />
-                  </div>
-                  <p className="text-2xl font-bold">{formatNumber(source.count)}</p>
-                  <p className="text-sm text-muted-foreground">{source.label}</p>
-                  <p className={cn('text-xs font-medium mt-1', source.textColor)}>
-                    {Math.round(source.percentage)}% of traffic
-                  </p>
-                </Card>
-              );
-            })}
           </div>
+          <div className="flex items-center gap-3">
+            <Select value={period} onValueChange={setPeriod}>
+              <SelectTrigger className="w-36">
+                <Calendar className="h-4 w-4 mr-2" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="90d">Last 90 days</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="icon" onClick={() => refetch()}>
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
 
-          {/* Source Breakdown */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Visual Breakdown */}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <>
+            {/* Total Visitors */}
             <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-6">Traffic Distribution</h3>
-              {total === 0 ? (
-                <div className="py-8 text-center text-muted-foreground">
-                  No traffic data available
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Sessions</p>
+                  <p className="text-3xl font-bold">{formatNumber(total)}</p>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {sourceList
-                    .filter((s) => s.count > 0)
-                    .map((source) => {
-                      const Icon = source.icon;
-                      return (
-                        <div key={source.key}>
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <div
-                                className={cn(
-                                  'h-8 w-8 rounded flex items-center justify-center',
-                                  source.bgColor
-                                )}
-                              >
-                                <Icon className={cn('h-4 w-4', source.textColor)} />
-                              </div>
-                              <span className="font-medium">{source.label}</span>
-                            </div>
-                            <div className="text-right">
-                              <span className="font-bold">{formatNumber(source.count)}</span>
-                              <span className="text-muted-foreground ml-2">
-                                ({Math.round(source.percentage)}%)
-                              </span>
-                            </div>
-                          </div>
-                          <div className="h-3 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className={cn('h-full rounded-full transition-all', source.color)}
-                              style={{ width: `${source.percentage}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
+                <div className="h-14 w-14 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <TrendingUp className="h-7 w-7 text-primary" />
                 </div>
-              )}
+              </div>
             </Card>
 
-            {/* Pie Chart Alternative - Simple visual */}
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-6">Source Summary</h3>
-              {total === 0 ? (
-                <div className="py-8 text-center text-muted-foreground">
-                  No traffic data available
-                </div>
-              ) : (
-                <>
-                  {/* Simple donut representation */}
-                  <div className="flex justify-center mb-6">
-                    <div className="relative h-48 w-48">
-                      <svg viewBox="0 0 100 100" className="transform -rotate-90">
-                        {(() => {
-                          let currentAngle = 0;
-                          return sourceList
-                            .filter((s) => s.count > 0)
-                            .map((source, i) => {
-                              const angle = (source.count / total) * 360;
-                              const startAngle = currentAngle;
-                              currentAngle += angle;
+            {/* Source Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+              {sourceList.map((source) => {
+                const Icon = source.icon;
+                return (
+                  <Card key={source.key} className="p-4">
+                    <div
+                      className={cn(
+                        'h-10 w-10 rounded-lg flex items-center justify-center mb-3',
+                        source.bgColor
+                      )}
+                    >
+                      <Icon className={cn('h-5 w-5', source.textColor)} />
+                    </div>
+                    <p className="text-2xl font-bold">{formatNumber(source.count)}</p>
+                    <p className="text-sm text-muted-foreground">{source.label}</p>
+                    <p className={cn('text-xs font-medium mt-1', source.textColor)}>
+                      {Math.round(source.percentage)}% of traffic
+                    </p>
+                  </Card>
+                );
+              })}
+            </div>
 
-                              // Calculate arc path
-                              const x1 = 50 + 40 * Math.cos((startAngle * Math.PI) / 180);
-                              const y1 = 50 + 40 * Math.sin((startAngle * Math.PI) / 180);
-                              const x2 = 50 + 40 * Math.cos(((startAngle + angle) * Math.PI) / 180);
-                              const y2 = 50 + 40 * Math.sin(((startAngle + angle) * Math.PI) / 180);
-                              const largeArc = angle > 180 ? 1 : 0;
+            {/* Source Breakdown */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Visual Breakdown */}
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-6">Traffic Distribution</h3>
+                {total === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No traffic data available
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {sourceList
+                      .filter((s) => s.count > 0)
+                      .map((source) => {
+                        const Icon = source.icon;
+                        return (
+                          <div key={source.key}>
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className={cn(
+                                    'h-8 w-8 rounded flex items-center justify-center',
+                                    source.bgColor
+                                  )}
+                                >
+                                  <Icon className={cn('h-4 w-4', source.textColor)} />
+                                </div>
+                                <span className="font-medium">{source.label}</span>
+                              </div>
+                              <div className="text-right">
+                                <span className="font-bold">{formatNumber(source.count)}</span>
+                                <span className="text-muted-foreground ml-2">
+                                  ({Math.round(source.percentage)}%)
+                                </span>
+                              </div>
+                            </div>
+                            <div className="h-3 bg-muted rounded-full overflow-hidden">
+                              <div
+                                className={cn('h-full rounded-full transition-all', source.color)}
+                                style={{ width: `${source.percentage}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </Card>
 
-                              const colorMap = {
-                                'bg-blue-500': '#3b82f6',
-                                'bg-green-500': '#22c55e',
-                                'bg-purple-500': '#a855f7',
-                                'bg-pink-500': '#ec4899',
-                                'bg-orange-500': '#f97316',
-                                'bg-red-500': '#ef4444',
-                              };
+              {/* Pie Chart Alternative - Simple visual */}
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-6">Source Summary</h3>
+                {total === 0 ? (
+                  <div className="py-8 text-center text-muted-foreground">
+                    No traffic data available
+                  </div>
+                ) : (
+                  <>
+                    {/* Simple donut representation */}
+                    <div className="flex justify-center mb-6">
+                      <div className="relative h-48 w-48">
+                        <svg viewBox="0 0 100 100" className="transform -rotate-90">
+                          {(() => {
+                            let currentAngle = 0;
+                            return sourceList
+                              .filter((s) => s.count > 0)
+                              .map((source, i) => {
+                                const angle = (source.count / total) * 360;
+                                const startAngle = currentAngle;
+                                currentAngle += angle;
 
-                              return (
-                                <path
-                                  key={source.key}
-                                  d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArc} 1 ${x2} ${y2} Z`}
-                                  fill={colorMap[source.color]}
-                                  className="transition-all hover:opacity-80"
-                                />
-                              );
-                            });
-                        })()}
-                      </svg>
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="h-24 w-24 bg-background rounded-full flex flex-col items-center justify-center">
-                          <p className="text-2xl font-bold">{formatNumber(total)}</p>
-                          <p className="text-xs text-muted-foreground">total</p>
+                                // Calculate arc path
+                                const x1 = 50 + 40 * Math.cos((startAngle * Math.PI) / 180);
+                                const y1 = 50 + 40 * Math.sin((startAngle * Math.PI) / 180);
+                                const x2 =
+                                  50 + 40 * Math.cos(((startAngle + angle) * Math.PI) / 180);
+                                const y2 =
+                                  50 + 40 * Math.sin(((startAngle + angle) * Math.PI) / 180);
+                                const largeArc = angle > 180 ? 1 : 0;
+
+                                const colorMap = {
+                                  'bg-blue-500': '#3b82f6',
+                                  'bg-green-500': '#22c55e',
+                                  'bg-purple-500': '#a855f7',
+                                  'bg-pink-500': '#ec4899',
+                                  'bg-orange-500': '#f97316',
+                                  'bg-red-500': '#ef4444',
+                                };
+
+                                return (
+                                  <path
+                                    key={source.key}
+                                    d={`M 50 50 L ${x1} ${y1} A 40 40 0 ${largeArc} 1 ${x2} ${y2} Z`}
+                                    fill={colorMap[source.color]}
+                                    className="transition-all hover:opacity-80"
+                                  />
+                                );
+                              });
+                          })()}
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="h-24 w-24 bg-background rounded-full flex flex-col items-center justify-center">
+                            <p className="text-2xl font-bold">{formatNumber(total)}</p>
+                            <p className="text-xs text-muted-foreground">total</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Legend */}
-                  <div className="grid grid-cols-2 gap-2">
-                    {sourceList
-                      .filter((s) => s.count > 0)
-                      .map((source) => (
-                        <div key={source.key} className="flex items-center gap-2 text-sm">
-                          <div className={cn('h-3 w-3 rounded-full', source.color)} />
-                          <span className="text-muted-foreground">{source.label}</span>
-                        </div>
-                      ))}
-                  </div>
-                </>
-              )}
-            </Card>
-          </div>
-
-          {/* UTM Campaigns */}
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Hash className="h-5 w-5" />
-                UTM Campaigns
-              </h3>
+                    {/* Legend */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {sourceList
+                        .filter((s) => s.count > 0)
+                        .map((source) => (
+                          <div key={source.key} className="flex items-center gap-2 text-sm">
+                            <div className={cn('h-3 w-3 rounded-full', source.color)} />
+                            <span className="text-muted-foreground">{source.label}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </>
+                )}
+              </Card>
             </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Track the performance of your marketing campaigns using UTM parameters
-            </p>
-            <div className="rounded-lg border p-8 text-center text-muted-foreground">
-              <Hash className="h-12 w-12 mx-auto mb-4" />
-              <p className="font-medium">No campaign data yet</p>
-              <p className="text-sm mt-1">
-                UTM parameters like utm_source, utm_medium, and utm_campaign will appear here
-              </p>
-            </div>
-          </Card>
 
-          {/* Tips */}
-          <Card className="p-4 bg-muted/30">
-            <div className="flex items-start gap-3">
-              <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <p className="font-medium text-sm">Understanding Traffic Sources</p>
-                <ul className="text-sm text-muted-foreground mt-2 space-y-1">
-                  <li>
-                    <strong>Direct:</strong> Visitors who typed your URL directly
-                  </li>
-                  <li>
-                    <strong>Organic:</strong> Visitors from search engines (Google, Bing, etc.)
-                  </li>
-                  <li>
-                    <strong>Referral:</strong> Visitors from other websites linking to you
-                  </li>
-                  <li>
-                    <strong>Social:</strong> Visitors from social media platforms
-                  </li>
-                  <li>
-                    <strong>Email:</strong> Visitors from email campaigns
-                  </li>
-                  <li>
-                    <strong>Paid:</strong> Visitors from paid advertising
-                  </li>
-                </ul>
+            {/* UTM Campaigns */}
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  <Hash className="h-5 w-5" />
+                  UTM Campaigns
+                </h3>
               </div>
-            </div>
-          </Card>
-        </>
-      )}
-    </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Track the performance of your marketing campaigns using UTM parameters
+              </p>
+              <div className="rounded-lg border p-8 text-center text-muted-foreground">
+                <Hash className="h-12 w-12 mx-auto mb-4" />
+                <p className="font-medium">No campaign data yet</p>
+                <p className="text-sm mt-1">
+                  UTM parameters like utm_source, utm_medium, and utm_campaign will appear here
+                </p>
+              </div>
+            </Card>
+
+            {/* Tips */}
+            <Card className="p-4 bg-muted/30">
+              <div className="flex items-start gap-3">
+                <Globe className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <p className="font-medium text-sm">Understanding Traffic Sources</p>
+                  <ul className="text-sm text-muted-foreground mt-2 space-y-1">
+                    <li>
+                      <strong>Direct:</strong> Visitors who typed your URL directly
+                    </li>
+                    <li>
+                      <strong>Organic:</strong> Visitors from search engines (Google, Bing, etc.)
+                    </li>
+                    <li>
+                      <strong>Referral:</strong> Visitors from other websites linking to you
+                    </li>
+                    <li>
+                      <strong>Social:</strong> Visitors from social media platforms
+                    </li>
+                    <li>
+                      <strong>Email:</strong> Visitors from email campaigns
+                    </li>
+                    <li>
+                      <strong>Paid:</strong> Visitors from paid advertising
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </Card>
+          </>
+        )}
+      </div>
+    </UnifiedLayout>
   );
 }

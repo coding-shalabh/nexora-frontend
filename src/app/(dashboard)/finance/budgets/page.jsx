@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const budgets = [
   {
@@ -117,14 +118,17 @@ const getProgressColor = (status) => {
 export default function BudgetsPage() {
   const [period, setPeriod] = useState('q1');
 
+  const layoutStats = [
+    createStat('Total Budget', '₹17L', PiggyBank, 'blue'),
+    createStat('Total Spent', '₹14.15L', TrendingDown, 'amber'),
+    createStat('Remaining', '₹2.85L', TrendingUp, 'green'),
+    createStat('Exceeded', '1', AlertTriangle, 'red'),
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Budgets</h1>
-          <p className="text-muted-foreground">Track departmental budgets and spending</p>
-        </div>
-        <div className="flex items-center gap-2">
+    <UnifiedLayout hubId="finance" pageTitle="Budgets" stats={layoutStats} fixedMenu={null}>
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        <div className="flex items-center justify-end gap-2 mb-4">
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="Select Period" />
@@ -140,90 +144,90 @@ export default function BudgetsPage() {
             Create Budget
           </Button>
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <stat.icon className={cn('h-5 w-5', stat.color)} />
-                  <div>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {budgets.map((budget, index) => (
-          <motion.div
-            key={budget.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-medium">{budget.department}</h3>
-                  {getStatusBadge(budget.status)}
-                </div>
-
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Spent</span>
-                      <span className="font-medium">
-                        {formatCurrency(budget.spent)} / {formatCurrency(budget.allocated)}
-                      </span>
-                    </div>
-                    <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className={cn('h-full rounded-full', getProgressColor(budget.status))}
-                        style={{
-                          width: `${Math.min((budget.spent / budget.allocated) * 100, 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between pt-2 border-t">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <stat.icon className={cn('h-5 w-5', stat.color)} />
                     <div>
-                      <p className="text-xs text-muted-foreground">Remaining</p>
-                      <p
-                        className={cn(
-                          'font-medium',
-                          budget.remaining < 0 ? 'text-red-600' : 'text-green-600'
-                        )}
-                      >
-                        {budget.remaining < 0 && '-'}
-                        {formatCurrency(budget.remaining)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-muted-foreground">Utilization</p>
-                      <p className="font-medium">
-                        {Math.round((budget.spent / budget.allocated) * 100)}%
-                      </p>
+                      <p className="text-2xl font-bold">{stat.value}</p>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {budgets.map((budget, index) => (
+            <motion.div
+              key={budget.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-medium">{budget.department}</h3>
+                    {getStatusBadge(budget.status)}
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Spent</span>
+                        <span className="font-medium">
+                          {formatCurrency(budget.spent)} / {formatCurrency(budget.allocated)}
+                        </span>
+                      </div>
+                      <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div
+                          className={cn('h-full rounded-full', getProgressColor(budget.status))}
+                          style={{
+                            width: `${Math.min((budget.spent / budget.allocated) * 100, 100)}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between pt-2 border-t">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Remaining</p>
+                        <p
+                          className={cn(
+                            'font-medium',
+                            budget.remaining < 0 ? 'text-red-600' : 'text-green-600'
+                          )}
+                        >
+                          {budget.remaining < 0 && '-'}
+                          {formatCurrency(budget.remaining)}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs text-muted-foreground">Utilization</p>
+                        <p className="font-medium">
+                          {Math.round((budget.spent / budget.allocated) * 100)}%
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </div>
+    </UnifiedLayout>
   );
 }

@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const orgStructure = {
   id: 'ceo',
@@ -354,16 +354,7 @@ export default function OrgChartPage() {
   );
 
   return (
-    <HubLayout
-      hubId="hr"
-      showTopBar={false}
-      showSidebar={false}
-      title="Organization Chart"
-      description="View company structure and reporting lines"
-      stats={layoutStats}
-      actions={topBarActions}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="hr" pageTitle="Organization Chart" stats={layoutStats} fixedMenu={null}>
       <div className="h-full flex flex-col">
         {/* Canvas Controls */}
         <div className="shrink-0 flex items-center justify-between px-4 py-2 border-b border-gray-100 bg-gray-50/50">
@@ -471,6 +462,6 @@ export default function OrgChartPage() {
           )}
         </AnimatePresence>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

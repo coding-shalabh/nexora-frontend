@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { cn } from '@/lib/utils';
 import {
   Mail,
@@ -976,473 +977,478 @@ export default function EmailMailboxesPage() {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Email Mailboxes</h1>
-          <p className="text-muted-foreground">
-            Manage mailboxes, aliases, and forwarders for your custom domains
-          </p>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-blue-100 p-2">
-                <Inbox className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{mailboxes.length}</p>
-                <p className="text-sm text-muted-foreground">Mailboxes</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-purple-100 p-2">
-                <ArrowRightLeft className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{aliases.length}</p>
-                <p className="text-sm text-muted-foreground">Aliases</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-green-100 p-2">
-                <Forward className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{forwarders.length}</p>
-                <p className="text-sm text-muted-foreground">Forwarders</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="rounded-lg bg-orange-100 p-2">
-                <Globe className="h-5 w-5 text-orange-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{verifiedDomains.length}</p>
-                <p className="text-sm text-muted-foreground">Domains</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+    <UnifiedLayout hubId="settings" pageTitle="Email Mailboxes" fixedMenu={null}>
+      <div className="flex-1 space-y-6 p-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="mailboxes" className="flex items-center gap-2">
-              <Inbox className="h-4 w-4" />
-              Mailboxes
-            </TabsTrigger>
-            <TabsTrigger value="aliases" className="flex items-center gap-2">
-              <ArrowRightLeft className="h-4 w-4" />
-              Aliases
-            </TabsTrigger>
-            <TabsTrigger value="forwarders" className="flex items-center gap-2">
-              <Forward className="h-4 w-4" />
-              Forwarders
-            </TabsTrigger>
-          </TabsList>
-
-          <div className="flex gap-2">
-            {activeTab === 'mailboxes' && (
-              <Button onClick={() => setShowCreateMailbox(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Mailbox
-              </Button>
-            )}
-            {activeTab === 'aliases' && (
-              <Button onClick={() => setShowCreateAlias(true)} disabled={mailboxes.length === 0}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Alias
-              </Button>
-            )}
-            {activeTab === 'forwarders' && (
-              <Button onClick={() => setShowCreateForwarder(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Forwarder
-              </Button>
-            )}
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Email Mailboxes</h1>
+            <p className="text-muted-foreground">
+              Manage mailboxes, aliases, and forwarders for your custom domains
+            </p>
           </div>
         </div>
 
-        {/* Mailboxes Tab */}
-        <TabsContent value="mailboxes" className="space-y-4">
-          {loadingMailboxes ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : mailboxes.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="pt-12 pb-12 text-center">
-                <Inbox className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="font-semibold mb-2">No Mailboxes Yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Create your first mailbox to start receiving emails.
-                </p>
+        {/* Stats */}
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-blue-100 p-2">
+                  <Inbox className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{mailboxes.length}</p>
+                  <p className="text-sm text-muted-foreground">Mailboxes</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-purple-100 p-2">
+                  <ArrowRightLeft className="h-5 w-5 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{aliases.length}</p>
+                  <p className="text-sm text-muted-foreground">Aliases</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-green-100 p-2">
+                  <Forward className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{forwarders.length}</p>
+                  <p className="text-sm text-muted-foreground">Forwarders</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3">
+                <div className="rounded-lg bg-orange-100 p-2">
+                  <Globe className="h-5 w-5 text-orange-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">{verifiedDomains.length}</p>
+                  <p className="text-sm text-muted-foreground">Domains</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <div className="flex items-center justify-between">
+            <TabsList>
+              <TabsTrigger value="mailboxes" className="flex items-center gap-2">
+                <Inbox className="h-4 w-4" />
+                Mailboxes
+              </TabsTrigger>
+              <TabsTrigger value="aliases" className="flex items-center gap-2">
+                <ArrowRightLeft className="h-4 w-4" />
+                Aliases
+              </TabsTrigger>
+              <TabsTrigger value="forwarders" className="flex items-center gap-2">
+                <Forward className="h-4 w-4" />
+                Forwarders
+              </TabsTrigger>
+            </TabsList>
+
+            <div className="flex gap-2">
+              {activeTab === 'mailboxes' && (
                 <Button onClick={() => setShowCreateMailbox(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Mailbox
                 </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Display Name</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Storage</TableHead>
-                    <TableHead>Features</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {mailboxes.map((mailbox) => (
-                    <TableRow key={mailbox.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{mailbox.email}</span>
-                          {mailbox.isCatchAll && (
-                            <Badge variant="secondary" className="text-xs">
-                              Catch-all
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{mailbox.displayName || '-'}</TableCell>
-                      <TableCell>
-                        <MailboxStatusBadge status={mailbox.status} />
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div className="flex items-center gap-2">
-                            <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
-                              <div
-                                className={cn(
-                                  'h-full',
-                                  mailbox.usedPercent > 80
-                                    ? 'bg-red-500'
-                                    : mailbox.usedPercent > 50
-                                      ? 'bg-yellow-500'
-                                      : 'bg-green-500'
-                                )}
-                                style={{ width: `${mailbox.usedPercent || 0}%` }}
-                              />
-                            </div>
-                            <span className="text-xs text-muted-foreground">
-                              {mailbox.usedPercent || 0}%
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          {mailbox.autoResponderEnabled && (
-                            <Badge variant="outline" className="text-xs">
-                              <Clock className="h-3 w-3 mr-1" />
-                              Auto
-                            </Badge>
-                          )}
-                          {mailbox.forwardingEnabled && (
-                            <Badge variant="outline" className="text-xs">
-                              <Forward className="h-3 w-3 mr-1" />
-                              Fwd
-                            </Badge>
-                          )}
-                          {mailbox.aliasCount > 0 && (
-                            <Badge variant="outline" className="text-xs">
-                              {mailbox.aliasCount} alias
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() => openMailboxDialog(mailbox, 'credentials')}
-                            >
-                              <Key className="h-4 w-4 mr-2" />
-                              Credentials
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => openMailboxDialog(mailbox, 'autoResponder')}
-                            >
-                              <Clock className="h-4 w-4 mr-2" />
-                              Auto-Responder
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => openMailboxDialog(mailbox, 'forwarding')}
-                            >
-                              <Forward className="h-4 w-4 mr-2" />
-                              Forwarding
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => handleSetCatchAll(mailbox.id, !mailbox.isCatchAll)}
-                            >
-                              <Inbox className="h-4 w-4 mr-2" />
-                              {mailbox.isCatchAll ? 'Disable Catch-all' : 'Set as Catch-all'}
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive focus:text-destructive"
-                              onClick={() => handleDeleteMailbox(mailbox.id)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          )}
-        </TabsContent>
-
-        {/* Aliases Tab */}
-        <TabsContent value="aliases" className="space-y-4">
-          {loadingAliases ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : aliases.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="pt-12 pb-12 text-center">
-                <ArrowRightLeft className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="font-semibold mb-2">No Aliases Yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Create aliases to route emails to existing mailboxes.
-                </p>
+              )}
+              {activeTab === 'aliases' && (
                 <Button onClick={() => setShowCreateAlias(true)} disabled={mailboxes.length === 0}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Alias
                 </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Alias</TableHead>
-                    <TableHead>Delivers To</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {aliases.map((alias) => (
-                    <TableRow key={alias.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{alias.email}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-muted-foreground">
-                          {alias.targetMailbox?.email || '-'}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={
-                            alias.isActive
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-gray-100 text-gray-700'
-                          }
-                        >
-                          {alias.isActive ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(alias.createdAt).toLocaleDateString()}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => handleDeleteAlias(alias.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          )}
-        </TabsContent>
-
-        {/* Forwarders Tab */}
-        <TabsContent value="forwarders" className="space-y-4">
-          {loadingForwarders ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : forwarders.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="pt-12 pb-12 text-center">
-                <Forward className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="font-semibold mb-2">No Forwarders Yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Create forwarders to route emails to external addresses.
-                </p>
+              )}
+              {activeTab === 'forwarders' && (
                 <Button onClick={() => setShowCreateForwarder(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Forwarder
                 </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Forward To</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {forwarders.map((forwarder) => (
-                    <TableRow key={forwarder.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Forward className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{forwarder.email}</span>
-                          {forwarder.keepCopy && (
-                            <Badge variant="outline" className="text-xs">
-                              Keep Copy
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {forwarder.forwardTo?.map((email, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs">
-                              {email}
-                            </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={
-                            forwarder.isActive
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-gray-100 text-gray-700'
-                          }
-                        >
-                          {forwarder.isActive ? 'Active' : 'Inactive'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-muted-foreground">
-                          {new Date(forwarder.createdAt).toLocaleDateString()}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="text-destructive hover:text-destructive"
-                          onClick={() => handleDeleteForwarder(forwarder.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
+              )}
+            </div>
+          </div>
+
+          {/* Mailboxes Tab */}
+          <TabsContent value="mailboxes" className="space-y-4">
+            {loadingMailboxes ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : mailboxes.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="pt-12 pb-12 text-center">
+                  <Inbox className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="font-semibold mb-2">No Mailboxes Yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Create your first mailbox to start receiving emails.
+                  </p>
+                  <Button onClick={() => setShowCreateMailbox(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Mailbox
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Display Name</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Storage</TableHead>
+                      <TableHead>Features</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          )}
-        </TabsContent>
-      </Tabs>
+                  </TableHeader>
+                  <TableBody>
+                    {mailboxes.map((mailbox) => (
+                      <TableRow key={mailbox.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Mail className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">{mailbox.email}</span>
+                            {mailbox.isCatchAll && (
+                              <Badge variant="secondary" className="text-xs">
+                                Catch-all
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>{mailbox.displayName || '-'}</TableCell>
+                        <TableCell>
+                          <MailboxStatusBadge status={mailbox.status} />
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-sm">
+                            <div className="flex items-center gap-2">
+                              <div className="w-20 h-2 bg-muted rounded-full overflow-hidden">
+                                <div
+                                  className={cn(
+                                    'h-full',
+                                    mailbox.usedPercent > 80
+                                      ? 'bg-red-500'
+                                      : mailbox.usedPercent > 50
+                                        ? 'bg-yellow-500'
+                                        : 'bg-green-500'
+                                  )}
+                                  style={{ width: `${mailbox.usedPercent || 0}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-muted-foreground">
+                                {mailbox.usedPercent || 0}%
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1">
+                            {mailbox.autoResponderEnabled && (
+                              <Badge variant="outline" className="text-xs">
+                                <Clock className="h-3 w-3 mr-1" />
+                                Auto
+                              </Badge>
+                            )}
+                            {mailbox.forwardingEnabled && (
+                              <Badge variant="outline" className="text-xs">
+                                <Forward className="h-3 w-3 mr-1" />
+                                Fwd
+                              </Badge>
+                            )}
+                            {mailbox.aliasCount > 0 && (
+                              <Badge variant="outline" className="text-xs">
+                                {mailbox.aliasCount} alias
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => openMailboxDialog(mailbox, 'credentials')}
+                              >
+                                <Key className="h-4 w-4 mr-2" />
+                                Credentials
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => openMailboxDialog(mailbox, 'autoResponder')}
+                              >
+                                <Clock className="h-4 w-4 mr-2" />
+                                Auto-Responder
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => openMailboxDialog(mailbox, 'forwarding')}
+                              >
+                                <Forward className="h-4 w-4 mr-2" />
+                                Forwarding
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => handleSetCatchAll(mailbox.id, !mailbox.isCatchAll)}
+                              >
+                                <Inbox className="h-4 w-4 mr-2" />
+                                {mailbox.isCatchAll ? 'Disable Catch-all' : 'Set as Catch-all'}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => handleDeleteMailbox(mailbox.id)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
+          </TabsContent>
 
-      {/* Dialogs */}
-      <CreateMailboxDialog
-        isOpen={showCreateMailbox}
-        onClose={() => setShowCreateMailbox(false)}
-        domains={domains}
-        onSuccess={() => refetchMailboxes()}
-      />
+          {/* Aliases Tab */}
+          <TabsContent value="aliases" className="space-y-4">
+            {loadingAliases ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : aliases.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="pt-12 pb-12 text-center">
+                  <ArrowRightLeft className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="font-semibold mb-2">No Aliases Yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Create aliases to route emails to existing mailboxes.
+                  </p>
+                  <Button
+                    onClick={() => setShowCreateAlias(true)}
+                    disabled={mailboxes.length === 0}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Alias
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Alias</TableHead>
+                      <TableHead>Delivers To</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {aliases.map((alias) => (
+                      <TableRow key={alias.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <ArrowRightLeft className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">{alias.email}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-muted-foreground">
+                            {alias.targetMailbox?.email || '-'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            className={
+                              alias.isActive
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-gray-100 text-gray-700'
+                            }
+                          >
+                            {alias.isActive ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(alias.createdAt).toLocaleDateString()}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleDeleteAlias(alias.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
+          </TabsContent>
 
-      <CreateAliasDialog
-        isOpen={showCreateAlias}
-        onClose={() => setShowCreateAlias(false)}
-        domains={domains}
-        mailboxes={mailboxes}
-        onSuccess={() => refetchAliases()}
-      />
+          {/* Forwarders Tab */}
+          <TabsContent value="forwarders" className="space-y-4">
+            {loadingForwarders ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : forwarders.length === 0 ? (
+              <Card className="border-dashed">
+                <CardContent className="pt-12 pb-12 text-center">
+                  <Forward className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="font-semibold mb-2">No Forwarders Yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Create forwarders to route emails to external addresses.
+                  </p>
+                  <Button onClick={() => setShowCreateForwarder(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Forwarder
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Forward To</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Created</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {forwarders.map((forwarder) => (
+                      <TableRow key={forwarder.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Forward className="h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">{forwarder.email}</span>
+                            {forwarder.keepCopy && (
+                              <Badge variant="outline" className="text-xs">
+                                Keep Copy
+                              </Badge>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-wrap gap-1">
+                            {forwarder.forwardTo?.map((email, idx) => (
+                              <Badge key={idx} variant="secondary" className="text-xs">
+                                {email}
+                              </Badge>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            className={
+                              forwarder.isActive
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-gray-100 text-gray-700'
+                            }
+                          >
+                            {forwarder.isActive ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(forwarder.createdAt).toLocaleDateString()}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => handleDeleteForwarder(forwarder.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
 
-      <CreateForwarderDialog
-        isOpen={showCreateForwarder}
-        onClose={() => setShowCreateForwarder(false)}
-        domains={domains}
-        onSuccess={() => refetchForwarders()}
-      />
-
-      {selectedMailbox && dialogType === 'credentials' && (
-        <CredentialsDialog isOpen={true} onClose={closeMailboxDialog} mailbox={selectedMailbox} />
-      )}
-
-      {selectedMailbox && dialogType === 'autoResponder' && (
-        <AutoResponderDialog
-          isOpen={true}
-          onClose={closeMailboxDialog}
-          mailbox={selectedMailbox}
+        {/* Dialogs */}
+        <CreateMailboxDialog
+          isOpen={showCreateMailbox}
+          onClose={() => setShowCreateMailbox(false)}
+          domains={domains}
           onSuccess={() => refetchMailboxes()}
         />
-      )}
 
-      {selectedMailbox && dialogType === 'forwarding' && (
-        <ForwardingDialog
-          isOpen={true}
-          onClose={closeMailboxDialog}
-          mailbox={selectedMailbox}
-          onSuccess={() => refetchMailboxes()}
+        <CreateAliasDialog
+          isOpen={showCreateAlias}
+          onClose={() => setShowCreateAlias(false)}
+          domains={domains}
+          mailboxes={mailboxes}
+          onSuccess={() => refetchAliases()}
         />
-      )}
-    </div>
+
+        <CreateForwarderDialog
+          isOpen={showCreateForwarder}
+          onClose={() => setShowCreateForwarder(false)}
+          domains={domains}
+          onSuccess={() => refetchForwarders()}
+        />
+
+        {selectedMailbox && dialogType === 'credentials' && (
+          <CredentialsDialog isOpen={true} onClose={closeMailboxDialog} mailbox={selectedMailbox} />
+        )}
+
+        {selectedMailbox && dialogType === 'autoResponder' && (
+          <AutoResponderDialog
+            isOpen={true}
+            onClose={closeMailboxDialog}
+            mailbox={selectedMailbox}
+            onSuccess={() => refetchMailboxes()}
+          />
+        )}
+
+        {selectedMailbox && dialogType === 'forwarding' && (
+          <ForwardingDialog
+            isOpen={true}
+            onClose={closeMailboxDialog}
+            mailbox={selectedMailbox}
+            onSuccess={() => refetchMailboxes()}
+          />
+        )}
+      </div>
+    </UnifiedLayout>
   );
 }

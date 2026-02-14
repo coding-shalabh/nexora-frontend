@@ -69,8 +69,7 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
-import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 // Company Types
 const COMPANY_TYPES = [
@@ -152,12 +151,19 @@ function CompanyListItem({ company, isSelected, onClick, isChecked, onCheckChang
     onClick?.();
   };
 
+  const handleRowClick = (e) => {
+    // Don't trigger if clicking on interactive elements (avatar in selection mode or arrow button)
+    if (e.target.closest('button')) return;
+    onClick?.();
+  };
+
   return (
     <motion.div
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
+      onClick={handleRowClick}
       className={cn(
-        'w-full p-4 text-left transition-all rounded-xl mx-2 mb-2',
+        'w-full p-4 text-left transition-all rounded-xl mx-2 mb-2 cursor-pointer',
         isSelected
           ? 'bg-primary/5 ring-2 ring-primary/20 shadow-sm'
           : isChecked
@@ -239,7 +245,7 @@ function CompanyListItem({ company, isSelected, onClick, isChecked, onCheckChang
 }
 
 // Company Detail Panel Component
-function CompanyDetailPanel({ company, onEdit, onDelete, onClose }) {
+function CompanyDetailPanel({ company, onEdit, onDelete, onClose, onViewContacts }) {
   if (!company) {
     return (
       <div className="h-full flex flex-col items-center justify-center text-center p-8">
@@ -320,7 +326,7 @@ function CompanyDetailPanel({ company, onEdit, onDelete, onClose }) {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-9 w-9">
+                  <Button variant="ghost" size="icon" className="h-9 w-9" aria-label="More options">
                     <MoreHorizontal className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -338,7 +344,13 @@ function CompanyDetailPanel({ company, onEdit, onDelete, onClose }) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <Button variant="ghost" size="icon" className="h-9 w-9" onClick={onClose}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                onClick={onClose}
+                aria-label="Close panel"
+              >
                 <X className="h-5 w-5" />
               </Button>
             </div>
@@ -534,7 +546,7 @@ function CompanyDetailPanel({ company, onEdit, onDelete, onClose }) {
       {/* Footer */}
       <div className="p-6 border-t shrink-0 bg-slate-50/50">
         <div className="flex gap-3">
-          <Button variant="outline" className="flex-1 h-11">
+          <Button variant="outline" className="flex-1 h-11" onClick={onViewContacts}>
             <Users className="h-4 w-4 mr-2" />
             View Contacts
           </Button>
@@ -593,7 +605,7 @@ function CompanyForm({ company, onSubmit, onCancel, isSubmitting }) {
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onCancel}>
+        <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Cancel">
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -1095,216 +1107,6 @@ export default function CompaniesPage() {
     createStat('Partners', stats.partners, Building2, 'purple'),
   ];
 
-  // FixedMenuPanel configuration
-  const fixedMenuConfig = {
-    primaryActions: [{ id: 'create', label: 'Add Company', icon: Plus, variant: 'default' }],
-    secondaryActions: [
-      { id: 'import', label: 'Import', icon: Upload, variant: 'ghost' },
-      {
-        id: 'selection',
-        label: selectionMode ? 'Exit Selection' : 'Select',
-        icon: selectionMode ? MinusSquare : CheckSquare,
-        variant: selectionMode ? 'secondary' : 'ghost',
-      },
-    ],
-    filters: {
-      quickFilters: [
-        { id: 'all', label: 'All' },
-        { id: 'CUSTOMER', label: 'Customers' },
-        { id: 'PROSPECT', label: 'Prospects' },
-        { id: 'PARTNER', label: 'Partners' },
-      ],
-    },
-  };
-
-  // Handle FixedMenuPanel actions
-  const handleMenuAction = (actionId) => {
-    switch (actionId) {
-      case 'create':
-        openCreate();
-        break;
-      case 'import':
-        // TODO: Open import modal
-        toast({ title: 'Import', description: 'Import functionality coming soon' });
-        break;
-      case 'selection':
-        toggleSelectionMode();
-        break;
-      default:
-        break;
-    }
-  };
-
-  // Bulk actions configuration
-  const bulkActions = [
-    { id: 'export', label: 'Export', icon: FileDown, variant: 'outline' },
-    { id: 'delete', label: 'Delete', icon: Trash2, variant: 'destructive' },
-  ];
-
-  const handleBulkAction = (actionId) => {
-    switch (actionId) {
-      case 'export':
-        handleBulkExport();
-        break;
-      case 'delete':
-        handleBulkDelete();
-        break;
-      default:
-        break;
-    }
-  };
-
-  // Fixed menu list
-  const fixedMenuListContent = (
-    <div className="py-2">
-      {/* Search Bar */}
-      <div className="px-4 mb-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search companies..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-      </div>
-
-      {/* Industry & Sort Filters */}
-      <div className="px-4 mb-4 flex gap-2">
-        <Select value={filterIndustry} onValueChange={setFilterIndustry}>
-          <SelectTrigger className="h-8 text-xs flex-1">
-            <Factory className="h-3 w-3 mr-1" />
-            <SelectValue placeholder="Industry" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all" className="text-xs">
-              All Industries
-            </SelectItem>
-            {industries.map((ind) => (
-              <SelectItem key={ind} value={ind} className="text-xs">
-                {ind}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="h-8 text-xs w-[110px]">
-            <ArrowUpDown className="h-3 w-3 mr-1" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest" className="text-xs">
-              Newest
-            </SelectItem>
-            <SelectItem value="oldest" className="text-xs">
-              Oldest
-            </SelectItem>
-            <SelectItem value="name" className="text-xs">
-              Name A-Z
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {isLoading ? (
-        <div className="px-4 space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="p-4 rounded-xl border">
-              <div className="flex gap-3">
-                <Skeleton className="h-11 w-11 rounded-xl shrink-0" />
-                <div className="flex-1">
-                  <Skeleton className="h-4 w-32 mb-2" />
-                  <Skeleton className="h-3 w-20 mb-2" />
-                  <Skeleton className="h-5 w-16" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : filteredCompanies.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-          <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-            <Building2 className="h-8 w-8 text-slate-400" />
-          </div>
-          <p className="font-medium mb-1">No companies found</p>
-          <p className="text-xs text-muted-foreground mb-4">
-            {searchQuery ? 'Try a different search term' : 'Add your first company'}
-          </p>
-          {!searchQuery && (
-            <Button size="sm" onClick={openCreate}>
-              <Plus className="h-4 w-4 mr-1" /> Add Company
-            </Button>
-          )}
-        </div>
-      ) : (
-        <>
-          {/* Select All Row */}
-          {selectionMode && filteredCompanies.length > 0 && (
-            <button
-              onClick={selectAllCompanies}
-              className="w-full px-5 py-2 flex items-center gap-3 text-sm hover:bg-slate-50 transition-colors border-b border-gray-100"
-            >
-              {selectedIds.size === filteredCompanies.length ? (
-                <CheckSquare className="h-4 w-4 text-primary" />
-              ) : selectedIds.size > 0 ? (
-                <MinusSquare className="h-4 w-4 text-primary" />
-              ) : (
-                <Square className="h-4 w-4 text-muted-foreground" />
-              )}
-              <span className="text-muted-foreground">
-                {selectedIds.size === filteredCompanies.length
-                  ? 'Deselect all'
-                  : `Select all (${filteredCompanies.length})`}
-              </span>
-            </button>
-          )}
-          {filteredCompanies.map((company) => (
-            <CompanyListItem
-              key={company.id}
-              company={company}
-              isSelected={selectedCompany?.id === company.id && viewMode === 'preview'}
-              onClick={() => openPreview(company)}
-              isChecked={selectedIds.has(company.id)}
-              onCheckChange={() => toggleSelectCompany(company.id)}
-              showCheckbox={selectionMode}
-            />
-          ))}
-        </>
-      )}
-    </div>
-  );
-
-  // Fixed menu footer (pagination)
-  const fixedMenuFooterContent =
-    filteredCompanies.length > 0 ? (
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">
-          Page {meta.page} of {meta.totalPages}
-        </span>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 text-xs"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Prev
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 text-xs"
-            disabled={page >= meta.totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-    ) : null;
-
   // Content area
   const contentArea = (
     <AnimatePresence mode="wait">
@@ -1360,6 +1162,11 @@ export default function CompaniesPage() {
               setSelectedCompany(null);
               setViewMode('list');
             }}
+            onViewContacts={() => {
+              if (selectedCompany?.id) {
+                router.push(`/crm/contacts?company=${selectedCompany.id}`);
+              }
+            }}
           />
         </motion.div>
       )}
@@ -1377,37 +1184,175 @@ export default function CompaniesPage() {
             onEdit={() => {}}
             onDelete={() => {}}
             onClose={() => {}}
+            onViewContacts={() => {}}
           />
         </motion.div>
       )}
     </AnimatePresence>
   );
 
+  // Actions for status bar
+  const layoutActions = [
+    createAction('Import', Upload, () =>
+      toast({ title: 'Import', description: 'Import functionality coming soon' })
+    ),
+    createAction('Add Company', Plus, openCreate, { primary: true }),
+  ];
+
+  // Fixed menu configuration for UnifiedLayout
+  const unifiedFixedMenuConfig = {
+    items: filteredCompanies,
+    getItemId: (item) => item.id,
+    getItemLabel: (item) => item.name || 'Unknown',
+    getItemSubLabel: (item) => item.domain || '',
+    getItemBadge: (item) => {
+      const typeInfo = COMPANY_TYPES.find((t) => t.value === item.companyType);
+      return typeInfo?.label || '';
+    },
+    selectedId: selectedCompany?.id,
+    searchPlaceholder: 'Search companies...',
+    searchValue: searchQuery,
+    onSearchChange: setSearchQuery,
+    onSelect: openPreview,
+    isLoading: isLoading,
+    emptyMessage: searchQuery ? 'No companies found' : 'No companies yet',
+    emptyAction: !searchQuery ? { label: 'Add Company', onClick: openCreate } : null,
+    renderItem: ({ item, isSelected }) => (
+      <CompanyListItem
+        key={item.id}
+        company={item}
+        isSelected={isSelected}
+        onClick={() => openPreview(item)}
+        showCheckbox={selectionMode}
+        isChecked={selectedIds.has(item.id)}
+        onCheckChange={() => toggleSelectCompany(item.id)}
+      />
+    ),
+    customFilters: (
+      <div className="px-4 mb-4 flex gap-2">
+        <Select value={filterIndustry} onValueChange={setFilterIndustry}>
+          <SelectTrigger className="h-8 text-xs flex-1">
+            <Factory className="h-3 w-3 mr-1" />
+            <SelectValue placeholder="Industry" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all" className="text-xs">
+              All Industries
+            </SelectItem>
+            {industries.map((ind) => (
+              <SelectItem key={ind} value={ind} className="text-xs">
+                {ind}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="h-8 text-xs w-[110px]">
+            <ArrowUpDown className="h-3 w-3 mr-1" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest" className="text-xs">
+              Newest
+            </SelectItem>
+            <SelectItem value="oldest" className="text-xs">
+              Oldest
+            </SelectItem>
+            <SelectItem value="name" className="text-xs">
+              Name A-Z
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    ),
+    customHeader:
+      selectionMode && filteredCompanies.length > 0 ? (
+        <div className="px-4 py-2 border-b flex items-center justify-between">
+          <button
+            onClick={selectAllCompanies}
+            className="flex items-center gap-2 text-sm hover:text-primary transition-colors"
+          >
+            {selectedIds.size === filteredCompanies.length ? (
+              <CheckSquare className="h-4 w-4 text-primary" />
+            ) : selectedIds.size > 0 ? (
+              <MinusSquare className="h-4 w-4 text-primary" />
+            ) : (
+              <Square className="h-4 w-4 text-muted-foreground" />
+            )}
+            <span className="text-muted-foreground">
+              {selectedIds.size === filteredCompanies.length
+                ? 'Deselect all'
+                : `Select all (${filteredCompanies.length})`}
+            </span>
+          </button>
+          {selectedIds.size > 0 && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={handleBulkExport}
+              >
+                <FileDown className="h-3 w-3 mr-1" /> Export
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={handleBulkDelete}
+              >
+                <Trash2 className="h-3 w-3 mr-1" /> Delete
+              </Button>
+            </div>
+          )}
+        </div>
+      ) : null,
+    customFooter:
+      filteredCompanies.length > 0 ? (
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            Page {meta.page} of {meta.totalPages}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Prev
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              disabled={page >= meta.totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      ) : null,
+    secondaryActions: [
+      {
+        label: selectionMode ? 'Exit Selection' : 'Select',
+        icon: selectionMode ? MinusSquare : CheckSquare,
+        onClick: toggleSelectionMode,
+      },
+    ],
+  };
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Companies"
-      description="Manage your company accounts"
+      pageTitle="Companies"
       stats={layoutStats}
-      showFixedMenu={true}
-      fixedMenuFilters={
-        <FixedMenuPanel
-          config={fixedMenuConfig}
-          activeFilter={filterType}
-          onFilterChange={setFilterType}
-          onAction={handleMenuAction}
-          selectedCount={selectedIds.size}
-          bulkActions={bulkActions}
-          onBulkAction={handleBulkAction}
-          className="p-4"
-        />
-      }
-      fixedMenuList={fixedMenuListContent}
-      fixedMenuFooter={fixedMenuFooterContent}
+      actions={layoutActions}
+      fixedMenu={unifiedFixedMenuConfig}
     >
       {contentArea}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

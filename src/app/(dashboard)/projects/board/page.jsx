@@ -1,6 +1,6 @@
 'use client';
 
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -48,19 +48,17 @@ export default function ProjectsBoardPage() {
     ),
   ];
 
+  const actions = [
+    createAction('New Project', Plus, () => console.log('new project'), { primary: true }),
+  ];
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="projects"
-      title="Project Board"
-      description="Kanban view of all projects"
+      pageTitle="Project Board"
       stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Project
-        </Button>
-      }
+      actions={actions}
+      fixedMenu={null}
     >
       <div className="h-full overflow-x-auto p-6">
         {isLoading ? (
@@ -117,6 +115,6 @@ export default function ProjectsBoardPage() {
           </div>
         )}
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

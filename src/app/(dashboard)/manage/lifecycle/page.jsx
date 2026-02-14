@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Plus, Edit, Trash2, Repeat, ArrowRight, Users, Percent, UserCheck } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -159,15 +159,8 @@ export default function ManageLifecyclePage() {
   );
 
   return (
-    <HubLayout
-      hubId="manage"
-      title="Lifecycle Stages"
-      description="Define the customer journey from lead to advocate"
-      stats={layoutStats}
-      actions={actionButtons}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="manage" pageTitle="Lifecycle Stages" stats={layoutStats} fixedMenu={null}>
       {mainContent}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

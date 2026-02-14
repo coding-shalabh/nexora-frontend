@@ -1,6 +1,7 @@
 'use client';
 
 import { ComingSoonPage } from '@/components/common/coming-soon-page';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { Users, TrendingUp, Calendar, DollarSign, BarChart3, UserPlus } from 'lucide-react';
 
 const features = [
@@ -38,13 +39,15 @@ const features = [
 
 export default function HRReportsPage() {
   return (
-    <ComingSoonPage
-      title="HR Reports"
-      description="HR reports are being consolidated into the central Analytics hub. Visit Analytics for comprehensive workforce metrics, attrition analysis, and performance insights."
-      icon={BarChart3}
-      features={features}
-      backHref="/analytics"
-      backLabel="Go to Analytics"
-    />
+    <UnifiedLayout hubId="hr" pageTitle="HR Reports" fixedMenu={null}>
+      <ComingSoonPage
+        title="HR Reports"
+        description="HR reports are being consolidated into the central Analytics hub. Visit Analytics for comprehensive workforce metrics, attrition analysis, and performance insights."
+        icon={BarChart3}
+        features={features}
+        backHref="/analytics"
+        backLabel="Go to Analytics"
+      />
+    </UnifiedLayout>
   );
 }

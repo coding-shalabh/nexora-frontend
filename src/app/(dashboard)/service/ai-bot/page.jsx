@@ -1,6 +1,7 @@
 'use client';
 
 import { ComingSoonPage } from '@/components/common/coming-soon-page';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { Bot, MessageSquare, Zap, Brain, Settings, BarChart3 } from 'lucide-react';
 
 const features = [
@@ -38,13 +39,15 @@ const features = [
 
 export default function AIChatbotPage() {
   return (
-    <ComingSoonPage
-      title="AI Chatbot"
-      description="Deploy an intelligent chatbot that handles customer inquiries automatically. Train it on your knowledge base for accurate, contextual responses."
-      icon={Bot}
-      features={features}
-      backHref="/service"
-      backLabel="Go to Service"
-    />
+    <UnifiedLayout hubId="service" pageTitle="AI Chatbot" fixedMenu={null}>
+      <ComingSoonPage
+        title="AI Chatbot"
+        description="Deploy an intelligent chatbot that handles customer inquiries automatically. Train it on your knowledge base for accurate, contextual responses."
+        icon={Bot}
+        features={features}
+        backHref="/service"
+        backLabel="Go to Service"
+      />
+    </UnifiedLayout>
   );
 }

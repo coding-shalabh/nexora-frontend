@@ -58,7 +58,7 @@ import {
 } from '@/components/ui/table';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 import { cn } from '@/lib/utils';
 
@@ -627,47 +627,11 @@ export default function SegmentsPage() {
 
   return (
     <>
-      <HubLayout
+      <UnifiedLayout
         hubId="marketing"
-        showTopBar={false}
-        showSidebar={false}
-        title="Audience Segments"
-        description="Create and manage contact segments for targeted campaigns"
+        pageTitle="Audience Segments"
         stats={hubStats}
-        fixedMenuFilters={
-          <FixedMenuPanel
-            config={fixedMenuConfig}
-            activeFilter={typeFilter}
-            onFilterChange={setTypeFilter}
-            onAction={(id) => id === 'create' && setCreateDialogOpen(true)}
-            className="p-4"
-          />
-        }
-        fixedMenuList={
-          <div className="space-y-2 p-4">
-            {/* Search Bar */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search segments..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            {/* Segments List */}
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : filteredSegments.length === 0 ? (
-              <EmptyState />
-            ) : (
-              filteredSegments.map((segment) => <SegmentCard key={segment.id} segment={segment} />)
-            )}
-          </div>
-        }
+        fixedMenu={null}
       >
         {/* Segment Details View in Content Area */}
         <div className="h-full overflow-y-auto p-6">
@@ -780,7 +744,7 @@ export default function SegmentsPage() {
             })}
           </div>
         </div>
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Create/Edit Segment Dialog */}
       <Dialog

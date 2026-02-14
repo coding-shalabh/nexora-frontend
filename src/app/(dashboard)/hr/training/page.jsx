@@ -22,7 +22,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 const courses = [
@@ -403,27 +403,8 @@ export default function TrainingPage() {
   );
 
   return (
-    <HubLayout
-      hubId="hr"
-      showTopBar={false}
-      showSidebar={false}
-      title="Training"
-      description="Manage learning and development programs"
-      stats={layoutStats}
-      actions={topBarActions}
-      showFixedMenu={true}
-      fixedMenuFilters={
-        <FixedMenuPanel
-          config={fixedMenuConfig}
-          activeFilter={statusFilter}
-          onFilterChange={setStatusFilter}
-          onAction={handleAction}
-          className="p-4"
-        />
-      }
-      fixedMenuList={fixedMenuListContent}
-    >
+    <UnifiedLayout hubId="hr" pageTitle="Training" stats={layoutStats} fixedMenu={null}>
       {contentArea}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

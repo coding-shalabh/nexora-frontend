@@ -5,7 +5,7 @@ import { Users, Plus, Filter, Settings, Trash2, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 const mockCustomSegments = [
   { id: 1, name: 'High Value Leads', contacts: 45, rules: 3, status: 'active' },
@@ -14,38 +14,8 @@ const mockCustomSegments = [
 ];
 
 export default function CustomSegmentsPage() {
-  const stats = [
-    createStat('Custom Segments', mockCustomSegments.length, Users, 'primary'),
-    createStat(
-      'Active',
-      mockCustomSegments.filter((s) => s.status === 'active').length,
-      Filter,
-      'green'
-    ),
-    createStat(
-      'Total Contacts',
-      mockCustomSegments.reduce((sum, s) => sum + s.contacts, 0),
-      Users,
-      'blue'
-    ),
-  ];
-
   return (
-    <HubLayout
-      hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Custom Segments"
-      description="Create and manage custom contact segments"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Segment
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="crm" pageTitle="Custom Segments" fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="grid gap-4">
           {mockCustomSegments.map((segment) => (
@@ -61,10 +31,10 @@ export default function CustomSegmentsPage() {
                   <Badge variant={segment.status === 'active' ? 'default' : 'secondary'}>
                     {segment.status}
                   </Badge>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" aria-label="Edit segment">
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" aria-label="Delete segment">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -73,6 +43,6 @@ export default function CustomSegmentsPage() {
           ))}
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

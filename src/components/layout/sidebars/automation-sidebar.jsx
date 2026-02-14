@@ -226,6 +226,7 @@ export function AutomationSidebar() {
           variant="outline"
           size="icon"
           onClick={toggleCollapsed}
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           className="absolute -right-3 top-20 h-6 w-6 rounded-full bg-white border-gray-200 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
         >
           {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
@@ -431,6 +432,7 @@ export function AutomationHeader() {
                 <button
                   onClick={() => setRefreshing(true)}
                   disabled={refreshing}
+                  aria-label="Refresh"
                   className="h-7 w-7 rounded-lg flex items-center justify-center hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
                 >
                   <RefreshCw className={cn('h-3.5 w-3.5', refreshing && 'animate-spin')} />

@@ -8,40 +8,8 @@ import { EmailVerificationBanner } from '@/components/email-verification-banner'
 import { SocketProvider } from '@/context/socket-context';
 import { TelecmiProvider } from '@/providers/telecmi-provider';
 import { TelecmiCallWidget } from '@/components/telecmi';
-import { motion, AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
-
-// Page transition variants
-const pageVariants = {
-  hidden: {
-    opacity: 0,
-    y: 20,
-    scale: 0.98,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: {
-      type: 'spring',
-      stiffness: 260,
-      damping: 20,
-      mass: 0.8,
-      delayChildren: 0.2,
-      staggerChildren: 0.1,
-    },
-  },
-  exit: {
-    opacity: 0,
-    y: -20,
-    scale: 0.95,
-    transition: {
-      duration: 0.2,
-      ease: [0.4, 0, 1, 1],
-    },
-  },
-};
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
@@ -85,18 +53,9 @@ export default function DashboardLayout({ children }) {
               <main
                 className={`relative flex-1 ${hasOwnLayout ? 'overflow-hidden' : 'overflow-auto'}`}
               >
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={pathname}
-                    variants={pageVariants}
-                    initial="hidden"
-                    animate="visible"
-                    exit="exit"
-                    className={hasOwnLayout ? 'h-full' : 'p-6 max-w-7xl mx-auto w-full'}
-                  >
-                    {children}
-                  </motion.div>
-                </AnimatePresence>
+                <div className={hasOwnLayout ? 'h-full' : 'p-6 max-w-7xl mx-auto w-full'}>
+                  {children}
+                </div>
               </main>
             </div>
 

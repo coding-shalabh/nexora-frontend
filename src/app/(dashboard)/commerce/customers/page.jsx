@@ -56,7 +56,7 @@ import {
   useDeleteContact,
 } from '@/hooks/use-contacts';
 import { useToast } from '@/hooks/use-toast';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 const lifecycleStages = [
@@ -463,218 +463,223 @@ export default function CustomersPage() {
 
   return (
     <>
-      <HubLayout
-        hubId="commerce"
-        title="Customers"
-        description="Manage your customer base"
-        stats={stats}
-        showFixedMenu={true}
-        fixedMenuFilters={
-          <FixedMenuPanel
-            config={fixedMenuConfig}
-            activeFilter={lifecycleFilter}
-            onFilterChange={setLifecycleFilter}
-            onAction={(id) => id === 'create' && setIsCreateOpen(true)}
-            className="p-4"
-          />
-        }
-        fixedMenuList={
-          <div className="space-y-2 p-4">
-            {/* Search Bar */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search customers..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+      <UnifiedLayout hubId="commerce" pageTitle="Customers" stats={stats} fixedMenu={null}>
+        <div className="flex h-full">
+          {/* Fixed Menu Panel */}
+          <div className="w-80 border-r border-gray-200 flex flex-col">
+            <FixedMenuPanel
+              config={fixedMenuConfig}
+              activeFilter={lifecycleFilter}
+              onFilterChange={setLifecycleFilter}
+              onAction={(id) => id === 'create' && setIsCreateOpen(true)}
+              className="p-4"
+            />
+            <div className="flex-1 overflow-auto">
+              <div className="space-y-2 p-4">
+                {/* Search Bar */}
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search customers..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
 
-            {/* Customers List */}
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                {/* Customers List */}
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : customers.length === 0 ? (
+                  <EmptyState />
+                ) : (
+                  customers.map((customer) => (
+                    <CustomerCard key={customer.id} customer={customer} />
+                  ))
+                )}
               </div>
-            ) : customers.length === 0 ? (
-              <EmptyState />
-            ) : (
-              customers.map((customer) => <CustomerCard key={customer.id} customer={customer} />)
-            )}
+            </div>
           </div>
-        }
-      >
-        {/* Customer Detail View in Content Area */}
-        {selectedCustomer && customerDetail && (
-          <div className="h-full overflow-y-auto p-6">
-            {/* Customer Header */}
-            <div className="mb-6">
-              <div className="flex items-start gap-4 mb-4">
-                <div className="h-20 w-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-3xl">
-                  {customerDetail.firstName?.[0]}
-                  {customerDetail.lastName?.[0]}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h2 className="text-2xl font-bold">
-                      {customerDetail.firstName} {customerDetail.lastName}
-                    </h2>
-                    {customerDetail.isVip && (
-                      <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-                    )}
-                  </div>
-                  {customerDetail.company && (
-                    <p className="text-muted-foreground flex items-center gap-1">
-                      <Building2 className="h-4 w-4" />
-                      {customerDetail.company}
-                      {customerDetail.jobTitle && ` • ${customerDetail.jobTitle}`}
-                    </p>
-                  )}
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge
-                      className={cn(
-                        customerDetail.status === 'ACTIVE' && 'bg-green-100 text-green-700',
-                        customerDetail.status === 'INACTIVE' && 'bg-yellow-100 text-yellow-700',
-                        customerDetail.status === 'ARCHIVED' && 'bg-gray-100 text-gray-700'
-                      )}
-                    >
-                      {customerDetail.status}
-                    </Badge>
-                    <Badge variant="outline">{customerDetail.lifecycleStage}</Badge>
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                      <DollarSign className="h-5 w-5 text-green-600" />
+          {/* Content Area */}
+          <div className="flex-1 overflow-auto">
+            {/* Customer Detail View in Content Area */}
+            {selectedCustomer && customerDetail && (
+              <div className="h-full overflow-y-auto p-6">
+                {/* Customer Header */}
+                <div className="mb-6">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="h-20 w-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-semibold text-3xl">
+                      {customerDetail.firstName?.[0]}
+                      {customerDetail.lastName?.[0]}
                     </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Revenue</p>
-                      <p className="text-xl font-bold">
-                        {formatCurrency(customerDetail.totalRevenue || 0)}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                      <Package className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Orders</p>
-                      <p className="text-xl font-bold">{customerDetail.totalOrders || 0}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                      <TrendingUp className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Avg Order</p>
-                      <p className="text-xl font-bold">
-                        {formatCurrency(
-                          customerDetail.totalOrders > 0
-                            ? customerDetail.totalRevenue / customerDetail.totalOrders
-                            : 0
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h2 className="text-2xl font-bold">
+                          {customerDetail.firstName} {customerDetail.lastName}
+                        </h2>
+                        {customerDetail.isVip && (
+                          <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
                         )}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                      <Calendar className="h-5 w-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Customer Since</p>
-                      <p className="text-sm font-medium">{formatDate(customerDetail.createdAt)}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Contact Information */}
-            <Card className="mb-6">
-              <CardHeader>
-                <CardTitle className="text-base">Contact Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {customerDetail.email && (
-                    <div className="flex items-center justify-between py-2 border-b">
-                      <span className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        Email
-                      </span>
-                      <span className="font-medium">{customerDetail.email}</span>
-                    </div>
-                  )}
-                  {customerDetail.phone && (
-                    <div className="flex items-center justify-between py-2 border-b">
-                      <span className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        Phone
-                      </span>
-                      <span className="font-medium">{customerDetail.phone}</span>
-                    </div>
-                  )}
-                  {(customerDetail.address ||
-                    customerDetail.city ||
-                    customerDetail.state ||
-                    customerDetail.country) && (
-                    <div className="flex items-start justify-between py-2 border-b">
-                      <span className="text-sm text-muted-foreground flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        Address
-                      </span>
-                      <div className="text-right">
-                        {customerDetail.address && (
-                          <p className="font-medium">{customerDetail.address}</p>
-                        )}
-                        <p className="text-sm text-muted-foreground">
-                          {[customerDetail.city, customerDetail.state, customerDetail.country]
-                            .filter(Boolean)
-                            .join(', ')}
-                          {customerDetail.postalCode && ` ${customerDetail.postalCode}`}
+                      </div>
+                      {customerDetail.company && (
+                        <p className="text-muted-foreground flex items-center gap-1">
+                          <Building2 className="h-4 w-4" />
+                          {customerDetail.company}
+                          {customerDetail.jobTitle && ` • ${customerDetail.jobTitle}`}
                         </p>
+                      )}
+                      <div className="flex items-center gap-2 mt-2">
+                        <Badge
+                          className={cn(
+                            customerDetail.status === 'ACTIVE' && 'bg-green-100 text-green-700',
+                            customerDetail.status === 'INACTIVE' && 'bg-yellow-100 text-yellow-700',
+                            customerDetail.status === 'ARCHIVED' && 'bg-gray-100 text-gray-700'
+                          )}
+                        >
+                          {customerDetail.status}
+                        </Badge>
+                        <Badge variant="outline">{customerDetail.lifecycleStage}</Badge>
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
 
-            {/* Actions */}
-            <div className="flex gap-3">
-              <Button className="flex-1" onClick={() => handleEdit(customerDetail)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Customer
-              </Button>
-              <Button variant="outline" className="flex-1">
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                View Orders
-              </Button>
-            </div>
+                {/* Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                          <DollarSign className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Total Revenue</p>
+                          <p className="text-xl font-bold">
+                            {formatCurrency(customerDetail.totalRevenue || 0)}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                          <Package className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Total Orders</p>
+                          <p className="text-xl font-bold">{customerDetail.totalOrders || 0}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                          <TrendingUp className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Avg Order</p>
+                          <p className="text-xl font-bold">
+                            {formatCurrency(
+                              customerDetail.totalOrders > 0
+                                ? customerDetail.totalRevenue / customerDetail.totalOrders
+                                : 0
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                          <Calendar className="h-5 w-5 text-orange-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground">Customer Since</p>
+                          <p className="text-sm font-medium">
+                            {formatDate(customerDetail.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Contact Information */}
+                <Card className="mb-6">
+                  <CardHeader>
+                    <CardTitle className="text-base">Contact Information</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {customerDetail.email && (
+                        <div className="flex items-center justify-between py-2 border-b">
+                          <span className="text-sm text-muted-foreground flex items-center gap-2">
+                            <Mail className="h-4 w-4" />
+                            Email
+                          </span>
+                          <span className="font-medium">{customerDetail.email}</span>
+                        </div>
+                      )}
+                      {customerDetail.phone && (
+                        <div className="flex items-center justify-between py-2 border-b">
+                          <span className="text-sm text-muted-foreground flex items-center gap-2">
+                            <Phone className="h-4 w-4" />
+                            Phone
+                          </span>
+                          <span className="font-medium">{customerDetail.phone}</span>
+                        </div>
+                      )}
+                      {(customerDetail.address ||
+                        customerDetail.city ||
+                        customerDetail.state ||
+                        customerDetail.country) && (
+                        <div className="flex items-start justify-between py-2 border-b">
+                          <span className="text-sm text-muted-foreground flex items-center gap-2">
+                            <MapPin className="h-4 w-4" />
+                            Address
+                          </span>
+                          <div className="text-right">
+                            {customerDetail.address && (
+                              <p className="font-medium">{customerDetail.address}</p>
+                            )}
+                            <p className="text-sm text-muted-foreground">
+                              {[customerDetail.city, customerDetail.state, customerDetail.country]
+                                .filter(Boolean)
+                                .join(', ')}
+                              {customerDetail.postalCode && ` ${customerDetail.postalCode}`}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Actions */}
+                <div className="flex gap-3">
+                  <Button className="flex-1" onClick={() => handleEdit(customerDetail)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Customer
+                  </Button>
+                  <Button variant="outline" className="flex-1">
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    View Orders
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </HubLayout>
+        </div>
+      </UnifiedLayout>
 
       {/* Create Customer Modal */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -79,19 +79,17 @@ export default function MyTasksPage() {
     ),
   ];
 
+  const actions = [
+    createAction('New Task', Plus, () => console.log('new task'), { primary: true }),
+  ];
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="projects"
-      title="My Tasks"
-      description="Tasks assigned to you across all projects"
+      pageTitle="My Tasks"
       stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Task
-        </Button>
-      }
+      actions={actions}
+      fixedMenu={null}
     >
       <div className="h-full overflow-auto p-6 space-y-4">
         {isLoading ? (
@@ -150,6 +148,6 @@ export default function MyTasksPage() {
           </div>
         )}
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

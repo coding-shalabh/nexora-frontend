@@ -15,7 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const mockDashboards = [
   { id: 1, name: 'Sales Overview', widgets: 6, lastModified: '2024-03-10', status: 'active' },
@@ -48,19 +48,7 @@ export default function AnalyticsDashboardsCustomPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="analytics"
-      title="Custom Dashboards"
-      description="Create and manage custom analytics dashboards"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Dashboard
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="analytics" pageTitle="Custom Dashboards" stats={stats} fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="grid gap-4">
           {mockDashboards.map((dashboard) => (
@@ -111,6 +99,6 @@ export default function AnalyticsDashboardsCustomPage() {
           </CardContent>
         </Card>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

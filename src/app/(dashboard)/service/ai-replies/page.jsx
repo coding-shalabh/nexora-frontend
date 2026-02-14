@@ -1,6 +1,7 @@
 'use client';
 
 import { ComingSoonPage } from '@/components/common/coming-soon-page';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { Sparkles, MessageSquare, Zap, Brain, FileText, Settings } from 'lucide-react';
 
 const features = [
@@ -38,13 +39,15 @@ const features = [
 
 export default function ReplySuggestionsPage() {
   return (
-    <ComingSoonPage
-      title="Reply Suggestions"
-      description="Get AI-powered response suggestions for faster ticket resolution. Context-aware replies that match your brand voice and style."
-      icon={Sparkles}
-      features={features}
-      backHref="/service"
-      backLabel="Go to Service"
-    />
+    <UnifiedLayout hubId="service" pageTitle="Reply Suggestions" fixedMenu={null}>
+      <ComingSoonPage
+        title="Reply Suggestions"
+        description="Get AI-powered response suggestions for faster ticket resolution. Context-aware replies that match your brand voice and style."
+        icon={Sparkles}
+        features={features}
+        backHref="/service"
+        backLabel="Go to Service"
+      />
+    </UnifiedLayout>
   );
 }

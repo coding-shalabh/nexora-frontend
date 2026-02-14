@@ -1,6 +1,7 @@
 'use client';
 
 import { ComingSoonPage } from '@/components/common/coming-soon-page';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { Package, Warehouse, TrendingUp, TrendingDown, BarChart3, ArrowDownUp } from 'lucide-react';
 
 const features = [
@@ -38,13 +39,15 @@ const features = [
 
 export default function InventoryReportsPage() {
   return (
-    <ComingSoonPage
-      title="Inventory Reports"
-      description="Inventory reports are being consolidated into the central Analytics hub. Visit Analytics for comprehensive stock metrics, warehouse utilization, and inventory valuation."
-      icon={BarChart3}
-      features={features}
-      backHref="/analytics"
-      backLabel="Go to Analytics"
-    />
+    <UnifiedLayout hubId="inventory" pageTitle="Inventory Reports" fixedMenu={null}>
+      <ComingSoonPage
+        title="Inventory Reports"
+        description="Inventory reports are being consolidated into the central Analytics hub. Visit Analytics for comprehensive stock metrics, warehouse utilization, and inventory valuation."
+        icon={BarChart3}
+        features={features}
+        backHref="/analytics"
+        backLabel="Go to Analytics"
+      />
+    </UnifiedLayout>
   );
 }

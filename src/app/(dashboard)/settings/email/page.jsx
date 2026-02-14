@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { cn } from '@/lib/utils';
 import {
   Mail,
@@ -1858,292 +1859,299 @@ export default function EmailSettingsPage() {
   };
 
   return (
-    <motion.div
-      className="flex-1 p-6 space-y-6 overflow-auto"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {/* Header with Stats */}
-      <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-2xl bg-blue-50 flex items-center justify-center">
-              <Mail className="h-7 w-7 text-blue-600" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">Email Settings</h1>
-              <p className="text-sm text-gray-500">
-                Manage email accounts, custom domains, and sending configuration
-              </p>
-            </div>
-          </div>
-          {hasAccounts && (
-            <Button onClick={() => setShowConnectModal(true)} className="rounded-xl">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Email
-            </Button>
-          )}
-        </div>
-
-        {/* Stats Bar */}
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
-              <Mail className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.connected}</p>
-              <p className="text-xs text-gray-500">Connected</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
-              <CheckCircle2 className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
-              <p className="text-xs text-gray-500">Active</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-orange-50 flex items-center justify-center">
-              <AlertTriangle className="h-5 w-5 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.issues}</p>
-              <p className="text-xs text-gray-500">Issues</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-purple-50 flex items-center justify-center">
-              <Send className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{stats.emailsSent}</p>
-              <p className="text-xs text-gray-500">Emails Sent</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Tabs */}
-      <motion.div variants={itemVariants}>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-white rounded-xl p-1 shadow-sm">
-            <TabsTrigger
-              value="accounts"
-              className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
-            >
-              <Mail className="h-4 w-4" />
-              Email Accounts
-            </TabsTrigger>
-            <TabsTrigger
-              value="domains"
-              className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
-            >
-              <Globe className="h-4 w-4" />
-              Custom Domains
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="accounts" className="mt-6 space-y-6">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+    <UnifiedLayout hubId="settings" pageTitle="Email Settings" fixedMenu={null}>
+      <motion.div
+        className="flex-1 p-6 space-y-6 overflow-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        {/* Header with Stats */}
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-2xl bg-blue-50 flex items-center justify-center">
+                <Mail className="h-7 w-7 text-blue-600" />
               </div>
-            ) : hasAccounts ? (
-              <motion.div className="space-y-4" variants={containerVariants}>
-                {accounts.map((account, index) => (
-                  <motion.div key={account.id} variants={itemVariants}>
-                    <ConnectedAccountCard
-                      account={account}
-                      onRefresh={handleRefresh}
-                      onDisconnect={handleDisconnect}
-                      onSetDefault={handleSetDefault}
-                      onManageAccess={handleManageAccess}
-                    />
-                  </motion.div>
-                ))}
-
-                {/* Help Section */}
-                <motion.div variants={itemVariants} className="bg-blue-50 rounded-2xl p-5">
-                  <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
-                      <HelpCircle className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">
-                        Need help connecting your email?
-                      </h4>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Check our guide for step-by-step instructions on connecting Gmail, Outlook,
-                        and other email providers.
-                      </p>
-                      <Button variant="link" className="px-0 mt-2 text-blue-600" asChild>
-                        <a href="/settings/email/help">
-                          View Email Connection Guide
-                          <ArrowRight className="h-4 w-4 ml-1" />
-                        </a>
-                      </Button>
-                    </div>
-                  </div>
-                </motion.div>
-              </motion.div>
-            ) : (
-              <motion.div className="space-y-6" variants={containerVariants}>
-                {/* Empty State Hero */}
-                <motion.div
-                  variants={itemVariants}
-                  className="bg-white rounded-2xl p-12 shadow-sm text-center border-2 border-dashed"
-                >
-                  <div className="mx-auto w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-4">
-                    <Mail className="h-8 w-8 text-blue-600" />
-                  </div>
-                  <h2 className="text-xl font-semibold mb-2 text-gray-900">Connect Your Email</h2>
-                  <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                    Connect your email accounts to send and receive emails directly from Nexora. All
-                    your conversations in one unified inbox.
-                  </p>
-                  <Button
-                    size="lg"
-                    onClick={() => setShowConnectModal(true)}
-                    className="rounded-xl"
-                  >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Connect Email Account
-                  </Button>
-                </motion.div>
-
-                {/* Provider Options */}
-                <motion.div variants={itemVariants} className="grid md:grid-cols-3 gap-4">
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={cn(
-                      'bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer transition-all',
-                      oauthProviders.google?.enabled
-                        ? 'hover:shadow-md'
-                        : 'opacity-50 cursor-not-allowed'
-                    )}
-                    onClick={() => oauthProviders.google?.enabled && handleOAuthConnect('google')}
-                  >
-                    <div className="mx-auto w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mb-3">
-                      <GmailIcon className="h-6 w-6" />
-                    </div>
-                    <h3 className="font-medium text-gray-900">Gmail</h3>
-                    <p className="text-sm text-gray-500">
-                      {oauthProviders.google?.enabled ? 'One-click OAuth' : 'Not configured'}
-                    </p>
-                    {oauthProviders.google?.enabled && (
-                      <Badge className="mt-2 bg-green-100 text-green-700 border-0 text-xs">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        OAuth Ready
-                      </Badge>
-                    )}
-                  </motion.div>
-
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={cn(
-                      'bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer transition-all',
-                      oauthProviders.microsoft?.enabled
-                        ? 'hover:shadow-md'
-                        : 'opacity-50 cursor-not-allowed'
-                    )}
-                    onClick={() =>
-                      oauthProviders.microsoft?.enabled && handleOAuthConnect('microsoft')
-                    }
-                  >
-                    <div className="mx-auto w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
-                      <OutlookIcon className="h-6 w-6" />
-                    </div>
-                    <h3 className="font-medium text-gray-900">Outlook</h3>
-                    <p className="text-sm text-gray-500">
-                      {oauthProviders.microsoft?.enabled ? 'One-click OAuth' : 'Not configured'}
-                    </p>
-                    {oauthProviders.microsoft?.enabled && (
-                      <Badge className="mt-2 bg-green-100 text-green-700 border-0 text-xs">
-                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                        OAuth Ready
-                      </Badge>
-                    )}
-                  </motion.div>
-
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer hover:shadow-md transition-all"
-                    onClick={() => setShowConnectModal(true)}
-                  >
-                    <div className="mx-auto w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mb-3">
-                      <Mail className="h-6 w-6 text-gray-600" />
-                    </div>
-                    <h3 className="font-medium text-gray-900">Custom Domain</h3>
-                    <p className="text-sm text-gray-500">IMAP/SMTP</p>
-                  </motion.div>
-                </motion.div>
-
-                {/* Features */}
-                <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm">
-                  <h3 className="font-semibold text-gray-900 mb-4">Why Connect Your Email?</h3>
-                  <div className="grid md:grid-cols-3 gap-6">
-                    <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
-                        <Inbox className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900">Unified Inbox</h4>
-                        <p className="text-sm text-gray-500">
-                          All your emails from all accounts in one place
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                        <Link2 className="h-5 w-5 text-blue-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900">Contact Linking</h4>
-                        <p className="text-sm text-gray-500">
-                          Emails auto-linked to your CRM contacts
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
-                        <Sparkles className="h-5 w-5 text-purple-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900">AI Assistance</h4>
-                        <p className="text-sm text-gray-500">Smart replies and email suggestions</p>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </motion.div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Email Settings</h1>
+                <p className="text-sm text-gray-500">
+                  Manage email accounts, custom domains, and sending configuration
+                </p>
+              </div>
+            </div>
+            {hasAccounts && (
+              <Button onClick={() => setShowConnectModal(true)} className="rounded-xl">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Email
+              </Button>
             )}
-          </TabsContent>
+          </div>
 
-          <TabsContent value="domains" className="mt-6">
-            <CustomDomainsTab />
-          </TabsContent>
-        </Tabs>
+          {/* Stats Bar */}
+          <div className="flex items-center gap-8">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <Mail className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{stats.connected}</p>
+                <p className="text-xs text-gray-500">Connected</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
+                <CheckCircle2 className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{stats.active}</p>
+                <p className="text-xs text-gray-500">Active</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{stats.issues}</p>
+                <p className="text-xs text-gray-500">Issues</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-purple-50 flex items-center justify-center">
+                <Send className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{stats.emailsSent}</p>
+                <p className="text-xs text-gray-500">Emails Sent</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Tabs */}
+        <motion.div variants={itemVariants}>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="bg-white rounded-xl p-1 shadow-sm">
+              <TabsTrigger
+                value="accounts"
+                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
+              >
+                <Mail className="h-4 w-4" />
+                Email Accounts
+              </TabsTrigger>
+              <TabsTrigger
+                value="domains"
+                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
+              >
+                <Globe className="h-4 w-4" />
+                Custom Domains
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="accounts" className="mt-6 space-y-6">
+              {isLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+                </div>
+              ) : hasAccounts ? (
+                <motion.div className="space-y-4" variants={containerVariants}>
+                  {accounts.map((account, index) => (
+                    <motion.div key={account.id} variants={itemVariants}>
+                      <ConnectedAccountCard
+                        account={account}
+                        onRefresh={handleRefresh}
+                        onDisconnect={handleDisconnect}
+                        onSetDefault={handleSetDefault}
+                        onManageAccess={handleManageAccess}
+                      />
+                    </motion.div>
+                  ))}
+
+                  {/* Help Section */}
+                  <motion.div variants={itemVariants} className="bg-blue-50 rounded-2xl p-5">
+                    <div className="flex items-start gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
+                        <HelpCircle className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">
+                          Need help connecting your email?
+                        </h4>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Check our guide for step-by-step instructions on connecting Gmail,
+                          Outlook, and other email providers.
+                        </p>
+                        <Button variant="link" className="px-0 mt-2 text-blue-600" asChild>
+                          <a href="/settings/email/help">
+                            View Email Connection Guide
+                            <ArrowRight className="h-4 w-4 ml-1" />
+                          </a>
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              ) : (
+                <motion.div className="space-y-6" variants={containerVariants}>
+                  {/* Empty State Hero */}
+                  <motion.div
+                    variants={itemVariants}
+                    className="bg-white rounded-2xl p-12 shadow-sm text-center border-2 border-dashed"
+                  >
+                    <div className="mx-auto w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center mb-4">
+                      <Mail className="h-8 w-8 text-blue-600" />
+                    </div>
+                    <h2 className="text-xl font-semibold mb-2 text-gray-900">Connect Your Email</h2>
+                    <p className="text-gray-500 mb-6 max-w-md mx-auto">
+                      Connect your email accounts to send and receive emails directly from Nexora.
+                      All your conversations in one unified inbox.
+                    </p>
+                    <Button
+                      size="lg"
+                      onClick={() => setShowConnectModal(true)}
+                      className="rounded-xl"
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      Connect Email Account
+                    </Button>
+                  </motion.div>
+
+                  {/* Provider Options */}
+                  <motion.div variants={itemVariants} className="grid md:grid-cols-3 gap-4">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={cn(
+                        'bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer transition-all',
+                        oauthProviders.google?.enabled
+                          ? 'hover:shadow-md'
+                          : 'opacity-50 cursor-not-allowed'
+                      )}
+                      onClick={() => oauthProviders.google?.enabled && handleOAuthConnect('google')}
+                    >
+                      <div className="mx-auto w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center mb-3">
+                        <GmailIcon className="h-6 w-6" />
+                      </div>
+                      <h3 className="font-medium text-gray-900">Gmail</h3>
+                      <p className="text-sm text-gray-500">
+                        {oauthProviders.google?.enabled ? 'One-click OAuth' : 'Not configured'}
+                      </p>
+                      {oauthProviders.google?.enabled && (
+                        <Badge className="mt-2 bg-green-100 text-green-700 border-0 text-xs">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          OAuth Ready
+                        </Badge>
+                      )}
+                    </motion.div>
+
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className={cn(
+                        'bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer transition-all',
+                        oauthProviders.microsoft?.enabled
+                          ? 'hover:shadow-md'
+                          : 'opacity-50 cursor-not-allowed'
+                      )}
+                      onClick={() =>
+                        oauthProviders.microsoft?.enabled && handleOAuthConnect('microsoft')
+                      }
+                    >
+                      <div className="mx-auto w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mb-3">
+                        <OutlookIcon className="h-6 w-6" />
+                      </div>
+                      <h3 className="font-medium text-gray-900">Outlook</h3>
+                      <p className="text-sm text-gray-500">
+                        {oauthProviders.microsoft?.enabled ? 'One-click OAuth' : 'Not configured'}
+                      </p>
+                      {oauthProviders.microsoft?.enabled && (
+                        <Badge className="mt-2 bg-green-100 text-green-700 border-0 text-xs">
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                          OAuth Ready
+                        </Badge>
+                      )}
+                    </motion.div>
+
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="bg-white rounded-2xl p-6 shadow-sm text-center cursor-pointer hover:shadow-md transition-all"
+                      onClick={() => setShowConnectModal(true)}
+                    >
+                      <div className="mx-auto w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mb-3">
+                        <Mail className="h-6 w-6 text-gray-600" />
+                      </div>
+                      <h3 className="font-medium text-gray-900">Custom Domain</h3>
+                      <p className="text-sm text-gray-500">IMAP/SMTP</p>
+                    </motion.div>
+                  </motion.div>
+
+                  {/* Features */}
+                  <motion.div
+                    variants={itemVariants}
+                    className="bg-white rounded-2xl p-6 shadow-sm"
+                  >
+                    <h3 className="font-semibold text-gray-900 mb-4">Why Connect Your Email?</h3>
+                    <div className="grid md:grid-cols-3 gap-6">
+                      <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
+                          <Inbox className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Unified Inbox</h4>
+                          <p className="text-sm text-gray-500">
+                            All your emails from all accounts in one place
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                          <Link2 className="h-5 w-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">Contact Linking</h4>
+                          <p className="text-sm text-gray-500">
+                            Emails auto-linked to your CRM contacts
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
+                          <Sparkles className="h-5 w-5 text-purple-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-gray-900">AI Assistance</h4>
+                          <p className="text-sm text-gray-500">
+                            Smart replies and email suggestions
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="domains" className="mt-6">
+              <CustomDomainsTab />
+            </TabsContent>
+          </Tabs>
+        </motion.div>
+
+        {/* Modals */}
+        <ConnectEmailModal
+          isOpen={showConnectModal}
+          onClose={() => setShowConnectModal(false)}
+          onSuccess={() => refetch()}
+        />
+
+        <ManageAccessDialog
+          isOpen={!!selectedAccountForAccess}
+          onClose={() => setSelectedAccountForAccess(null)}
+          account={selectedAccountForAccess}
+        />
       </motion.div>
-
-      {/* Modals */}
-      <ConnectEmailModal
-        isOpen={showConnectModal}
-        onClose={() => setShowConnectModal(false)}
-        onSuccess={() => refetch()}
-      />
-
-      <ManageAccessDialog
-        isOpen={!!selectedAccountForAccess}
-        onClose={() => setSelectedAccountForAccess(null)}
-        account={selectedAccountForAccess}
-      />
-    </motion.div>
+    </UnifiedLayout>
   );
 }

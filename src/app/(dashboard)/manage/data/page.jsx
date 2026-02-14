@@ -16,7 +16,7 @@ import {
   ArrowRight,
   Activity,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -228,14 +228,8 @@ export default function ManageDataPage() {
   );
 
   return (
-    <HubLayout
-      hubId="manage"
-      title="Data Tools"
-      description="Import, export, merge, and clean your data"
-      stats={layoutStats}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="manage" pageTitle="Data Tools" stats={layoutStats} fixedMenu={null}>
       {mainContent}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

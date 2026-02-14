@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const mockReceipts = [
   {
@@ -91,19 +91,7 @@ export default function CommerceReceiptsPage() {
   };
 
   return (
-    <HubLayout
-      hubId="commerce"
-      title="Receipts"
-      description="View and manage payment receipts"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button variant="outline" className="gap-2">
-          <Download className="h-4 w-4" />
-          Export All
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="commerce" pageTitle="Receipts" stats={stats} fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-md">
@@ -153,6 +141,6 @@ export default function CommerceReceiptsPage() {
           </TableBody>
         </Table>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

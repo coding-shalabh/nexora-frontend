@@ -28,7 +28,7 @@ import {
   useWalletUsage,
   useSpendLimits,
 } from '@/hooks/use-wallet';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 function formatCurrency(amount) {
   if (amount === undefined || amount === null) return '$0.00';
@@ -134,25 +134,7 @@ export default function WalletPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="wallet"
-      title="Wallet"
-      description="Manage your PAYG balance and usage"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <>
-          <Button variant="outline">
-            <Settings className="h-4 w-4 mr-2" />
-            Settings
-          </Button>
-          <Button>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Funds
-          </Button>
-        </>
-      }
-    >
+    <UnifiedLayout hubId="home" pageTitle="Wallet" stats={stats} fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6 space-y-6">
         {/* Balance Card */}
         <Card className={cn('p-6', isLowBalance && 'border-orange-500')}>
@@ -435,6 +417,6 @@ export default function WalletPage() {
           </div>
         )}
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

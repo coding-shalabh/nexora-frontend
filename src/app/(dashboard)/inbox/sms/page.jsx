@@ -57,7 +57,7 @@ import {
   useToggleStar,
   useArchiveConversation,
 } from '@/hooks/use-inbox';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { ContactPanel } from '@/components/inbox/contact-panel';
 import { LinkifiedText } from '@/components/ui/linkified-text';
 
@@ -564,19 +564,19 @@ export default function SMSInboxPage() {
   );
 
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="inbox"
-      title="SMS Inbox"
-      description="Manage your SMS conversations"
+      pageTitle="SMS Inbox"
       stats={layoutStats}
       actions={actionButtons}
-      fixedMenuFilters={fixedMenuFilters}
-      fixedMenuList={fixedMenuList}
-      fixedMenuFooter={fixedMenuFooter}
-      fixedMenuWidth="360px"
-      showFixedMenu={true}
+      fixedMenu={{
+        filters: fixedMenuFilters,
+        list: fixedMenuList,
+        footer: fixedMenuFooter,
+        width: '360px',
+      }}
     >
       {mainContent}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

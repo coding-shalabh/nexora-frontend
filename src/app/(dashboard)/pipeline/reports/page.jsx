@@ -15,7 +15,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -169,7 +169,7 @@ export default function ReportsPage() {
   const scheduledReports = reports.filter((r) => r.status === 'SCHEDULED').length;
   const totalDownloads = reports.reduce((sum, r) => sum + r.downloads, 0);
 
-  // Layout stats for HubLayout
+  // Layout stats for UnifiedLayout
   const layoutStats = useMemo(
     () => [
       createStat('Total Reports', totalReports, FileBarChart, 'blue'),
@@ -180,35 +180,10 @@ export default function ReportsPage() {
     [totalReports, generatedReports, scheduledReports, totalDownloads]
   );
 
-  // Action buttons for HubLayout
-  const actionButtons = (
-    <div className="flex items-center gap-2">
-      <select
-        value={typeFilter}
-        onChange={(e) => setTypeFilter(e.target.value)}
-        className="px-3 py-1.5 text-sm border rounded-md bg-white"
-      >
-        <option value="ALL">All Types</option>
-        <option value="SALES">Sales</option>
-        <option value="PIPELINE">Pipeline</option>
-        <option value="CONTACTS">Contacts</option>
-        <option value="ACTIVITY">Activity</option>
-      </select>
-      <select
-        value={statusFilter}
-        onChange={(e) => setStatusFilter(e.target.value)}
-        className="px-3 py-1.5 text-sm border rounded-md bg-white"
-      >
-        <option value="ALL">All Status</option>
-        <option value="GENERATED">Generated</option>
-        <option value="SCHEDULED">Scheduled</option>
-        <option value="FAILED">Failed</option>
-      </select>
-      <Button size="sm">
-        <Plus className="h-4 w-4 mr-2" />
-        New Report
-      </Button>
-    </div>
+  // Layout actions for UnifiedLayout
+  const layoutActions = useMemo(
+    () => [createAction('New Report', Plus, () => console.log('New report'), { primary: true })],
+    []
   );
 
   // Main content
@@ -374,18 +349,14 @@ export default function ReportsPage() {
   );
 
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="pipeline"
-      title="Reports"
-      description="Generate and manage business intelligence reports"
+      pageTitle="Reports"
       stats={layoutStats}
-      searchValue={searchQuery}
-      onSearchChange={setSearchQuery}
-      searchPlaceholder="Search reports..."
-      actions={actionButtons}
-      showFixedMenu={false}
+      actions={layoutActions}
+      fixedMenu={null}
     >
       {mainContent}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

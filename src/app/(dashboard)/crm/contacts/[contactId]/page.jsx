@@ -23,7 +23,7 @@ import {
 import { ContactDetailPanel } from '@/components/crm/contact-detail-panel';
 import { useContact, useDeleteContact } from '@/hooks/use-contacts';
 import { useToast } from '@/hooks/use-toast';
-import { HubLayout } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 export default function ContactDetailPage() {
   const params = useParams();
@@ -69,21 +69,21 @@ export default function ContactDetailPage() {
   // Loading state
   if (isLoading) {
     return (
-      <HubLayout hubId="crm" title="Contact Details" showSidebar={false}>
+      <UnifiedLayout hubId="crm" pageTitle="Contact Details" fixedMenu={null}>
         <div className="flex items-center justify-center h-full">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
             <p className="text-sm text-muted-foreground">Loading contact...</p>
           </div>
         </div>
-      </HubLayout>
+      </UnifiedLayout>
     );
   }
 
   // Error state
   if (error) {
     return (
-      <HubLayout hubId="crm" title="Contact Details" showSidebar={false}>
+      <UnifiedLayout hubId="crm" pageTitle="Contact Details" fixedMenu={null}>
         <div className="flex flex-col items-center justify-center h-full p-8">
           <div className="h-16 w-16 rounded-2xl bg-red-100 flex items-center justify-center mb-4">
             <AlertCircle className="h-8 w-8 text-red-500" />
@@ -101,14 +101,14 @@ export default function ContactDetailPage() {
             </Button>
           </div>
         </div>
-      </HubLayout>
+      </UnifiedLayout>
     );
   }
 
   // Contact not found
   if (!contact) {
     return (
-      <HubLayout hubId="crm" title="Contact Details" showSidebar={false}>
+      <UnifiedLayout hubId="crm" pageTitle="Contact Details" fixedMenu={null}>
         <div className="flex flex-col items-center justify-center h-full p-8">
           <div className="h-16 w-16 rounded-2xl bg-amber-100 flex items-center justify-center mb-4">
             <AlertCircle className="h-8 w-8 text-amber-500" />
@@ -121,7 +121,7 @@ export default function ContactDetailPage() {
             <ArrowLeft className="h-4 w-4 mr-2" /> Go Back
           </Button>
         </div>
-      </HubLayout>
+      </UnifiedLayout>
     );
   }
 
@@ -131,7 +131,7 @@ export default function ContactDetailPage() {
     'Unknown Contact';
 
   return (
-    <HubLayout hubId="crm" title={displayName} showSidebar={false}>
+    <UnifiedLayout hubId="crm" pageTitle={displayName} fixedMenu={null}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -140,7 +140,7 @@ export default function ContactDetailPage() {
         {/* Header */}
         <div className="shrink-0 p-4 border-b flex items-center justify-between bg-white">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={handleBack}>
+            <Button variant="ghost" size="icon" onClick={handleBack} aria-label="Go back">
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
@@ -154,7 +154,7 @@ export default function ContactDetailPage() {
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" aria-label="More options">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -184,6 +184,6 @@ export default function ContactDetailPage() {
           />
         </div>
       </motion.div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

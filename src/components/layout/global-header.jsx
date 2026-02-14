@@ -234,8 +234,8 @@ export function GlobalHeader() {
                 alt="Nexora"
                 width={120}
                 height={32}
-                className="h-8 w-auto"
                 priority
+                style={{ width: 'auto', height: 'auto' }}
               />
             </motion.div>
           </Link>
@@ -251,15 +251,16 @@ export function GlobalHeader() {
                 <img
                   src={user.tenant.logo}
                   alt={user.tenant.name || 'Company'}
-                  className="h-7 w-auto object-contain max-w-[100px]"
+                  className="h-8 w-auto object-contain max-w-[120px]"
                 />
               ) : (
                 <Image
                   src={user.tenant.logo}
                   alt={user.tenant.name || 'Company'}
-                  width={100}
+                  width={120}
                   height={32}
-                  className="h-7 w-auto object-contain"
+                  className="object-contain"
+                  style={{ width: 'auto', height: 'auto', maxWidth: '120px', maxHeight: '32px' }}
                   unoptimized={
                     user.tenant.logo.includes('data:') || user.tenant.logo.includes('.svg')
                   }
@@ -296,6 +297,7 @@ export function GlobalHeader() {
                 size="icon"
                 onClick={() => setNavExpanded(!navExpanded)}
                 className="h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-white/50"
+                aria-label={navExpanded ? 'Collapse navigation' : 'Expand navigation'}
               >
                 {navExpanded ? (
                   <ChevronRight className="h-4 w-4" />
@@ -366,6 +368,7 @@ export function GlobalHeader() {
             size="icon"
             className="h-9 w-9 text-gray-600 hover:text-gray-900 hover:bg-white/50 md:hidden"
             onClick={() => setSearchOpen(true)}
+            aria-label="Search"
           >
             <Search className="h-4 w-4" />
           </Button>
@@ -377,6 +380,7 @@ export function GlobalHeader() {
                 variant="ghost"
                 size="icon"
                 className="relative h-9 w-9 text-gray-600 hover:text-gray-900 hover:bg-white/50"
+                aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
               >
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
@@ -447,6 +451,7 @@ export function GlobalHeader() {
                   size="icon"
                   className="h-9 w-9 text-gray-600 hover:text-gray-900 hover:bg-white/50"
                   asChild
+                  aria-label="Settings"
                 >
                   <Link href="/settings/organization">
                     <Settings className="h-4 w-4" />
@@ -464,6 +469,7 @@ export function GlobalHeader() {
                 variant="ghost"
                 size="icon"
                 className="h-9 w-9 rounded-full hover:bg-white/50"
+                aria-label="User menu"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-full ring-2 ring-gray-200 bg-brand">
                   <span className="text-xs font-medium text-white">{getUserInitials()}</span>

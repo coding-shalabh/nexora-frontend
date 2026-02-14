@@ -5,7 +5,7 @@ import { DollarSign, TrendingUp, TrendingDown, Calendar, BarChart3, PieChart } f
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const revenueBySource = [
   { source: 'Direct Sales', amount: 45000, percentage: 45 },
@@ -32,19 +32,7 @@ export default function CommerceRevenuePage() {
   ];
 
   return (
-    <HubLayout
-      hubId="commerce"
-      title="Revenue"
-      description="Track and analyze your revenue streams"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button variant="outline" className="gap-2">
-          <Calendar className="h-4 w-4" />
-          Date Range
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="commerce" pageTitle="Revenue" stats={stats} fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="grid md:grid-cols-2 gap-6">
           <Card>
@@ -142,6 +130,6 @@ export default function CommerceRevenuePage() {
           </CardContent>
         </Card>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

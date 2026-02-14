@@ -1000,6 +1000,14 @@ export const HUBS = {
         requiredPlan: PLANS.PROFESSIONAL,
       },
       { name: 'Integrations', path: '/settings/integrations', icon: Puzzle, section: 'Developer' },
+      // Automation Section
+      {
+        name: 'AI Assistant',
+        path: '/settings/ai-assistant',
+        icon: Bot,
+        section: 'Automation',
+        requiredPlan: PLANS.PROFESSIONAL,
+      },
       // Billing Section
       {
         name: 'Subscription',
@@ -1012,12 +1020,6 @@ export const HUBS = {
     ],
   },
 };
-
-// Get hub by ID
-export const getHub = (hubId) => HUBS[hubId?.toUpperCase()];
-
-// Get all hubs as array
-export const getAllHubs = () => Object.values(HUBS);
 
 // Get core features as array
 export const getCoreFeatures = () => Object.values(CORE_FEATURES);
@@ -1074,6 +1076,28 @@ export const hasFeatureAccess = (hubId, featurePath, userPlan) => {
   const featurePlanIndex = planOrder.indexOf(featurePlan);
 
   return featurePlanIndex <= userPlanIndex;
+};
+
+// Get hub by ID
+export const getHub = (hubId) => {
+  if (!hubId) return null;
+  return HUBS[hubId.toUpperCase()] || null;
+};
+
+// Get all hubs as array
+export const getAllHubs = () => Object.values(HUBS);
+
+// Get hub features by ID
+export const getHubFeatures = (hubId) => {
+  const hub = getHub(hubId);
+  return hub?.features || [];
+};
+
+// Get hubs by category
+export const getHubsByCategory = (categoryId) => {
+  const category = HUB_CATEGORIES[categoryId];
+  if (!category) return [];
+  return category.hubs?.map((hubId) => HUBS[hubId]).filter(Boolean) || [];
 };
 
 // Hub categories for organization (TICKETS removed)

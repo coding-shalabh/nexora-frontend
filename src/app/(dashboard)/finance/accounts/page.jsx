@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const accounts = [
   {
@@ -113,127 +114,130 @@ const getTypeColor = (type) => {
 export default function AccountsPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
+  const layoutStats = [
+    createStat('Total Assets', '₹45.2L', TrendingUp, 'green'),
+    createStat('Total Liabilities', '₹12.8L', TrendingDown, 'red'),
+    createStat('Total Revenue', '₹25.0L', TrendingUp, 'blue'),
+    createStat('Total Expenses', '₹7.8L', TrendingDown, 'amber'),
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Chart of Accounts</h1>
-          <p className="text-muted-foreground">Manage your financial accounts</p>
-        </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Account
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-                <div className="flex items-center justify-between mt-1">
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                  <Badge
-                    className={cn(
-                      stat.isPositive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                    )}
-                  >
-                    {stat.isPositive ? (
-                      <ArrowUpRight className="h-3 w-3 mr-1" />
-                    ) : (
-                      <ArrowDownRight className="h-3 w-3 mr-1" />
-                    )}
-                    {stat.trend}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      <Card>
-        <CardContent className="p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search accounts..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Wallet className="h-4 w-4" />
-            All Accounts
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {accounts.map((account, index) => (
-              <motion.div
-                key={account.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Wallet className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{account.name}</span>
-                      <span className="text-xs text-muted-foreground">({account.code})</span>
-                    </div>
-                    <Badge className={getTypeColor(account.type)}>{account.type}</Badge>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p
+    <UnifiedLayout
+      hubId="finance"
+      pageTitle="Chart of Accounts"
+      stats={layoutStats}
+      fixedMenu={null}
+    >
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                    <Badge
                       className={cn(
-                        'font-bold',
-                        account.balance >= 0 ? 'text-green-600' : 'text-red-600'
+                        stat.isPositive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
                       )}
                     >
-                      {account.balance < 0 && '-'}
-                      {formatCurrency(account.balance)}
-                    </p>
+                      {stat.isPositive ? (
+                        <ArrowUpRight className="h-3 w-3 mr-1" />
+                      ) : (
+                        <ArrowDownRight className="h-3 w-3 mr-1" />
+                      )}
+                      {stat.trend}
+                    </Badge>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Eye className="h-4 w-4 mr-2" /> View Transactions
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Edit className="h-4 w-4 mr-2" /> Edit Account
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search accounts..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <Wallet className="h-4 w-4" />
+              All Accounts
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {accounts.map((account, index) => (
+                <motion.div
+                  key={account.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Wallet className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{account.name}</span>
+                        <span className="text-xs text-muted-foreground">({account.code})</span>
+                      </div>
+                      <Badge className={getTypeColor(account.type)}>{account.type}</Badge>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p
+                        className={cn(
+                          'font-bold',
+                          account.balance >= 0 ? 'text-green-600' : 'text-red-600'
+                        )}
+                      >
+                        {account.balance < 0 && '-'}
+                        {formatCurrency(account.balance)}
+                      </p>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <Eye className="h-4 w-4 mr-2" /> View Transactions
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Edit className="h-4 w-4 mr-2" /> Edit Account
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </UnifiedLayout>
   );
 }

@@ -17,7 +17,7 @@ import {
   Shield,
   Calendar,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -238,18 +238,8 @@ export default function ManageAuditPage() {
   );
 
   return (
-    <HubLayout
-      hubId="manage"
-      title="Audit Logs"
-      description="Track all changes and activities in your workspace"
-      stats={layoutStats}
-      searchValue={search}
-      onSearchChange={setSearch}
-      searchPlaceholder="Search by user or entity..."
-      actions={actionButtons}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="manage" pageTitle="Audit Logs" stats={layoutStats} fixedMenu={null}>
       {mainContent}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

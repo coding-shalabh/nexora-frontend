@@ -1,10 +1,10 @@
 'use client';
 
-import { Plus, Users, MoreHorizontal } from 'lucide-react';
+import { Plus, Users, MoreHorizontal, DollarSign, Target } from 'lucide-react';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { HubLayout } from '@/components/layout/hub-layout';
 
 const pipelineStages = [
   {
@@ -42,15 +42,36 @@ const pipelineStages = [
   },
 ];
 
+const totalDeals = pipelineStages.reduce((sum, stage) => sum + stage.deals.length, 0);
+const totalValue = pipelineStages.reduce(
+  (sum, stage) => sum + stage.deals.reduce((s, d) => s + d.value, 0),
+  0
+);
+
 export default function SalesPipelinePage() {
+  const stats = [
+    createStat('Total Deals', totalDeals, Target, 'blue'),
+    createStat('Pipeline Value', `$${(totalValue / 1000).toFixed(0)}K`, DollarSign, 'green'),
+    createStat('Stages', pipelineStages.length, Target, 'purple'),
+    createStat(
+      'Avg Deal',
+      `$${(totalValue / totalDeals / 1000).toFixed(0)}K`,
+      DollarSign,
+      'orange'
+    ),
+  ];
+
+  const actions = [
+    createAction('Add Deal', Plus, () => console.log('add deal'), { primary: true }),
+  ];
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="sales"
-      title="Sales Pipeline"
-      description="Visualize and manage your sales pipeline"
-      showSidebar={false}
-      showTopBar={false}
-      showFixedMenu={false}
+      pageTitle="Sales Pipeline"
+      stats={stats}
+      actions={actions}
+      fixedMenu={null}
     >
       <div className="p-6 space-y-6">
         <div className="flex gap-4 overflow-x-auto pb-4">
@@ -97,6 +118,6 @@ export default function SalesPipelinePage() {
           ))}
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

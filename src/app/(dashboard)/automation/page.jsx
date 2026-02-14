@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 const statusConfig = {
   active: { label: 'Active', color: 'bg-green-100 text-green-700' },
@@ -149,19 +149,15 @@ export default function AutomationPage() {
     createStat('Avg. Success Rate', `${avgSuccessRate}%`, CheckCircle, 'emerald'),
   ];
 
+  const actions = [createAction('Create Workflow', Plus, () => {}, { primary: true })];
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="automation"
-      title="Automation Overview"
-      description="Create workflows to automate repetitive tasks"
+      pageTitle="Automation Overview"
       stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Workflow
-        </Button>
-      }
+      actions={actions}
+      fixedMenu={null}
     >
       <div className="h-full overflow-y-auto p-6 space-y-6">
         {/* Filters */}
@@ -326,6 +322,6 @@ export default function AutomationPage() {
           </div>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

@@ -19,7 +19,7 @@ import {
   EyeOff,
 } from 'lucide-react';
 
-import { HubLayout } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -85,18 +85,35 @@ export default function ProfilePage() {
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
   };
 
+  // Stats for profile page
+  const profileStats = [
+    createStat('Role', profile.role, User, 'blue'),
+    createStat(
+      '2FA',
+      profile.twoFactorEnabled ? 'Enabled' : 'Disabled',
+      Shield,
+      profile.twoFactorEnabled ? 'green' : 'amber'
+    ),
+    createStat(
+      'Email',
+      profile.emailVerified ? 'Verified' : 'Unverified',
+      Mail,
+      profile.emailVerified ? 'green' : 'amber'
+    ),
+    createStat(
+      'Phone',
+      profile.phoneVerified ? 'Verified' : 'Unverified',
+      Phone,
+      profile.phoneVerified ? 'green' : 'amber'
+    ),
+  ];
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="settings"
-      showFixedMenu={false}
-      title="Profile Settings"
-      description="Manage your personal information and account settings"
-      actions={
-        <Button onClick={handleSave} disabled={isSaving}>
-          <Save className="mr-2 h-4 w-4" />
-          {isSaving ? 'Saving...' : 'Save Changes'}
-        </Button>
-      }
+      pageTitle="Profile Settings"
+      stats={profileStats}
+      fixedMenu={null}
     >
       <div className="flex-1 space-y-6 p-6 overflow-auto">
         {/* Profile Header Card */}
@@ -562,6 +579,6 @@ export default function ProfilePage() {
           </DialogContent>
         </Dialog>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

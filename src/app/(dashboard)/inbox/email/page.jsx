@@ -58,7 +58,7 @@ import {
   useToggleStar,
   useArchiveConversation,
 } from '@/hooks/use-inbox';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { EmailComposer } from '@/components/inbox/email-composer';
 import { ContactPanel } from '@/components/inbox/contact-panel';
 import { LinkifiedText } from '@/components/ui/linkified-text';
@@ -596,20 +596,20 @@ export default function EmailInboxPage() {
 
   return (
     <>
-      <HubLayout
+      <UnifiedLayout
         hubId="inbox"
-        title="Email Inbox"
-        description="Manage your email conversations"
+        pageTitle="Email Inbox"
         stats={layoutStats}
         actions={actionButtons}
-        fixedMenuFilters={fixedMenuFilters}
-        fixedMenuList={fixedMenuList}
-        fixedMenuFooter={fixedMenuFooter}
-        fixedMenuWidth="360px"
-        showFixedMenu={true}
+        fixedMenu={{
+          filters: fixedMenuFilters,
+          list: fixedMenuList,
+          footer: fixedMenuFooter,
+          width: '360px',
+        }}
       >
         {mainContent}
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Email Composer Dialog */}
       {showEmailComposer && (

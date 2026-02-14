@@ -50,7 +50,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useCalendarEvents, useCreateCalendarEvent, useDeleteCalendarEvent } from '@/hooks';
 import { useToast } from '@/hooks/use-toast';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
@@ -318,30 +318,7 @@ export default function CalendarPage() {
 
   return (
     <>
-      <HubLayout
-        hubId="productivity"
-        title="Calendar"
-        description="Manage your schedule, meetings, and appointments"
-        stats={stats}
-        showFixedMenu={false}
-        actions={
-          <>
-            <Button variant="outline" onClick={() => setShowConnectModal(true)}>
-              <Link2 className="h-4 w-4 mr-2" />
-              Connect Calendar
-            </Button>
-            <Button
-              onClick={() => {
-                setSelectedEvent(null);
-                setShowEventModal(true);
-              }}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              New Event
-            </Button>
-          </>
-        }
-      >
+      <UnifiedLayout hubId="home" pageTitle="Calendar" stats={stats} fixedMenu={null}>
         <div className="h-full overflow-y-auto p-6 space-y-6">
           {/* Calendar Header */}
           <Card>
@@ -481,7 +458,7 @@ export default function CalendarPage() {
             </CardContent>
           </Card>
         </div>
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Create Event Modal */}
       <Dialog open={showEventModal} onOpenChange={setShowEventModal}>

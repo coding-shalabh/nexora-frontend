@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const features = [
   {
@@ -61,15 +61,7 @@ export default function EmailMarketingPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="marketing"
-      showTopBar={false}
-      showSidebar={false}
-      title="Email Marketing"
-      description="Create and send beautiful email campaigns that convert"
-      stats={hubStats}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="marketing" pageTitle="Email Marketing" stats={hubStats} fixedMenu={null}>
       {/* Coming Soon Content in CONTENT-AREA */}
       <div className="flex flex-1 flex-col items-center justify-center p-8 overflow-y-auto">
         <motion.div
@@ -150,6 +142,6 @@ export default function EmailMarketingPage() {
           </motion.div>
         </motion.div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

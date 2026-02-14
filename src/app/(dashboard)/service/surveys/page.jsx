@@ -18,7 +18,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -233,17 +233,14 @@ export default function SurveysPage() {
   );
 
   return (
-    <HubLayout
-      title="Customer Surveys"
-      description="Collect feedback and measure satisfaction"
+    <UnifiedLayout
+      hubId="service"
+      pageTitle="Customer Surveys"
       stats={layoutStats}
-      searchValue={searchQuery}
-      onSearchChange={handleSearch}
-      searchPlaceholder="Search surveys..."
-      actionButtons={actionButtons}
-      showFixedMenu={false}
+      actions={[]}
+      fixedMenu={null}
     >
       {mainContent}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

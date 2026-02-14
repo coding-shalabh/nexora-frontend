@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -286,9 +287,7 @@ export default function ReportsPage() {
 
   const handleCreateReport = (formData) => {
     if (editReport) {
-      setReports(reports.map((r) =>
-        r.id === editReport.id ? { ...r, ...formData } : r
-      ));
+      setReports(reports.map((r) => (r.id === editReport.id ? { ...r, ...formData } : r)));
     } else {
       const newReport = {
         id: Date.now().toString(),
@@ -306,15 +305,15 @@ export default function ReportsPage() {
   };
 
   const handleToggleStar = (id) => {
-    setReports(reports.map((r) =>
-      r.id === id ? { ...r, starred: !r.starred } : r
-    ));
+    setReports(reports.map((r) => (r.id === id ? { ...r, starred: !r.starred } : r)));
   };
 
   const handleToggleStatus = (id) => {
-    setReports(reports.map((r) =>
-      r.id === id ? { ...r, status: r.status === 'active' ? 'paused' : 'active' } : r
-    ));
+    setReports(
+      reports.map((r) =>
+        r.id === id ? { ...r, status: r.status === 'active' ? 'paused' : 'active' } : r
+      )
+    );
   };
 
   const handleDelete = (id) => {
@@ -341,249 +340,268 @@ export default function ReportsPage() {
     });
   };
 
+  // Layout stats
+  const starredCount = reports.filter((r) => r.starred).length;
+  const scheduledCount = reports.filter(
+    (r) => r.schedule !== 'none' && r.status === 'active'
+  ).length;
+  const layoutStats = [
+    createStat('Total Reports', reports.length.toString(), FileText, 'blue'),
+    createStat('Starred', starredCount.toString(), Star, 'amber'),
+    createStat('Scheduled', scheduledCount.toString(), Calendar, 'green'),
+  ];
+
+  const actions = [
+    createAction('New Report', Plus, () => setCreateDialogOpen(true), { primary: true }),
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Reports</h1>
-          <p className="text-muted-foreground">Build and schedule custom reports</p>
-        </div>
-        <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Report
-        </Button>
-      </div>
+    <UnifiedLayout
+      hubId="analytics"
+      pageTitle="Reports"
+      stats={layoutStats}
+      actions={actions}
+      fixedMenu={null}
+    >
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="my-reports">My Reports</TabsTrigger>
+            <TabsTrigger value="templates">Templates</TabsTrigger>
+            <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+          </TabsList>
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="my-reports">My Reports</TabsTrigger>
-          <TabsTrigger value="templates">Templates</TabsTrigger>
-          <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="my-reports" className="space-y-4 mt-4">
-          {/* Filters */}
-          <Card className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search reports..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
+          <TabsContent value="my-reports" className="space-y-4 mt-4">
+            {/* Filters */}
+            <Card className="p-4">
+              <div className="flex items-center gap-4">
+                <div className="relative flex-1 max-w-md">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search reports..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+                <Select value={filterType} onValueChange={setFilterType}>
+                  <SelectTrigger className="w-40">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    {Object.entries(typeConfig).map(([key, config]) => (
+                      <SelectItem key={key} value={key}>
+                        {config.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <Select value={filterType} onValueChange={setFilterType}>
-                <SelectTrigger className="w-40">
-                  <Filter className="h-4 w-4 mr-2" />
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  {Object.entries(typeConfig).map(([key, config]) => (
-                    <SelectItem key={key} value={key}>
-                      {config.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </Card>
-
-          {/* Reports List */}
-          <div className="space-y-4">
-            {filteredReports.map((report) => {
-              const FormatIcon = formatIcons[report.format] || Table;
-              return (
-                <Card key={report.id} className="p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-4">
-                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <FileText className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-semibold">{report.name}</h3>
-                          <Badge className={typeConfig[report.type].color}>
-                            {typeConfig[report.type].label}
-                          </Badge>
-                          <button
-                            onClick={() => handleToggleStar(report.id)}
-                            className="text-muted-foreground hover:text-yellow-500"
-                          >
-                            <Star
-                              className={cn(
-                                'h-4 w-4',
-                                report.starred && 'fill-yellow-400 text-yellow-400'
-                              )}
-                            />
-                          </button>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">{report.description}</p>
-
-                        <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <FormatIcon className="h-4 w-4" />
-                            <span className="capitalize">{report.format}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            <span className="capitalize">{report.schedule === 'none' ? 'Manual' : report.schedule}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Clock className="h-4 w-4" />
-                            <span>Last run: {formatDate(report.lastRun)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" className="gap-1">
-                        <Play className="h-3 w-3" />
-                        Run
-                      </Button>
-                      <Button variant="outline" size="sm" className="gap-1">
-                        <Download className="h-3 w-3" />
-                        Export
-                      </Button>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
-                            <Eye className="h-4 w-4 mr-2" />
-                            View Report
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setEditReport(report);
-                              setCreateDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDuplicate(report)}>
-                            <Copy className="h-4 w-4 mr-2" />
-                            Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Mail className="h-4 w-4 mr-2" />
-                            Email Report
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleToggleStatus(report.id)}>
-                            {report.status === 'active' ? (
-                              <>
-                                <Pause className="h-4 w-4 mr-2" />
-                                Pause Schedule
-                              </>
-                            ) : (
-                              <>
-                                <Play className="h-4 w-4 mr-2" />
-                                Resume Schedule
-                              </>
-                            )}
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleDelete(report.id)}
-                            className="text-red-600"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                </Card>
-              );
-            })}
-          </div>
-
-          {filteredReports.length === 0 && (
-            <Card className="p-12 text-center">
-              <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No reports found</h3>
-              <p className="text-muted-foreground mb-4">
-                Create your first report to start analyzing data
-              </p>
-              <Button onClick={() => setCreateDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Report
-              </Button>
             </Card>
-          )}
-        </TabsContent>
 
-        <TabsContent value="templates" className="mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {reportTemplates.map((template) => {
-              const Icon = template.icon;
-              return (
-                <Card key={template.id} className="p-6 hover:shadow-md transition-shadow cursor-pointer">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">{template.name}</h3>
-                      <p className="text-sm text-muted-foreground">{template.category}</p>
-                    </div>
-                  </div>
-                  <Button variant="outline" className="w-full mt-4">
-                    Use Template
-                  </Button>
-                </Card>
-              );
-            })}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="scheduled" className="mt-4">
-          <Card className="p-6">
-            <h3 className="font-semibold mb-4">Scheduled Reports</h3>
+            {/* Reports List */}
             <div className="space-y-4">
-              {reports
-                .filter((r) => r.schedule !== 'none' && r.status === 'active')
-                .map((report) => (
-                  <div key={report.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <FileText className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <div className="font-medium">{report.name}</div>
-                        <div className="text-sm text-muted-foreground capitalize">
-                          Runs {report.schedule}
+              {filteredReports.map((report) => {
+                const FormatIcon = formatIcons[report.format] || Table;
+                return (
+                  <Card key={report.id} className="p-4 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-4">
+                        <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <FileText className="h-6 w-6 text-primary" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold">{report.name}</h3>
+                            <Badge className={typeConfig[report.type].color}>
+                              {typeConfig[report.type].label}
+                            </Badge>
+                            <button
+                              onClick={() => handleToggleStar(report.id)}
+                              className="text-muted-foreground hover:text-yellow-500"
+                            >
+                              <Star
+                                className={cn(
+                                  'h-4 w-4',
+                                  report.starred && 'fill-yellow-400 text-yellow-400'
+                                )}
+                              />
+                            </button>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">{report.description}</p>
+
+                          <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <FormatIcon className="h-4 w-4" />
+                              <span className="capitalize">{report.format}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              <span className="capitalize">
+                                {report.schedule === 'none' ? 'Manual' : report.schedule}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              <span>Last run: {formatDate(report.lastRun)}</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      Next run: {formatDate(report.nextRun)}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </Card>
-        </TabsContent>
-      </Tabs>
 
-      {/* Create/Edit Dialog */}
-      <CreateReportDialog
-        open={createDialogOpen}
-        onOpenChange={(open) => {
-          setCreateDialogOpen(open);
-          if (!open) setEditReport(null);
-        }}
-        onSubmit={handleCreateReport}
-        editReport={editReport}
-      />
-    </div>
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" className="gap-1">
+                          <Play className="h-3 w-3" />
+                          Run
+                        </Button>
+                        <Button variant="outline" size="sm" className="gap-1">
+                          <Download className="h-3 w-3" />
+                          Export
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem>
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Report
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setEditReport(report);
+                                setCreateDialogOpen(true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDuplicate(report)}>
+                              <Copy className="h-4 w-4 mr-2" />
+                              Duplicate
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <Mail className="h-4 w-4 mr-2" />
+                              Email Report
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleToggleStatus(report.id)}>
+                              {report.status === 'active' ? (
+                                <>
+                                  <Pause className="h-4 w-4 mr-2" />
+                                  Pause Schedule
+                                </>
+                              ) : (
+                                <>
+                                  <Play className="h-4 w-4 mr-2" />
+                                  Resume Schedule
+                                </>
+                              )}
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => handleDelete(report.id)}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {filteredReports.length === 0 && (
+              <Card className="p-12 text-center">
+                <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No reports found</h3>
+                <p className="text-muted-foreground mb-4">
+                  Create your first report to start analyzing data
+                </p>
+                <Button onClick={() => setCreateDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Report
+                </Button>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="templates" className="mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {reportTemplates.map((template) => {
+                const Icon = template.icon;
+                return (
+                  <Card
+                    key={template.id}
+                    className="p-6 hover:shadow-md transition-shadow cursor-pointer"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold">{template.name}</h3>
+                        <p className="text-sm text-muted-foreground">{template.category}</p>
+                      </div>
+                    </div>
+                    <Button variant="outline" className="w-full mt-4">
+                      Use Template
+                    </Button>
+                  </Card>
+                );
+              })}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="scheduled" className="mt-4">
+            <Card className="p-6">
+              <h3 className="font-semibold mb-4">Scheduled Reports</h3>
+              <div className="space-y-4">
+                {reports
+                  .filter((r) => r.schedule !== 'none' && r.status === 'active')
+                  .map((report) => (
+                    <div
+                      key={report.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div className="flex items-center gap-4">
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                        <div>
+                          <div className="font-medium">{report.name}</div>
+                          <div className="text-sm text-muted-foreground capitalize">
+                            Runs {report.schedule}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        Next run: {formatDate(report.nextRun)}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        {/* Create/Edit Dialog */}
+        <CreateReportDialog
+          open={createDialogOpen}
+          onOpenChange={(open) => {
+            setCreateDialogOpen(open);
+            if (!open) setEditReport(null);
+          }}
+          onSubmit={handleCreateReport}
+          editReport={editReport}
+        />
+      </div>
+    </UnifiedLayout>
   );
 }

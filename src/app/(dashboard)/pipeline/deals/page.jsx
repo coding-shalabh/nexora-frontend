@@ -25,8 +25,7 @@ import {
   Target,
   Search,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
-import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -221,7 +220,7 @@ export default function DealsPage() {
   const openDeals = deals.filter((d) => d.status === 'OPEN').length;
   const avgDealSize = deals.length > 0 ? totalValue / deals.length : 0;
 
-  // Layout stats for HubLayout
+  // Layout stats for UnifiedLayout
   const layoutStats = useMemo(
     () => [
       createStat('Pipeline', formatCurrency(totalValue), DollarSign, 'blue'),
@@ -230,6 +229,20 @@ export default function DealsPage() {
       createStat('Avg. Size', formatCurrency(avgDealSize), DollarSign, 'orange'),
     ],
     [totalValue, weightedValue, openDeals, avgDealSize]
+  );
+
+  // Layout actions for UnifiedLayout
+  const layoutActions = useMemo(
+    () => [
+      createAction('Board', LayoutGrid, () => setViewMode('kanban'), {
+        variant: viewMode === 'kanban' ? 'secondary' : 'ghost',
+      }),
+      createAction('List', List, () => setViewMode('list'), {
+        variant: viewMode === 'list' ? 'secondary' : 'ghost',
+      }),
+      createAction('Add Deal', Plus, () => handleOpenAdd(), { primary: true }),
+    ],
+    [viewMode]
   );
 
   const getDealsForStage = (stageId) => deals.filter((d) => d.stageId === stageId);
@@ -818,25 +831,15 @@ export default function DealsPage() {
 
   return (
     <>
-      <HubLayout
-        hubId="crm"
-        title="Deals"
-        description="Track and manage your sales pipeline"
+      <UnifiedLayout
+        hubId="sales"
+        pageTitle="Deals"
         stats={layoutStats}
-        showFixedMenu={true}
-        fixedMenuFilters={
-          <FixedMenuPanel
-            config={fixedMenuConfig}
-            activeFilter={statusFilter}
-            onFilterChange={setStatusFilter}
-            onAction={handleMenuAction}
-            className="p-4"
-          />
-        }
-        fixedMenuList={fixedMenuListContent}
+        actions={layoutActions}
+        fixedMenu={null}
       >
         {contentArea}
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Add Deal Modal */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>

@@ -1,33 +1,12 @@
 'use client';
 
-import { Share2, Plus, Users, Clock, CheckCircle } from 'lucide-react';
+import { Share2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 export default function BulkActionsPage() {
-  const stats = [
-    createStat('Actions', '0', Share2, 'blue'),
-    createStat('Records', '0', Users, 'green'),
-    createStat('Pending', '0', Clock, 'purple'),
-    createStat('Completed', '0', CheckCircle, 'amber'),
-  ];
-
   return (
-    <HubLayout
-      hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Bulk Actions"
-      description="Perform bulk operations on your data"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Bulk Action
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="crm" pageTitle="Bulk Actions" fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6">
         <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
           <Share2 className="h-12 w-12 text-muted-foreground mb-4" />
@@ -41,6 +20,6 @@ export default function BulkActionsPage() {
           </Button>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

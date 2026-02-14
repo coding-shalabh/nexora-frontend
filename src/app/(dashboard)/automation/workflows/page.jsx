@@ -62,7 +62,7 @@ import {
   History,
   Activity,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 // Mock data for workflows
 const mockWorkflows = [
@@ -415,21 +415,17 @@ export default function WorkflowsPage() {
     createStat('Success Rate', `${avgSuccessRate}%`, BarChart3, 'emerald'),
   ];
 
+  const actions = [
+    createAction('Create Workflow', Plus, () => setCreateDialogOpen(true), { primary: true }),
+  ];
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="automation"
-      showTopBar={false}
-      showSidebar={false}
-      title="Workflows"
-      description="Automate business processes with event-driven workflows"
+      pageTitle="Workflows"
       stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Workflow
-        </Button>
-      }
+      actions={actions}
+      fixedMenu={null}
     >
       <div className="h-full overflow-y-auto p-6 space-y-6">
         {/* Filters */}
@@ -626,6 +622,6 @@ export default function WorkflowsPage() {
         onSubmit={handleCreateWorkflow}
         editWorkflow={editWorkflow}
       />
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

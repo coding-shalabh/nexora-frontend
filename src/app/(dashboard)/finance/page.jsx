@@ -23,7 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 // Quick actions
 const quickActions = [
@@ -131,19 +131,7 @@ export default function FinanceHubPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="finance"
-      title="Finance Overview"
-      description="Manage accounting, expenses, budgets, and financial reports"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Transaction
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="finance" pageTitle="Finance Overview" stats={stats} fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6 space-y-6">
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -321,6 +309,6 @@ export default function FinanceHubPage() {
           </CardContent>
         </Card>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

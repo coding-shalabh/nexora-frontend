@@ -26,6 +26,7 @@ import {
   Activity,
   Shield,
 } from 'lucide-react';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -262,435 +263,439 @@ export default function AuditLogsPage() {
   });
 
   return (
-    <motion.div
-      className="flex-1 p-6 space-y-6 overflow-auto"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {/* Search Bar - Right Aligned */}
-      <motion.div variants={itemVariants} className="flex justify-end">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search logs..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-11 w-64 pl-10 pr-4 rounded-xl bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20"
-          />
-        </div>
-      </motion.div>
-
-      {/* Two Column Layout */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Filters - Left Column */}
-        <motion.div
-          variants={itemVariants}
-          className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-200"
-        >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
-              <Filter className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Filters</h3>
-              <p className="text-sm text-gray-500">Narrow down your search</p>
-            </div>
+    <UnifiedLayout hubId="settings" pageTitle="Audit Logs" fixedMenu={null}>
+      <motion.div
+        className="h-full overflow-y-auto p-6 space-y-6"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        {/* Search Bar - Right Aligned */}
+        <motion.div variants={itemVariants} className="flex justify-end">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search logs..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-11 w-64 pl-10 pr-4 rounded-xl bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+            />
           </div>
-
-          <div className="space-y-3">
-            <div className="p-4 rounded-xl bg-white border border-purple-200">
-              <Label className="text-xs text-gray-500 mb-2 block">Category</Label>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-full h-10 rounded-xl bg-gray-50 border-gray-200">
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  {actionCategories.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-xl bg-white border border-purple-200">
-                <Label className="text-xs text-gray-500 mb-2 block">Status</Label>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full h-10 rounded-xl bg-gray-50 border-gray-200">
-                    <SelectValue placeholder="All Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="success">Success</SelectItem>
-                    <SelectItem value="failed">Failed</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="p-4 rounded-xl bg-white border border-purple-200">
-                <Label className="text-xs text-gray-500 mb-2 block">Date Range</Label>
-                <Select value={dateRange} onValueChange={setDateRange}>
-                  <SelectTrigger className="w-full h-10 rounded-xl bg-gray-50 border-gray-200">
-                    <SelectValue placeholder="Last 7 days" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1d">Last 24 hours</SelectItem>
-                    <SelectItem value="7d">Last 7 days</SelectItem>
-                    <SelectItem value="30d">Last 30 days</SelectItem>
-                    <SelectItem value="90d">Last 90 days</SelectItem>
-                    <SelectItem value="custom">Custom range</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </div>
-
-          <p className="text-xs text-purple-700 mt-4 flex items-center gap-1">
-            <Shield className="h-3 w-3" />
-            Showing {filteredLogs.length} of {auditLogs.length} events
-          </p>
         </motion.div>
 
-        {/* Quick Stats - Right Column */}
+        {/* Two Column Layout */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Filters - Left Column */}
+          <motion.div
+            variants={itemVariants}
+            className="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-200"
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                <Filter className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Filters</h3>
+                <p className="text-sm text-gray-500">Narrow down your search</p>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div className="p-4 rounded-xl bg-white border border-purple-200">
+                <Label className="text-xs text-gray-500 mb-2 block">Category</Label>
+                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                  <SelectTrigger className="w-full h-10 rounded-xl bg-gray-50 border-gray-200">
+                    <SelectValue placeholder="All Categories" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {actionCategories.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-4 rounded-xl bg-white border border-purple-200">
+                  <Label className="text-xs text-gray-500 mb-2 block">Status</Label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-full h-10 rounded-xl bg-gray-50 border-gray-200">
+                      <SelectValue placeholder="All Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="success">Success</SelectItem>
+                      <SelectItem value="failed">Failed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white border border-purple-200">
+                  <Label className="text-xs text-gray-500 mb-2 block">Date Range</Label>
+                  <Select value={dateRange} onValueChange={setDateRange}>
+                    <SelectTrigger className="w-full h-10 rounded-xl bg-gray-50 border-gray-200">
+                      <SelectValue placeholder="Last 7 days" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1d">Last 24 hours</SelectItem>
+                      <SelectItem value="7d">Last 7 days</SelectItem>
+                      <SelectItem value="30d">Last 30 days</SelectItem>
+                      <SelectItem value="90d">Last 90 days</SelectItem>
+                      <SelectItem value="custom">Custom range</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-purple-700 mt-4 flex items-center gap-1">
+              <Shield className="h-3 w-3" />
+              Showing {filteredLogs.length} of {auditLogs.length} events
+            </p>
+          </motion.div>
+
+          {/* Quick Stats - Right Column */}
+          <motion.div
+            variants={itemVariants}
+            className="bg-gradient-to-br from-amber-50/50 to-orange-50/50 rounded-2xl p-6 border border-amber-200/50"
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Security Alerts</h3>
+                <p className="text-sm text-gray-500">Recent suspicious activity</p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              {auditLogs
+                .filter((log) => log.status === 'failed')
+                .slice(0, 3)
+                .map((log, index) => {
+                  const statusStyles = getStatusStyles(log.status);
+                  return (
+                    <motion.div
+                      key={log.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="flex items-center gap-3 p-3 rounded-xl bg-white border border-amber-200 cursor-pointer hover:border-amber-300 transition-colors"
+                      onClick={() => handleViewLog(log)}
+                    >
+                      <div
+                        className={cn(
+                          'h-9 w-9 rounded-lg flex items-center justify-center shrink-0',
+                          statusStyles.bg
+                        )}
+                      >
+                        <XCircle className={cn('h-4 w-4', statusStyles.color)} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {formatAction(log.action)}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">{log.actor.name}</p>
+                      </div>
+                      <span className="text-xs text-gray-400">
+                        {new Date(log.timestamp).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </motion.div>
+                  );
+                })}
+              {auditLogs.filter((log) => log.status === 'failed').length === 0 && (
+                <div className="text-center py-6 bg-white rounded-xl border border-amber-200">
+                  <CheckCircle2 className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                  <p className="text-sm text-gray-600">No security alerts</p>
+                  <p className="text-xs text-gray-400 mt-1">All systems operating normally</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Activity Log */}
         <motion.div
           variants={itemVariants}
-          className="bg-gradient-to-br from-amber-50/50 to-orange-50/50 rounded-2xl p-6 border border-amber-200/50"
+          className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl p-6 border border-gray-200"
         >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
-              <AlertTriangle className="h-5 w-5 text-amber-600" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Security Alerts</h3>
-              <p className="text-sm text-gray-500">Recent suspicious activity</p>
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                <Activity className="h-5 w-5 text-gray-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Activity Log</h3>
+                <p className="text-sm text-gray-500">
+                  {filteredLogs.length} event{filteredLogs.length !== 1 ? 's' : ''} found
+                </p>
+              </div>
             </div>
           </div>
 
           <div className="space-y-2">
-            {auditLogs
-              .filter((log) => log.status === 'failed')
-              .slice(0, 3)
-              .map((log, index) => {
+            {filteredLogs.length === 0 ? (
+              <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                  <ScrollText className="h-7 w-7 text-gray-400" />
+                </div>
+                <p className="text-gray-500 font-medium">
+                  {searchQuery ? 'No logs found' : 'No activity yet'}
+                </p>
+                <p className="text-sm text-gray-400 mt-1">
+                  {searchQuery
+                    ? 'Try adjusting your search or filters'
+                    : 'Activity will appear here'}
+                </p>
+              </div>
+            ) : (
+              filteredLogs.map((log, index) => {
+                const ActionIcon = getActionIcon(log.action);
                 const statusStyles = getStatusStyles(log.status);
+                const categoryStyles = getCategoryStyles(log.category);
+
                 return (
                   <motion.div
                     key={log.id}
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="flex items-center gap-3 p-3 rounded-xl bg-white border border-amber-200 cursor-pointer hover:border-amber-300 transition-colors"
+                    transition={{ delay: index * 0.03 }}
+                    whileHover={{ scale: 1.005 }}
                     onClick={() => handleViewLog(log)}
+                    className={cn(
+                      'flex items-center gap-4 p-4 rounded-xl bg-white border transition-colors cursor-pointer group',
+                      log.status === 'failed'
+                        ? 'border-red-200 hover:border-red-300'
+                        : 'border-gray-200 hover:border-gray-300'
+                    )}
                   >
+                    {/* Status Icon */}
                     <div
                       className={cn(
-                        'h-9 w-9 rounded-lg flex items-center justify-center shrink-0',
+                        'h-10 w-10 rounded-xl flex items-center justify-center shrink-0',
                         statusStyles.bg
                       )}
                     >
-                      <XCircle className={cn('h-4 w-4', statusStyles.color)} />
+                      <ActionIcon className={cn('h-5 w-5', statusStyles.color)} />
                     </div>
+
+                    {/* Main Content */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {formatAction(log.action)}
-                      </p>
-                      <p className="text-xs text-gray-500 truncate">{log.actor.name}</p>
-                    </div>
-                    <span className="text-xs text-gray-400">
-                      {new Date(log.timestamp).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                  </motion.div>
-                );
-              })}
-            {auditLogs.filter((log) => log.status === 'failed').length === 0 && (
-              <div className="text-center py-6 bg-white rounded-xl border border-amber-200">
-                <CheckCircle2 className="h-8 w-8 text-green-500 mx-auto mb-2" />
-                <p className="text-sm text-gray-600">No security alerts</p>
-                <p className="text-xs text-gray-400 mt-1">All systems operating normally</p>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Activity Log */}
-      <motion.div
-        variants={itemVariants}
-        className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl p-6 border border-gray-200"
-      >
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
-              <Activity className="h-5 w-5 text-gray-600" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Activity Log</h3>
-              <p className="text-sm text-gray-500">
-                {filteredLogs.length} event{filteredLogs.length !== 1 ? 's' : ''} found
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          {filteredLogs.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-              <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                <ScrollText className="h-7 w-7 text-gray-400" />
-              </div>
-              <p className="text-gray-500 font-medium">
-                {searchQuery ? 'No logs found' : 'No activity yet'}
-              </p>
-              <p className="text-sm text-gray-400 mt-1">
-                {searchQuery ? 'Try adjusting your search or filters' : 'Activity will appear here'}
-              </p>
-            </div>
-          ) : (
-            filteredLogs.map((log, index) => {
-              const ActionIcon = getActionIcon(log.action);
-              const statusStyles = getStatusStyles(log.status);
-              const categoryStyles = getCategoryStyles(log.category);
-
-              return (
-                <motion.div
-                  key={log.id}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.03 }}
-                  whileHover={{ scale: 1.005 }}
-                  onClick={() => handleViewLog(log)}
-                  className={cn(
-                    'flex items-center gap-4 p-4 rounded-xl bg-white border transition-colors cursor-pointer group',
-                    log.status === 'failed'
-                      ? 'border-red-200 hover:border-red-300'
-                      : 'border-gray-200 hover:border-gray-300'
-                  )}
-                >
-                  {/* Status Icon */}
-                  <div
-                    className={cn(
-                      'h-10 w-10 rounded-xl flex items-center justify-center shrink-0',
-                      statusStyles.bg
-                    )}
-                  >
-                    <ActionIcon className={cn('h-5 w-5', statusStyles.color)} />
-                  </div>
-
-                  {/* Main Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-gray-900 truncate">
-                        {formatAction(log.action)}
-                      </p>
-                      <Badge className={cn('px-2 py-0.5 text-[10px]', statusStyles.badgeBg)}>
-                        {log.status}
-                      </Badge>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex items-center gap-1.5">
-                        <div className="h-5 w-5 rounded-full bg-gray-100 flex items-center justify-center">
-                          {log.actor.role === 'system' ? (
-                            <Zap className="h-3 w-3 text-gray-500" />
-                          ) : (
-                            <User className="h-3 w-3 text-gray-500" />
-                          )}
-                        </div>
-                        <span className="text-sm text-gray-600">{log.actor.name}</span>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-gray-900 truncate">
+                          {formatAction(log.action)}
+                        </p>
+                        <Badge className={cn('px-2 py-0.5 text-[10px]', statusStyles.badgeBg)}>
+                          {log.status}
+                        </Badge>
                       </div>
-                      <span className="text-gray-300">•</span>
-                      <span className="text-sm text-gray-500">{log.resource}</span>
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="flex items-center gap-1.5">
+                          <div className="h-5 w-5 rounded-full bg-gray-100 flex items-center justify-center">
+                            {log.actor.role === 'system' ? (
+                              <Zap className="h-3 w-3 text-gray-500" />
+                            ) : (
+                              <User className="h-3 w-3 text-gray-500" />
+                            )}
+                          </div>
+                          <span className="text-sm text-gray-600">{log.actor.name}</span>
+                        </div>
+                        <span className="text-gray-300">•</span>
+                        <span className="text-sm text-gray-500">{log.resource}</span>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Category Badge */}
-                  <Badge
-                    className={cn(
-                      'px-2.5 py-1 text-xs shrink-0',
-                      categoryStyles.bg,
-                      categoryStyles.color
-                    )}
-                  >
-                    {log.category}
-                  </Badge>
-
-                  {/* IP Address */}
-                  <div className="hidden lg:block text-right shrink-0 w-28">
-                    <p className="text-xs font-mono text-gray-500">{log.ipAddress || '—'}</p>
-                  </div>
-
-                  {/* Timestamp */}
-                  <div className="text-right shrink-0 w-24">
-                    <p className="text-sm text-gray-900">
-                      {new Date(log.timestamp).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </p>
-                    <p className="text-xs text-gray-400">
-                      {new Date(log.timestamp).toLocaleDateString([], {
-                        month: 'short',
-                        day: 'numeric',
-                      })}
-                    </p>
-                  </div>
-
-                  {/* View Icon */}
-                  <Eye className="h-4 w-4 text-gray-300 group-hover:text-gray-500 shrink-0" />
-                </motion.div>
-              );
-            })
-          )}
-        </div>
-
-        {/* Pagination */}
-        {filteredLogs.length > 0 && (
-          <div className="mt-6 flex items-center justify-between pt-4 border-t border-gray-200">
-            <p className="text-sm text-gray-500">
-              Showing 1-{filteredLogs.length} of 15,420 events
-            </p>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="rounded-xl border-gray-200" disabled>
-                Previous
-              </Button>
-              <Button variant="outline" size="sm" className="rounded-xl border-gray-200">
-                Next
-              </Button>
-            </div>
-          </div>
-        )}
-      </motion.div>
-
-      {/* Log Detail Dialog */}
-      <Dialog open={showLogDetail} onOpenChange={setShowLogDetail}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Audit Log Details</DialogTitle>
-            <DialogDescription>Full details of the audit event</DialogDescription>
-          </DialogHeader>
-          {selectedLog && (
-            <div className="space-y-6">
-              {/* Event Summary */}
-              <div
-                className={cn(
-                  'flex items-start justify-between p-4 rounded-xl',
-                  getStatusStyles(selectedLog.status).bg
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={cn(
-                      'h-11 w-11 rounded-xl flex items-center justify-center bg-white shadow-sm'
-                    )}
-                  >
-                    {(() => {
-                      const Icon = getActionIcon(selectedLog.action);
-                      return (
-                        <Icon
-                          className={cn('h-5 w-5', getStatusStyles(selectedLog.status).color)}
-                        />
-                      );
-                    })()}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-gray-900">
-                      {formatAction(selectedLog.action)}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {new Date(selectedLog.timestamp).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                <Badge className={cn('px-3 py-1', getStatusStyles(selectedLog.status).badgeBg)}>
-                  {selectedLog.status}
-                </Badge>
-              </div>
-
-              {/* Details Grid */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <Label className="text-xs text-gray-500">Actor</Label>
-                  <p className="font-medium text-gray-900 mt-1">{selectedLog.actor.name}</p>
-                  <p className="text-sm text-gray-500">{selectedLog.actor.email}</p>
-                </div>
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <Label className="text-xs text-gray-500">Role</Label>
-                  <p className="font-medium text-gray-900 mt-1 capitalize">
-                    {selectedLog.actor.role || 'Unknown'}
-                  </p>
-                </div>
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <Label className="text-xs text-gray-500">Category</Label>
-                  <div className="mt-1">
+                    {/* Category Badge */}
                     <Badge
                       className={cn(
-                        'px-2.5 py-1',
-                        getCategoryStyles(selectedLog.category).bg,
-                        getCategoryStyles(selectedLog.category).color
+                        'px-2.5 py-1 text-xs shrink-0',
+                        categoryStyles.bg,
+                        categoryStyles.color
                       )}
                     >
-                      {selectedLog.category}
+                      {log.category}
                     </Badge>
-                  </div>
-                </div>
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <Label className="text-xs text-gray-500">Resource</Label>
-                  <p className="font-medium text-gray-900 mt-1">{selectedLog.resource}</p>
-                  {selectedLog.resourceId && (
-                    <p className="text-xs font-mono text-gray-500">{selectedLog.resourceId}</p>
-                  )}
-                </div>
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <Label className="text-xs text-gray-500">IP Address</Label>
-                  <p className="font-mono text-gray-900 mt-1">{selectedLog.ipAddress || 'N/A'}</p>
-                </div>
-                <div className="p-3 rounded-xl bg-gray-50">
-                  <Label className="text-xs text-gray-500">User Agent</Label>
-                  <p className="text-sm text-gray-900 mt-1 truncate">
-                    {selectedLog.userAgent || 'N/A'}
-                  </p>
-                </div>
-              </div>
 
-              {/* Additional Details */}
-              {selectedLog.details && Object.keys(selectedLog.details).length > 0 && (
-                <div className="space-y-2">
-                  <Label className="text-xs text-gray-500">Additional Details</Label>
-                  <div className="rounded-xl bg-gray-50 p-4 font-mono text-sm">
-                    <pre className="whitespace-pre-wrap text-gray-700">
-                      {JSON.stringify(selectedLog.details, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-              )}
+                    {/* IP Address */}
+                    <div className="hidden lg:block text-right shrink-0 w-28">
+                      <p className="text-xs font-mono text-gray-500">{log.ipAddress || '—'}</p>
+                    </div>
 
-              {/* Event ID */}
-              <div className="flex items-center justify-between text-sm p-3 rounded-xl bg-gray-50">
-                <span className="text-gray-500">Event ID</span>
-                <span className="font-mono text-gray-900">{selectedLog.id}</span>
+                    {/* Timestamp */}
+                    <div className="text-right shrink-0 w-24">
+                      <p className="text-sm text-gray-900">
+                        {new Date(log.timestamp).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        {new Date(log.timestamp).toLocaleDateString([], {
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
+
+                    {/* View Icon */}
+                    <Eye className="h-4 w-4 text-gray-300 group-hover:text-gray-500 shrink-0" />
+                  </motion.div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Pagination */}
+          {filteredLogs.length > 0 && (
+            <div className="mt-6 flex items-center justify-between pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-500">
+                Showing 1-{filteredLogs.length} of 15,420 events
+              </p>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" className="rounded-xl border-gray-200" disabled>
+                  Previous
+                </Button>
+                <Button variant="outline" size="sm" className="rounded-xl border-gray-200">
+                  Next
+                </Button>
               </div>
             </div>
           )}
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowLogDetail(false)}
-              className="rounded-xl"
-            >
-              Close
-            </Button>
-            <Button className="rounded-xl">
-              <Download className="mr-2 h-4 w-4" />
-              Export Event
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </motion.div>
+        </motion.div>
+
+        {/* Log Detail Dialog */}
+        <Dialog open={showLogDetail} onOpenChange={setShowLogDetail}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Audit Log Details</DialogTitle>
+              <DialogDescription>Full details of the audit event</DialogDescription>
+            </DialogHeader>
+            {selectedLog && (
+              <div className="space-y-6">
+                {/* Event Summary */}
+                <div
+                  className={cn(
+                    'flex items-start justify-between p-4 rounded-xl',
+                    getStatusStyles(selectedLog.status).bg
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        'h-11 w-11 rounded-xl flex items-center justify-center bg-white shadow-sm'
+                      )}
+                    >
+                      {(() => {
+                        const Icon = getActionIcon(selectedLog.action);
+                        return (
+                          <Icon
+                            className={cn('h-5 w-5', getStatusStyles(selectedLog.status).color)}
+                          />
+                        );
+                      })()}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-900">
+                        {formatAction(selectedLog.action)}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {new Date(selectedLog.timestamp).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge className={cn('px-3 py-1', getStatusStyles(selectedLog.status).badgeBg)}>
+                    {selectedLog.status}
+                  </Badge>
+                </div>
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 rounded-xl bg-gray-50">
+                    <Label className="text-xs text-gray-500">Actor</Label>
+                    <p className="font-medium text-gray-900 mt-1">{selectedLog.actor.name}</p>
+                    <p className="text-sm text-gray-500">{selectedLog.actor.email}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-gray-50">
+                    <Label className="text-xs text-gray-500">Role</Label>
+                    <p className="font-medium text-gray-900 mt-1 capitalize">
+                      {selectedLog.actor.role || 'Unknown'}
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-gray-50">
+                    <Label className="text-xs text-gray-500">Category</Label>
+                    <div className="mt-1">
+                      <Badge
+                        className={cn(
+                          'px-2.5 py-1',
+                          getCategoryStyles(selectedLog.category).bg,
+                          getCategoryStyles(selectedLog.category).color
+                        )}
+                      >
+                        {selectedLog.category}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-gray-50">
+                    <Label className="text-xs text-gray-500">Resource</Label>
+                    <p className="font-medium text-gray-900 mt-1">{selectedLog.resource}</p>
+                    {selectedLog.resourceId && (
+                      <p className="text-xs font-mono text-gray-500">{selectedLog.resourceId}</p>
+                    )}
+                  </div>
+                  <div className="p-3 rounded-xl bg-gray-50">
+                    <Label className="text-xs text-gray-500">IP Address</Label>
+                    <p className="font-mono text-gray-900 mt-1">{selectedLog.ipAddress || 'N/A'}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-gray-50">
+                    <Label className="text-xs text-gray-500">User Agent</Label>
+                    <p className="text-sm text-gray-900 mt-1 truncate">
+                      {selectedLog.userAgent || 'N/A'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Additional Details */}
+                {selectedLog.details && Object.keys(selectedLog.details).length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-xs text-gray-500">Additional Details</Label>
+                    <div className="rounded-xl bg-gray-50 p-4 font-mono text-sm">
+                      <pre className="whitespace-pre-wrap text-gray-700">
+                        {JSON.stringify(selectedLog.details, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+
+                {/* Event ID */}
+                <div className="flex items-center justify-between text-sm p-3 rounded-xl bg-gray-50">
+                  <span className="text-gray-500">Event ID</span>
+                  <span className="font-mono text-gray-900">{selectedLog.id}</span>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowLogDetail(false)}
+                className="rounded-xl"
+              >
+                Close
+              </Button>
+              <Button className="rounded-xl">
+                <Download className="mr-2 h-4 w-4" />
+                Export Event
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </motion.div>
+    </UnifiedLayout>
   );
 }

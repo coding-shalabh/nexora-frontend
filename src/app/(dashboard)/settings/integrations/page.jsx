@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Zap,
@@ -24,7 +25,7 @@ import {
   Puzzle,
   Globe,
 } from 'lucide-react';
-import { HubLayout } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -170,9 +171,33 @@ const availableIntegrations = [
     logo: '👥',
     popular: true,
   },
+  {
+    id: 'razorpay',
+    name: 'Razorpay',
+    description: 'Accept payments via UPI, cards, wallets, and net banking',
+    category: 'Payments',
+    logo: '💳',
+    popular: true,
+  },
+  {
+    id: 'stripe',
+    name: 'Stripe',
+    description: 'Global payment processing for online businesses',
+    category: 'Payments',
+    logo: '💰',
+    popular: true,
+  },
 ];
 
-const categories = ['All', 'CRM', 'Automation', 'E-commerce', 'Productivity', 'Communication'];
+const categories = [
+  'All',
+  'CRM',
+  'Automation',
+  'E-commerce',
+  'Productivity',
+  'Communication',
+  'Payments',
+];
 
 // Provider logos - using official brand colors for fallback
 const providerLogos = {
@@ -209,6 +234,16 @@ const providerLogos = {
   telecmi: {
     url: 'https://cdn.brandfetch.io/telecmi.com/w/400/h/400/logo',
     fallbackBg: 'bg-primary',
+    fallbackColor: 'text-white',
+  },
+  razorpay: {
+    url: 'https://cdn.brandfetch.io/razorpay.com/w/400/h/400/logo',
+    fallbackBg: 'bg-blue-700',
+    fallbackColor: 'text-white',
+  },
+  stripe: {
+    url: 'https://cdn.brandfetch.io/stripe.com/w/400/h/400/logo',
+    fallbackBg: 'bg-indigo-600',
     fallbackColor: 'text-white',
   },
 };
@@ -257,6 +292,7 @@ const providerCategories = {
 };
 
 export default function IntegrationsPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('messaging');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
@@ -451,7 +487,7 @@ export default function IntegrationsPage() {
   );
 
   return (
-    <HubLayout hubId="settings" showFixedMenu={false}>
+    <UnifiedLayout hubId="settings" pageTitle="Integrations" fixedMenu={null}>
       <motion.div
         className="flex-1 space-y-6 p-6"
         initial="hidden"
@@ -582,7 +618,8 @@ export default function IntegrationsPage() {
                       <motion.div
                         key={provider.id}
                         variants={itemVariants}
-                        className="rounded-2xl border bg-gradient-to-r from-white to-green-50/30 border-green-200/50 p-4 hover:shadow-md transition-all"
+                        className="rounded-2xl border bg-gradient-to-r from-white to-green-50/30 border-green-200/50 p-4 hover:shadow-md transition-all cursor-pointer"
+                        onClick={() => router.push(`/settings/integrations/${provider.provider}`)}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
@@ -681,7 +718,7 @@ export default function IntegrationsPage() {
                           key={provider.id}
                           variants={itemVariants}
                           className="rounded-2xl border bg-white p-4 hover:shadow-md hover:border-primary/50 transition-all cursor-pointer"
-                          onClick={() => handleConfigureProvider(provider)}
+                          onClick={() => router.push(`/settings/integrations/${provider.id}`)}
                         >
                           <div className="flex items-start gap-4">
                             <ProviderLogo providerId={provider.id} name={provider.name} size="md" />
@@ -721,7 +758,7 @@ export default function IntegrationsPage() {
                             className="mt-4 w-full"
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleConfigureProvider(provider);
+                              router.push(`/settings/integrations/${provider.id}`);
                             }}
                           >
                             <Plus className="h-4 w-4 mr-2" />
@@ -1194,6 +1231,6 @@ export default function IntegrationsPage() {
           </AlertDialogContent>
         </AlertDialog>
       </motion.div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

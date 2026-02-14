@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const payrollData = [
   {
@@ -111,37 +111,7 @@ export default function PayrollPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="hr"
-      showTopBar={false}
-      showSidebar={false}
-      title="Payroll"
-      description="Manage employee salaries and payments"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <>
-          <Select value={month} onValueChange={setMonth}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Select Month" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="january">January 2026</SelectItem>
-              <SelectItem value="december">December 2025</SelectItem>
-              <SelectItem value="november">November 2025</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-          <Button className="gap-2">
-            <FileText className="h-4 w-4" />
-            Run Payroll
-          </Button>
-        </>
-      }
-    >
+    <UnifiedLayout hubId="hr" pageTitle="Payroll" stats={stats} fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6">
         <Card>
           <CardHeader className="pb-3">
@@ -195,6 +165,6 @@ export default function PayrollPage() {
           </CardContent>
         </Card>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

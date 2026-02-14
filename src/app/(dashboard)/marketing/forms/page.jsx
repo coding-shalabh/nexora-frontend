@@ -18,7 +18,7 @@ import {
   Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -269,20 +269,8 @@ export default function FormsPage() {
   );
 
   return (
-    <HubLayout
-      hubId="marketing"
-      showTopBar={false}
-      showSidebar={false}
-      title="Forms"
-      description="Create and manage lead capture forms"
-      stats={layoutStats}
-      searchValue={searchQuery}
-      onSearchChange={handleSearch}
-      searchPlaceholder="Search forms..."
-      actions={actionButtons}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="marketing" pageTitle="Forms" stats={layoutStats} fixedMenu={null}>
       {mainContent}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

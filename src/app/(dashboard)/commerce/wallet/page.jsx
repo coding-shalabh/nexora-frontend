@@ -5,7 +5,7 @@ import { Wallet, Plus, ArrowUpRight, ArrowDownLeft, History, CreditCard } from '
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const mockTransactions = [
   {
@@ -50,19 +50,7 @@ export default function CommerceWalletPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="commerce"
-      title="Wallet"
-      description="Manage your commerce wallet and transactions"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Funds
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="commerce" pageTitle="Wallet" stats={stats} fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="grid md:grid-cols-2 gap-6">
           <Card>
@@ -153,6 +141,6 @@ export default function CommerceWalletPage() {
           </CardContent>
         </Card>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

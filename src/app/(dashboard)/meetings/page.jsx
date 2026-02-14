@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 export default function MeetingsPage() {
   const [meetings, setMeetings] = useState([]);
@@ -193,25 +193,7 @@ export default function MeetingsPage() {
 
   return (
     <>
-      <HubLayout
-        hubId="productivity"
-        title="Video Meetings"
-        description="Start instant meetings or schedule video calls with your team and clients"
-        stats={stats}
-        actions={
-          <>
-            <Button variant="outline" onClick={() => setShowJoinModal(true)}>
-              <Link2 className="h-4 w-4 mr-2" />
-              Join Meeting
-            </Button>
-            <Button onClick={handleStartInstantMeeting}>
-              <Video className="h-4 w-4 mr-2" />
-              Start Instant Meeting
-            </Button>
-          </>
-        }
-        showFixedMenu={false}
-      >
+      <UnifiedLayout hubId="home" pageTitle="Video Meetings" stats={stats} fixedMenu={null}>
         <div className="h-full overflow-y-auto p-6 space-y-6">
           {/* Quick Actions */}
           <div className="grid grid-cols-3 gap-4">
@@ -397,7 +379,7 @@ export default function MeetingsPage() {
             </CardContent>
           </Card>
         </div>
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Create Meeting Modal */}
       <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>

@@ -38,7 +38,7 @@ import { cn } from '@/lib/utils';
 import { useContacts } from '@/hooks/use-contacts';
 import { useCompanies } from '@/hooks/use-companies';
 import { useDeals } from '@/hooks/use-deals';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 // Search result type configs
 const RESULT_TYPES = {
@@ -438,18 +438,8 @@ export default function SearchPage() {
   );
 
   return (
-    <HubLayout
-      hubId="search"
-      title="Search"
-      description={query ? `Results for "${query}"` : 'Search across all your data'}
-      stats={stats}
-      actions={actions}
-      fixedMenuFilters={fixedMenuFilters}
-      fixedMenuList={fixedMenuList}
-      showFixedMenu={!!query}
-      showSidebar={true}
-    >
+    <UnifiedLayout hubId="home" pageTitle="Search" stats={stats} fixedMenu={null}>
       {content}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

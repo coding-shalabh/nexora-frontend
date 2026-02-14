@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const mockProducts = [
   { id: 1, sku: 'PRD-001', name: 'Premium License', stock: 999 },
@@ -62,13 +62,7 @@ export default function InventoryAdjustPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="commerce"
-      title="Adjust Inventory"
-      description="Make manual adjustments to your inventory levels"
-      stats={stats}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="commerce" pageTitle="Adjust Inventory" stats={stats} fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="grid md:grid-cols-2 gap-6">
           <Card>
@@ -169,6 +163,6 @@ export default function InventoryAdjustPage() {
           </Card>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

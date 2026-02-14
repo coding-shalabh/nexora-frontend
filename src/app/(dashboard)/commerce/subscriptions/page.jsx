@@ -58,7 +58,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 // Mock data
@@ -872,37 +872,41 @@ export default function SubscriptionsPage() {
 
   return (
     <>
-      <HubLayout
+      <UnifiedLayout
         hubId="commerce"
-        title="Subscriptions"
-        description="Manage recurring revenue and subscription billing"
+        pageTitle="Subscriptions"
         stats={layoutStats}
-        showFixedMenu={true}
-        fixedMenuFilters={
-          <FixedMenuPanel
-            config={fixedMenuConfig}
-            activeFilter={
-              selectedStatus === 'All Status'
-                ? 'all'
-                : selectedStatus.toLowerCase().replace(' ', '_')
-            }
-            onFilterChange={(filter) => {
-              if (filter === 'all') setSelectedStatus('All Status');
-              else if (filter === 'active') setSelectedStatus('Active');
-              else if (filter === 'trial') setSelectedStatus('Trial');
-              else if (filter === 'past_due') setSelectedStatus('Past Due');
-            }}
-            onAction={handleMenuAction}
-            selectedCount={selectedIds.size}
-            bulkActions={bulkActions}
-            onBulkAction={handleBulkAction}
-            className="p-4"
-          />
-        }
-        fixedMenuList={fixedMenuListContent}
+        fixedMenu={null}
       >
-        {contentArea}
-      </HubLayout>
+        <div className="flex h-full">
+          {/* Fixed Menu Panel */}
+          <div className="w-80 border-r border-gray-200 flex flex-col">
+            <FixedMenuPanel
+              config={fixedMenuConfig}
+              activeFilter={
+                selectedStatus === 'All Status'
+                  ? 'all'
+                  : selectedStatus.toLowerCase().replace(' ', '_')
+              }
+              onFilterChange={(filter) => {
+                if (filter === 'all') setSelectedStatus('All Status');
+                else if (filter === 'active') setSelectedStatus('Active');
+                else if (filter === 'trial') setSelectedStatus('Trial');
+                else if (filter === 'past_due') setSelectedStatus('Past Due');
+              }}
+              onAction={handleMenuAction}
+              selectedCount={selectedIds.size}
+              bulkActions={bulkActions}
+              onBulkAction={handleBulkAction}
+              className="p-4"
+            />
+            <div className="flex-1 overflow-auto">{fixedMenuListContent}</div>
+          </div>
+
+          {/* Content Area */}
+          <div className="flex-1 overflow-auto">{contentArea}</div>
+        </div>
+      </UnifiedLayout>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

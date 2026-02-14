@@ -26,6 +26,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const receivables = [
   {
@@ -112,111 +113,125 @@ const getStatusBadge = (status, daysOverdue) => {
 export default function ReceivablesPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
+  const layoutStats = [
+    createStat('Total Receivables', '₹8.9L', ArrowDownLeft, 'blue'),
+    createStat('Due This Week', '₹3.7L', Clock, 'amber'),
+    createStat('Overdue', '₹2.25L', AlertTriangle, 'red'),
+    createStat('Collected (Month)', '₹12.5L', CheckCircle, 'green'),
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Accounts Receivable</h1>
-          <p className="text-muted-foreground">Track customer invoices and payments</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Record Payment
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <stat.icon className={cn('h-5 w-5', stat.color)} />
-                  <div>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search invoices or customers..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+    <UnifiedLayout
+      hubId="finance"
+      pageTitle="Accounts Receivable"
+      stats={layoutStats}
+      fixedMenu={null}
+    >
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Accounts Receivable</h1>
+            <p className="text-muted-foreground">Track customer invoices and payments</p>
+          </div>
+          <div className="flex items-center gap-2">
             <Button variant="outline" className="gap-2">
-              <Filter className="h-4 w-4" />
-              Filters
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Record Payment
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <ArrowDownLeft className="h-4 w-4" />
-            Outstanding Invoices
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Invoice</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {receivables.map((item) => (
-                <TableRow key={item.id} className="cursor-pointer hover:bg-muted/50">
-                  <TableCell className="font-medium">{item.invoice}</TableCell>
-                  <TableCell>{item.customer}</TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(item.amount)}
-                  </TableCell>
-                  <TableCell>{item.dueDate}</TableCell>
-                  <TableCell>{getStatusBadge(item.status, item.daysOverdue)}</TableCell>
-                  <TableCell>
-                    {item.status !== 'paid' && (
-                      <Button size="sm" variant="ghost" className="gap-1">
-                        <Send className="h-3 w-3" />
-                        Remind
-                      </Button>
-                    )}
-                  </TableCell>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <stat.icon className={cn('h-5 w-5', stat.color)} />
+                    <div>
+                      <p className="text-2xl font-bold">{stat.value}</p>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search invoices or customers..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Button variant="outline" className="gap-2">
+                <Filter className="h-4 w-4" />
+                Filters
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <ArrowDownLeft className="h-4 w-4" />
+              Outstanding Invoices
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Invoice</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Due Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+              </TableHeader>
+              <TableBody>
+                {receivables.map((item) => (
+                  <TableRow key={item.id} className="cursor-pointer hover:bg-muted/50">
+                    <TableCell className="font-medium">{item.invoice}</TableCell>
+                    <TableCell>{item.customer}</TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatCurrency(item.amount)}
+                    </TableCell>
+                    <TableCell>{item.dueDate}</TableCell>
+                    <TableCell>{getStatusBadge(item.status, item.daysOverdue)}</TableCell>
+                    <TableCell>
+                      {item.status !== 'paid' && (
+                        <Button size="sm" variant="ghost" className="gap-1">
+                          <Send className="h-3 w-3" />
+                          Remind
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </UnifiedLayout>
   );
 }

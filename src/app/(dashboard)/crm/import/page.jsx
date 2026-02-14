@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ChevronRight,
 } from 'lucide-react';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -28,12 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
@@ -47,13 +43,33 @@ const IMPORT_STEPS = [
 
 // Sample CSV templates
 const CONTACT_TEMPLATE_FIELDS = [
-  'First Name', 'Last Name', 'Email', 'Phone', 'Company', 'Job Title',
-  'Address', 'City', 'State', 'Postal Code', 'Country', 'Tags'
+  'First Name',
+  'Last Name',
+  'Email',
+  'Phone',
+  'Company',
+  'Job Title',
+  'Address',
+  'City',
+  'State',
+  'Postal Code',
+  'Country',
+  'Tags',
 ];
 
 const COMPANY_TEMPLATE_FIELDS = [
-  'Company Name', 'Domain', 'Industry', 'Employee Count', 'Annual Revenue',
-  'Phone', 'Email', 'Address', 'City', 'State', 'Postal Code', 'Tags'
+  'Company Name',
+  'Domain',
+  'Industry',
+  'Employee Count',
+  'Annual Revenue',
+  'Phone',
+  'Email',
+  'Address',
+  'City',
+  'State',
+  'Postal Code',
+  'Tags',
 ];
 
 // CRM field mapping options
@@ -127,7 +143,7 @@ export default function ImportPage() {
       const text = e.target?.result;
       if (typeof text !== 'string') return;
 
-      const lines = text.split('\n').filter(line => line.trim());
+      const lines = text.split('\n').filter((line) => line.trim());
       if (lines.length === 0) {
         toast({
           title: 'Empty File',
@@ -138,12 +154,12 @@ export default function ImportPage() {
       }
 
       // Parse headers
-      const headers = lines[0].split(',').map(h => h.trim().replace(/['"]/g, ''));
+      const headers = lines[0].split(',').map((h) => h.trim().replace(/['"]/g, ''));
       setCsvHeaders(headers);
 
       // Parse data rows (limit to first 100 for preview)
-      const data = lines.slice(1, 101).map(line => {
-        const values = line.split(',').map(v => v.trim().replace(/['"]/g, ''));
+      const data = lines.slice(1, 101).map((line) => {
+        const values = line.split(',').map((v) => v.trim().replace(/['"]/g, ''));
         const row = {};
         headers.forEach((header, index) => {
           row[header] = values[index] || '';
@@ -174,14 +190,16 @@ export default function ImportPage() {
     const mapping = {};
     const fields = importType === 'contacts' ? CONTACT_FIELDS : COMPANY_FIELDS;
 
-    headers.forEach(header => {
+    headers.forEach((header) => {
       const normalizedHeader = header.toLowerCase().replace(/\s+/g, '');
 
       // Try to find matching field
-      const matchedField = fields.find(field => {
+      const matchedField = fields.find((field) => {
         const normalizedFieldLabel = field.label.toLowerCase().replace(/\s+/g, '');
-        return normalizedHeader.includes(normalizedFieldLabel) ||
-               normalizedFieldLabel.includes(normalizedHeader);
+        return (
+          normalizedHeader.includes(normalizedFieldLabel) ||
+          normalizedFieldLabel.includes(normalizedHeader)
+        );
       });
 
       if (matchedField) {
@@ -193,7 +211,7 @@ export default function ImportPage() {
   };
 
   const handleFieldMapping = (csvColumn, crmField) => {
-    setFieldMapping(prev => ({
+    setFieldMapping((prev) => ({
       ...prev,
       [csvColumn]: crmField === 'skip' ? null : crmField,
     }));
@@ -219,17 +237,15 @@ export default function ImportPage() {
 
   const validateMapping = () => {
     const fields = importType === 'contacts' ? CONTACT_FIELDS : COMPANY_FIELDS;
-    const requiredFields = fields.filter(f => f.required);
+    const requiredFields = fields.filter((f) => f.required);
     const mappedValues = Object.values(fieldMapping).filter(Boolean);
 
-    const missingRequired = requiredFields.filter(
-      field => !mappedValues.includes(field.value)
-    );
+    const missingRequired = requiredFields.filter((field) => !mappedValues.includes(field.value));
 
     if (missingRequired.length > 0) {
       toast({
         title: 'Missing Required Fields',
-        description: `Please map: ${missingRequired.map(f => f.label).join(', ')}`,
+        description: `Please map: ${missingRequired.map((f) => f.label).join(', ')}`,
         variant: 'destructive',
       });
       return false;
@@ -254,7 +270,7 @@ export default function ImportPage() {
       // In real implementation, this would call an API endpoint
       for (let i = 0; i <= 100; i += 10) {
         setImportProgress(i);
-        await new Promise(resolve => setTimeout(resolve, 300));
+        await new Promise((resolve) => setTimeout(resolve, 300));
       }
 
       const successCount = csvData.length;
@@ -300,362 +316,370 @@ export default function ImportPage() {
 
   const fields = importType === 'contacts' ? CONTACT_FIELDS : COMPANY_FIELDS;
   const mappedFieldsCount = Object.values(fieldMapping).filter(Boolean).length;
-  const requiredFieldsMapped = fields.filter(f => f.required).every(field =>
-    Object.values(fieldMapping).includes(field.value)
-  );
+  const requiredFieldsMapped = fields
+    .filter((f) => f.required)
+    .every((field) => Object.values(fieldMapping).includes(field.value));
+
+  // Layout configuration
+  const layoutStats = [
+    createStat('Step', `${currentStep}/4`, Upload, 'blue'),
+    createStat(
+      'Type',
+      importType === 'contacts' ? 'Contacts' : 'Companies',
+      importType === 'contacts' ? User : Building2,
+      'green'
+    ),
+  ];
+
+  const layoutActions = [createAction('Download Template', Download, downloadTemplate)];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Import Data</h1>
-          <p className="text-muted-foreground">
-            Import contacts and companies from CSV files
-          </p>
-        </div>
-        <Button variant="outline" onClick={downloadTemplate}>
-          <Download className="h-4 w-4 mr-2" />
-          Download Template
-        </Button>
-      </div>
+    <UnifiedLayout
+      hubId="crm"
+      pageTitle="Import Data"
+      stats={layoutStats}
+      actions={layoutActions}
+      fixedMenu={null}
+    >
+      <div className="h-full overflow-auto p-6 space-y-6">
+        {/* Import Type Selection */}
+        <Tabs value={importType} onValueChange={setImportType} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="contacts">
+              <User className="h-4 w-4 mr-2" />
+              Contacts
+            </TabsTrigger>
+            <TabsTrigger value="companies">
+              <Building2 className="h-4 w-4 mr-2" />
+              Companies
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
-      {/* Import Type Selection */}
-      <Tabs value={importType} onValueChange={setImportType} className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="contacts">
-            <User className="h-4 w-4 mr-2" />
-            Contacts
-          </TabsTrigger>
-          <TabsTrigger value="companies">
-            <Building2 className="h-4 w-4 mr-2" />
-            Companies
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      {/* Progress Steps */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-8">
-          {IMPORT_STEPS.map((step, index) => (
-            <div key={step.id} className="flex items-center flex-1">
-              <div className="flex flex-col items-center">
-                <div
-                  className={cn(
-                    'h-10 w-10 rounded-full flex items-center justify-center font-semibold',
-                    currentStep > step.id
-                      ? 'bg-green-500 text-white'
-                      : currentStep === step.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-muted-foreground'
-                  )}
-                >
-                  {currentStep > step.id ? (
-                    <CheckCircle2 className="h-5 w-5" />
-                  ) : (
-                    step.id
-                  )}
+        {/* Progress Steps */}
+        <Card className="p-6">
+          <div className="flex items-center justify-between mb-8">
+            {IMPORT_STEPS.map((step, index) => (
+              <div key={step.id} className="flex items-center flex-1">
+                <div className="flex flex-col items-center">
+                  <div
+                    className={cn(
+                      'h-10 w-10 rounded-full flex items-center justify-center font-semibold',
+                      currentStep > step.id
+                        ? 'bg-green-500 text-white'
+                        : currentStep === step.id
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-muted text-muted-foreground'
+                    )}
+                  >
+                    {currentStep > step.id ? <CheckCircle2 className="h-5 w-5" /> : step.id}
+                  </div>
+                  <div className="text-center mt-2">
+                    <p className="text-sm font-medium">{step.name}</p>
+                    <p className="text-xs text-muted-foreground">{step.description}</p>
+                  </div>
                 </div>
-                <div className="text-center mt-2">
-                  <p className="text-sm font-medium">{step.name}</p>
-                  <p className="text-xs text-muted-foreground">{step.description}</p>
-                </div>
+                {index < IMPORT_STEPS.length - 1 && (
+                  <div
+                    className={cn(
+                      'flex-1 h-0.5 mx-4',
+                      currentStep > step.id ? 'bg-green-500' : 'bg-muted'
+                    )}
+                  />
+                )}
               </div>
-              {index < IMPORT_STEPS.length - 1 && (
-                <div
-                  className={cn(
-                    'flex-1 h-0.5 mx-4',
-                    currentStep > step.id ? 'bg-green-500' : 'bg-muted'
-                  )}
-                />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Step 1: Upload File */}
-        {currentStep === 1 && (
-          <div className="space-y-6">
-            <div
-              className="border-2 border-dashed rounded-lg p-12 text-center hover:border-primary/50 transition-colors cursor-pointer"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">Upload CSV File</h3>
-              <p className="text-muted-foreground mb-4">
-                Click to browse or drag and drop your CSV file here
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Maximum file size: 10MB
-              </p>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-            </div>
-
-            <Card className="p-4 bg-blue-50/50 border-blue-200">
-              <div className="flex gap-3">
-                <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-blue-900">CSV File Requirements</p>
-                  <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-                    <li>File must be in CSV format (.csv)</li>
-                    <li>First row should contain column headers</li>
-                    <li>Use comma (,) as the delimiter</li>
-                    <li>Maximum 10,000 rows per import</li>
-                    <li>Download the template to ensure correct format</li>
-                  </ul>
-                </div>
-              </div>
-            </Card>
+            ))}
           </div>
-        )}
 
-        {/* Step 2: Map Fields */}
-        {currentStep === 2 && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold">Map CSV Columns to CRM Fields</h3>
-                <p className="text-sm text-muted-foreground">
-                  Match your CSV columns to the corresponding CRM fields
-                </p>
-              </div>
-              <Badge variant={requiredFieldsMapped ? 'default' : 'destructive'}>
-                {mappedFieldsCount} of {csvHeaders.length} columns mapped
-              </Badge>
-            </div>
-
-            <div className="space-y-3">
-              {csvHeaders.map((header, index) => (
-                <div
-                  key={index}
-                  className="flex items-center gap-4 p-4 border rounded-lg bg-muted/30"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{header}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Example: {csvData[0]?.[header] || 'N/A'}
-                    </p>
-                  </div>
-
-                  <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-
-                  <div className="w-64">
-                    <Select
-                      value={fieldMapping[header] || 'skip'}
-                      onValueChange={(value) => handleFieldMapping(header, value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select field" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="skip">
-                          <span className="text-muted-foreground">Skip this column</span>
-                        </SelectItem>
-                        {fields.map((field) => (
-                          <SelectItem key={field.value} value={field.value}>
-                            {field.label}
-                            {field.required && <span className="text-destructive ml-1">*</span>}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex items-center justify-between pt-4 border-t">
-              <Button variant="outline" onClick={handleReset}>
-                Start Over
-              </Button>
-              <Button onClick={handleProceedToReview} disabled={!requiredFieldsMapped}>
-                Continue to Review
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Review */}
-        {currentStep === 3 && (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold">Review Import Settings</h3>
-              <p className="text-sm text-muted-foreground">
-                Verify your import configuration before proceeding
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              <Card className="p-4">
-                <h4 className="font-medium mb-3 flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  File Information
-                </h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">File Name:</span>
-                    <span className="font-medium">{uploadedFile?.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Import Type:</span>
-                    <Badge variant="outline" className="capitalize">{importType}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Total Rows:</span>
-                    <span className="font-medium">{csvData.length}</span>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-4">
-                <h4 className="font-medium mb-3 flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4" />
-                  Field Mapping
-                </h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Mapped Fields:</span>
-                    <span className="font-medium">{mappedFieldsCount}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Skipped Columns:</span>
-                    <span className="font-medium">{csvHeaders.length - mappedFieldsCount}</span>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            <div>
-              <button
-                type="button"
-                onClick={() => setShowAdvanced(!showAdvanced)}
-                className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors"
+          {/* Step 1: Upload File */}
+          {currentStep === 1 && (
+            <div className="space-y-6">
+              <div
+                className="border-2 border-dashed rounded-lg p-12 text-center hover:border-primary/50 transition-colors cursor-pointer"
+                onClick={() => fileInputRef.current?.click()}
               >
-                {showAdvanced ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
-                View Field Mapping Details
-              </button>
+                <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">Upload CSV File</h3>
+                <p className="text-muted-foreground mb-4">
+                  Click to browse or drag and drop your CSV file here
+                </p>
+                <p className="text-sm text-muted-foreground">Maximum file size: 10MB</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+              </div>
 
-              {showAdvanced && (
-                <div className="mt-4 p-4 border rounded-lg bg-muted/30">
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    {Object.entries(fieldMapping)
-                      .filter(([_, value]) => value)
-                      .map(([csvColumn, crmField]) => {
-                        const field = fields.find(f => f.value === crmField);
-                        return (
-                          <div key={csvColumn} className="flex items-center justify-between p-2 bg-background rounded">
-                            <span className="text-muted-foreground">{csvColumn}</span>
-                            <ArrowRight className="h-3 w-3 mx-2 text-muted-foreground" />
-                            <span className="font-medium">{field?.label}</span>
-                          </div>
-                        );
-                      })}
+              <Card className="p-4 bg-blue-50/50 border-blue-200">
+                <div className="flex gap-3">
+                  <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-blue-900">CSV File Requirements</p>
+                    <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+                      <li>File must be in CSV format (.csv)</li>
+                      <li>First row should contain column headers</li>
+                      <li>Use comma (,) as the delimiter</li>
+                      <li>Maximum 10,000 rows per import</li>
+                      <li>Download the template to ensure correct format</li>
+                    </ul>
                   </div>
                 </div>
-              )}
+              </Card>
             </div>
+          )}
 
-            <div className="flex items-center justify-between pt-4 border-t">
-              <Button variant="outline" onClick={() => setCurrentStep(2)}>
-                Back to Mapping
-              </Button>
-              <Button onClick={handleStartImport}>
-                Start Import
-                <Upload className="h-4 w-4 ml-2" />
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 4: Import */}
-        {currentStep === 4 && (
-          <div className="space-y-6">
-            {importing ? (
-              <div className="text-center py-12">
-                <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Importing {importType}...</h3>
-                <p className="text-muted-foreground mb-6">
-                  Please wait while we import your data
-                </p>
-                <div className="max-w-md mx-auto">
-                  <Progress value={importProgress} className="h-2" />
-                  <p className="text-sm text-muted-foreground mt-2">{importProgress}% complete</p>
+          {/* Step 2: Map Fields */}
+          {currentStep === 2 && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold">Map CSV Columns to CRM Fields</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Match your CSV columns to the corresponding CRM fields
+                  </p>
                 </div>
+                <Badge variant={requiredFieldsMapped ? 'default' : 'destructive'}>
+                  {mappedFieldsCount} of {csvHeaders.length} columns mapped
+                </Badge>
               </div>
-            ) : importResult ? (
-              <div className="text-center py-12">
-                {importResult.success ? (
-                  <>
-                    <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle2 className="h-8 w-8 text-green-600" />
-                    </div>
-                    <h3 className="text-lg font-semibold mb-2">Import Completed Successfully</h3>
-                    <p className="text-muted-foreground mb-6">
-                      Your data has been imported into the CRM
-                    </p>
 
-                    <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto mb-6">
-                      <Card className="p-4">
-                        <p className="text-2xl font-bold text-green-600">{importResult.imported}</p>
-                        <p className="text-xs text-muted-foreground">Imported</p>
-                      </Card>
-                      <Card className="p-4">
-                        <p className="text-2xl font-bold text-yellow-600">{importResult.duplicates}</p>
-                        <p className="text-xs text-muted-foreground">Duplicates</p>
-                      </Card>
-                      <Card className="p-4">
-                        <p className="text-2xl font-bold text-red-600">{importResult.failed}</p>
-                        <p className="text-xs text-muted-foreground">Failed</p>
-                      </Card>
+              <div className="space-y-3">
+                {csvHeaders.map((header, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-4 p-4 border rounded-lg bg-muted/30"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">{header}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Example: {csvData[0]?.[header] || 'N/A'}
+                      </p>
                     </div>
 
-                    <div className="flex gap-3 justify-center">
-                      <Button variant="outline" onClick={handleReset}>
-                        Import More Data
-                      </Button>
-                      <Button onClick={() => window.location.href = `/crm/${importType}`}>
-                        View {importType === 'contacts' ? 'Contacts' : 'Companies'}
-                      </Button>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+
+                    <div className="w-64">
+                      <Select
+                        value={fieldMapping[header] || 'skip'}
+                        onValueChange={(value) => handleFieldMapping(header, value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="skip">
+                            <span className="text-muted-foreground">Skip this column</span>
+                          </SelectItem>
+                          {fields.map((field) => (
+                            <SelectItem key={field.value} value={field.value}>
+                              {field.label}
+                              {field.required && <span className="text-destructive ml-1">*</span>}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
-                      <AlertCircle className="h-8 w-8 text-red-600" />
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t">
+                <Button variant="outline" onClick={handleReset}>
+                  Start Over
+                </Button>
+                <Button onClick={handleProceedToReview} disabled={!requiredFieldsMapped}>
+                  Continue to Review
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Review */}
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold">Review Import Settings</h3>
+                <p className="text-sm text-muted-foreground">
+                  Verify your import configuration before proceeding
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
+                <Card className="p-4">
+                  <h4 className="font-medium mb-3 flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    File Information
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">File Name:</span>
+                      <span className="font-medium">{uploadedFile?.name}</span>
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">Import Failed</h3>
-                    <p className="text-muted-foreground mb-6">
-                      {importResult.error || 'An error occurred during import'}
-                    </p>
-                    <div className="flex gap-3 justify-center">
-                      <Button variant="outline" onClick={handleReset}>
-                        Start Over
-                      </Button>
-                      <Button onClick={() => setCurrentStep(3)}>
-                        Try Again
-                      </Button>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Import Type:</span>
+                      <Badge variant="outline" className="capitalize">
+                        {importType}
+                      </Badge>
                     </div>
-                  </>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Total Rows:</span>
+                      <span className="font-medium">{csvData.length}</span>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-4">
+                  <h4 className="font-medium mb-3 flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4" />
+                    Field Mapping
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Mapped Fields:</span>
+                      <span className="font-medium">{mappedFieldsCount}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Skipped Columns:</span>
+                      <span className="font-medium">{csvHeaders.length - mappedFieldsCount}</span>
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors"
+                >
+                  {showAdvanced ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                  View Field Mapping Details
+                </button>
+
+                {showAdvanced && (
+                  <div className="mt-4 p-4 border rounded-lg bg-muted/30">
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      {Object.entries(fieldMapping)
+                        .filter(([_, value]) => value)
+                        .map(([csvColumn, crmField]) => {
+                          const field = fields.find((f) => f.value === crmField);
+                          return (
+                            <div
+                              key={csvColumn}
+                              className="flex items-center justify-between p-2 bg-background rounded"
+                            >
+                              <span className="text-muted-foreground">{csvColumn}</span>
+                              <ArrowRight className="h-3 w-3 mx-2 text-muted-foreground" />
+                              <span className="font-medium">{field?.label}</span>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </div>
                 )}
               </div>
-            ) : null}
-          </div>
-        )}
-      </Card>
-    </div>
+
+              <div className="flex items-center justify-between pt-4 border-t">
+                <Button variant="outline" onClick={() => setCurrentStep(2)}>
+                  Back to Mapping
+                </Button>
+                <Button onClick={handleStartImport}>
+                  Start Import
+                  <Upload className="h-4 w-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Import */}
+          {currentStep === 4 && (
+            <div className="space-y-6">
+              {importing ? (
+                <div className="text-center py-12">
+                  <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">Importing {importType}...</h3>
+                  <p className="text-muted-foreground mb-6">
+                    Please wait while we import your data
+                  </p>
+                  <div className="max-w-md mx-auto">
+                    <Progress value={importProgress} className="h-2" />
+                    <p className="text-sm text-muted-foreground mt-2">{importProgress}% complete</p>
+                  </div>
+                </div>
+              ) : importResult ? (
+                <div className="text-center py-12">
+                  {importResult.success ? (
+                    <>
+                      <div className="h-16 w-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                        <CheckCircle2 className="h-8 w-8 text-green-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">Import Completed Successfully</h3>
+                      <p className="text-muted-foreground mb-6">
+                        Your data has been imported into the CRM
+                      </p>
+
+                      <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto mb-6">
+                        <Card className="p-4">
+                          <p className="text-2xl font-bold text-green-600">
+                            {importResult.imported}
+                          </p>
+                          <p className="text-xs text-muted-foreground">Imported</p>
+                        </Card>
+                        <Card className="p-4">
+                          <p className="text-2xl font-bold text-yellow-600">
+                            {importResult.duplicates}
+                          </p>
+                          <p className="text-xs text-muted-foreground">Duplicates</p>
+                        </Card>
+                        <Card className="p-4">
+                          <p className="text-2xl font-bold text-red-600">{importResult.failed}</p>
+                          <p className="text-xs text-muted-foreground">Failed</p>
+                        </Card>
+                      </div>
+
+                      <div className="flex gap-3 justify-center">
+                        <Button variant="outline" onClick={handleReset}>
+                          Import More Data
+                        </Button>
+                        <Button onClick={() => (window.location.href = `/crm/${importType}`)}>
+                          View {importType === 'contacts' ? 'Contacts' : 'Companies'}
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="h-16 w-16 rounded-full bg-red-100 flex items-center justify-center mx-auto mb-4">
+                        <AlertCircle className="h-8 w-8 text-red-600" />
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">Import Failed</h3>
+                      <p className="text-muted-foreground mb-6">
+                        {importResult.error || 'An error occurred during import'}
+                      </p>
+                      <div className="flex gap-3 justify-center">
+                        <Button variant="outline" onClick={handleReset}>
+                          Start Over
+                        </Button>
+                        <Button onClick={() => setCurrentStep(3)}>Try Again</Button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          )}
+        </Card>
+      </div>
+    </UnifiedLayout>
   );
 }

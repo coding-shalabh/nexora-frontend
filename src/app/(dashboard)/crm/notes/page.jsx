@@ -15,6 +15,7 @@ import {
   Loader2,
   StickyNote,
 } from 'lucide-react';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -64,7 +65,7 @@ function NoteCard({ note, onEdit, onDelete }) {
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="More options">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -207,19 +208,37 @@ export default function CrmNotesPage() {
     refetch();
   };
 
+  const layoutStats = [
+    createStat('Total Notes', String(notes.length), StickyNote, 'amber'),
+    createStat('Today', String(todayNotes), Calendar, 'blue'),
+    createStat(
+      'Linked',
+      String(notes.filter((n) => n.contact || n.company || n.deal).length),
+      User,
+      'green'
+    ),
+  ];
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
+      <UnifiedLayout
+        hubId="crm"
+        pageTitle="Notes"
+        stats={[createStat('Loading', '...', StickyNote, 'amber')]}
+        fixedMenu={null}
+      >
+        <div className="flex items-center justify-center h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </UnifiedLayout>
     );
   }
 
   return (
-    <>
-      <div className="p-6 h-full flex flex-col">
+    <UnifiedLayout hubId="crm" pageTitle="Notes" stats={layoutStats} fixedMenu={null}>
+      <div className="h-full overflow-y-auto p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold">Notes</h1>
             <p className="text-sm text-muted-foreground">
@@ -233,7 +252,7 @@ export default function CrmNotesPage() {
         </div>
 
         {/* Search */}
-        <div className="relative mb-6">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search notes..."
@@ -261,7 +280,7 @@ export default function CrmNotesPage() {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {notes.map((note) => (
               <NoteCard key={note.id} note={note} onEdit={handleOpenEdit} onDelete={handleDelete} />
             ))}
@@ -343,6 +362,6 @@ export default function CrmNotesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </UnifiedLayout>
   );
 }

@@ -55,6 +55,7 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
+      { protocol: 'http', hostname: 'localhost' },
       { protocol: 'https', hostname: 'localhost' },
       { protocol: 'https', hostname: 'crm360-assets.s3.amazonaws.com' },
       { protocol: 'https', hostname: 'api.nexoraos.pro' },

@@ -19,7 +19,7 @@ import {
   Calendar,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -421,17 +421,8 @@ export default function FormDetailPage() {
   );
 
   return (
-    <HubLayout
-      hubId="marketing"
-      showTopBar={false}
-      showSidebar={false}
-      title={form.name}
-      description={`Form details and submissions`}
-      stats={layoutStats}
-      actions={actionButtons}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="marketing" pageTitle={form.name} stats={layoutStats} fixedMenu={null}>
       {mainContent}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

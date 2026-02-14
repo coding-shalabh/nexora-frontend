@@ -79,7 +79,7 @@ import {
 import { useSocket, useConversationSocket } from '@/context/socket-context';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 import { MessageInput } from '@/components/inbox/message-input';
 import { NotesPanel } from '@/components/inbox/notes-panel';
@@ -382,102 +382,102 @@ export default function WhatsAppInboxPage() {
 
   return (
     <>
-      <HubLayout
+      <UnifiedLayout
         hubId="inbox"
-        title="WhatsApp Inbox"
-        description="Manage WhatsApp conversations"
+        pageTitle="WhatsApp Inbox"
         stats={stats}
-        showFixedMenu={true}
-        fixedMenuFilters={
-          <div className="p-4 space-y-3">
-            {/* Quick Filter Buttons */}
-            <div className="flex items-center gap-1 bg-muted/50 rounded-md p-1">
-              <TooltipProvider delayDuration={0}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={!bucketFilter ? 'secondary' : 'ghost'}
-                      size="sm"
-                      className="h-7 px-2 flex-1"
-                      onClick={() => updateBucketFilter('none')}
-                    >
-                      <Inbox className={cn('h-4 w-4', !bucketFilter && 'text-white')} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">All Conversations</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={bucketFilter === 'my_chats' ? 'secondary' : 'ghost'}
-                      size="sm"
-                      className="h-7 px-2 flex-1 relative"
-                      onClick={() => updateBucketFilter('my_chats')}
-                    >
-                      <UserCheck
-                        className={cn('h-4 w-4', bucketFilter === 'my_chats' && 'text-white')}
-                      />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">My Chats</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={bucketFilter === 'unassigned' ? 'secondary' : 'ghost'}
-                      size="sm"
-                      className="h-7 px-2 flex-1 relative"
-                      onClick={() => updateBucketFilter('unassigned')}
-                    >
-                      <Users
-                        className={cn('h-4 w-4', bucketFilter === 'unassigned' && 'text-white')}
-                      />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">Unassigned</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-          </div>
-        }
-        fixedMenuList={
-          <div className="space-y-2 p-4">
-            {/* Search Bar */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search conversations..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            {/* Conversations List */}
-            {conversationsQuery.isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        fixedMenu={{
+          filters: (
+            <div className="p-4 space-y-3">
+              {/* Quick Filter Buttons */}
+              <div className="flex items-center gap-1 bg-muted/50 rounded-md p-1">
+                <TooltipProvider delayDuration={0}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={!bucketFilter ? 'secondary' : 'ghost'}
+                        size="sm"
+                        className="h-7 px-2 flex-1"
+                        onClick={() => updateBucketFilter('none')}
+                      >
+                        <Inbox className={cn('h-4 w-4', !bucketFilter && 'text-white')} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">All Conversations</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={bucketFilter === 'my_chats' ? 'secondary' : 'ghost'}
+                        size="sm"
+                        className="h-7 px-2 flex-1 relative"
+                        onClick={() => updateBucketFilter('my_chats')}
+                      >
+                        <UserCheck
+                          className={cn('h-4 w-4', bucketFilter === 'my_chats' && 'text-white')}
+                        />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">My Chats</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant={bucketFilter === 'unassigned' ? 'secondary' : 'ghost'}
+                        size="sm"
+                        className="h-7 px-2 flex-1 relative"
+                        onClick={() => updateBucketFilter('unassigned')}
+                      >
+                        <Users
+                          className={cn('h-4 w-4', bucketFilter === 'unassigned' && 'text-white')}
+                        />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">Unassigned</TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
-            ) : conversations.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <AnimatePresence mode="popLayout">
-                {conversations.map((conv, index) => (
-                  <motion.div
-                    key={conv.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ duration: 0.2, delay: index * 0.03 }}
-                    layout
-                  >
-                    <ConversationCard conv={conv} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            )}
-          </div>
-        }
+            </div>
+          ),
+          list: (
+            <div className="space-y-2 p-4">
+              {/* Search Bar */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search conversations..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              {/* Conversations List */}
+              {conversationsQuery.isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : conversations.length === 0 ? (
+                <EmptyState />
+              ) : (
+                <AnimatePresence mode="popLayout">
+                  {conversations.map((conv, index) => (
+                    <motion.div
+                      key={conv.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: 0.2, delay: index * 0.03 }}
+                      layout
+                    >
+                      <ConversationCard conv={conv} />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              )}
+            </div>
+          ),
+        }}
       >
         {/* Chat Detail View in Content Area */}
         {selectedConversation ? (
@@ -686,7 +686,7 @@ export default function WhatsAppInboxPage() {
             onClose={() => setShowContactPanel(false)}
           />
         )}
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Snooze Dialog */}
       <SnoozeDialog

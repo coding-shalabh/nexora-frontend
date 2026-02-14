@@ -19,7 +19,7 @@ import {
   Shield,
   Activity,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -366,15 +366,13 @@ export default function ManageOverviewPage() {
   );
 
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="manage"
-      title="Management Center"
-      description="Configure and manage global settings across all Nexora apps"
+      pageTitle="Management Center"
       stats={layoutStats}
-      actions={actionButtons}
-      showFixedMenu={false}
+      fixedMenu={null}
     >
       {mainContent}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

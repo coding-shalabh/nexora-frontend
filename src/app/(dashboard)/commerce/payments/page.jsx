@@ -44,7 +44,7 @@ import {
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const mockPayments = [
   {
@@ -151,199 +151,185 @@ export default function PaymentsPage() {
     return colors[status] || 'bg-gray-100 text-gray-700';
   };
 
-  return (
-    <HubLayout
-      hubId="commerce"
-      showTopBar={false}
-      showSidebar={false}
-      title="Payments"
-      description="Track and manage all payment transactions"
-      stats={stats}
-      showFixedMenu={true}
-      actions={
-        <Button variant="outline" className="gap-2">
-          <Download className="h-4 w-4" />
-          Export
-        </Button>
-      }
-      fixedMenuFilters={
-        <div className="p-4 space-y-3">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search payments..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {statuses.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={selectedMethod} onValueChange={setSelectedMethod}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {methods.map((method) => (
-                <SelectItem key={method} value={method}>
-                  {method}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+  const fixedMenuFilters = (
+    <div className="p-4 space-y-3">
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search payments..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
+        />
+      </div>
+      <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {statuses.map((status) => (
+            <SelectItem key={status} value={status}>
+              {status}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      <Select value={selectedMethod} onValueChange={setSelectedMethod}>
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {methods.map((method) => (
+            <SelectItem key={method} value={method}>
+              {method}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
+  const fixedMenuList = (
+    <div className="divide-y divide-gray-100 dark:divide-gray-800">
+      {filteredPayments.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 py-12 px-4">
+          <CreditCard className="h-12 w-12 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">No payments found</p>
         </div>
-      }
-      fixedMenuList={
-        <div className="divide-y divide-gray-100 dark:divide-gray-800">
-          {filteredPayments.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-12 px-4">
-              <CreditCard className="h-12 w-12 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">No payments found</p>
-            </div>
-          ) : (
-            filteredPayments.map((payment) => (
-              <div
-                key={payment.id}
-                className="p-4 hover:bg-muted/50 cursor-pointer transition-colors"
-              >
-                <div className="flex items-start justify-between mb-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Badge variant="outline" className="font-mono text-xs">
-                        {payment.id}
-                      </Badge>
-                      <Badge className={cn('capitalize text-xs', getStatusColor(payment.status))}>
-                        {payment.status}
-                      </Badge>
-                    </div>
-                    <p className="font-medium text-sm truncate">{payment.customer}</p>
-                    <p className="text-xs text-muted-foreground truncate">
-                      Invoice: {payment.invoice}
-                    </p>
-                  </div>
+      ) : (
+        filteredPayments.map((payment) => (
+          <div key={payment.id} className="p-4 hover:bg-muted/50 cursor-pointer transition-colors">
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <Badge variant="outline" className="font-mono text-xs">
+                    {payment.id}
+                  </Badge>
+                  <Badge className={cn('capitalize text-xs', getStatusColor(payment.status))}>
+                    {payment.status}
+                  </Badge>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">{payment.method}</span>
-                  </div>
-                  <span className="font-bold text-sm">${payment.amount.toLocaleString()}</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {new Date(payment.date).toLocaleDateString()}
-                </p>
+                <p className="font-medium text-sm truncate">{payment.customer}</p>
+                <p className="text-xs text-muted-foreground truncate">Invoice: {payment.invoice}</p>
               </div>
-            ))
-          )}
-        </div>
-      }
-      fixedMenuFooter={
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>
+            </div>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <CreditCard className="h-3 w-3 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">{payment.method}</span>
+              </div>
+              <span className="font-bold text-sm">${payment.amount.toLocaleString()}</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {new Date(payment.date).toLocaleDateString()}
+            </p>
+          </div>
+        ))
+      )}
+    </div>
+  );
+
+  return (
+    <UnifiedLayout hubId="commerce" pageTitle="Payments" stats={stats} fixedMenu={null}>
+      <div className="flex h-full">
+        {/* Fixed Menu Panel */}
+        <div className="w-80 border-r border-gray-200 flex flex-col">
+          {fixedMenuFilters}
+          <div className="flex-1 overflow-auto">{fixedMenuList}</div>
+          <div className="p-3 border-t border-gray-100 text-xs text-muted-foreground">
             {filteredPayments.length} payment{filteredPayments.length !== 1 ? 's' : ''}
-          </span>
+          </div>
         </div>
-      }
-    >
-      {/* Main content area - Payments detail table */}
-      <div className="h-full overflow-y-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Payment ID</TableHead>
-              <TableHead>Invoice</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Method</TableHead>
-              <TableHead>Amount</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredPayments.length === 0 ? (
+        {/* Main content area - Payments detail table */}
+        <div className="flex-1 overflow-y-auto">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-12">
-                  <div className="flex flex-col items-center gap-2">
-                    <CreditCard className="h-12 w-12 text-muted-foreground" />
-                    <p className="text-muted-foreground">No payments found</p>
-                  </div>
-                </TableCell>
+                <TableHead>Payment ID</TableHead>
+                <TableHead>Invoice</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Method</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ) : (
-              filteredPayments.map((payment) => (
-                <TableRow key={payment.id} className="cursor-pointer hover:bg-muted/50">
-                  <TableCell>
-                    <Badge variant="outline" className="font-mono">
-                      {payment.id}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="font-mono text-xs">
-                      {payment.invoice}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-medium">{payment.customer}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <CreditCard className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{payment.method}</span>
+            </TableHeader>
+            <TableBody>
+              {filteredPayments.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-12">
+                    <div className="flex flex-col items-center gap-2">
+                      <CreditCard className="h-12 w-12 text-muted-foreground" />
+                      <p className="text-muted-foreground">No payments found</p>
                     </div>
-                  </TableCell>
-                  <TableCell className="font-bold">${payment.amount.toLocaleString()}</TableCell>
-                  <TableCell>{new Date(payment.date).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Badge className={cn('capitalize', getStatusColor(payment.status))}>
-                      {payment.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Eye className="h-4 w-4 mr-2" />
-                          View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Receipt className="h-4 w-4 mr-2" />
-                          View Invoice
-                        </DropdownMenuItem>
-                        {payment.status === 'failed' && (
-                          <DropdownMenuItem>
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            Retry Payment
-                          </DropdownMenuItem>
-                        )}
-                        {payment.status === 'succeeded' && (
-                          <DropdownMenuItem>
-                            <RefreshCw className="h-4 w-4 mr-2" />
-                            Process Refund
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                filteredPayments.map((payment) => (
+                  <TableRow key={payment.id} className="cursor-pointer hover:bg-muted/50">
+                    <TableCell>
+                      <Badge variant="outline" className="font-mono">
+                        {payment.id}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="font-mono text-xs">
+                        {payment.invoice}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-medium">{payment.customer}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <CreditCard className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">{payment.method}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-bold">${payment.amount.toLocaleString()}</TableCell>
+                    <TableCell>{new Date(payment.date).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Badge className={cn('capitalize', getStatusColor(payment.status))}>
+                        {payment.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Receipt className="h-4 w-4 mr-2" />
+                            View Invoice
+                          </DropdownMenuItem>
+                          {payment.status === 'failed' && (
+                            <DropdownMenuItem>
+                              <RefreshCw className="h-4 w-4 mr-2" />
+                              Retry Payment
+                            </DropdownMenuItem>
+                          )}
+                          {payment.status === 'succeeded' && (
+                            <DropdownMenuItem>
+                              <RefreshCw className="h-4 w-4 mr-2" />
+                              Process Refund
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

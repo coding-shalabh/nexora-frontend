@@ -1,6 +1,9 @@
+'use client';
+
+import { CommerceProvider } from '@/components/layout/sidebars';
+
 // Commerce Layout - Uses HubLayout pattern (pages render their own layout)
-// Simplified to avoid double-sidebar and context errors
-// The old CommerceProvider/CommerceSidebar pattern conflicted with HubLayout used in pages
+// CommerceProvider is wrapped here to ensure any component using useCommerceContext works
 export default function CommerceLayout({ children }) {
-  return <>{children}</>;
+  return <CommerceProvider>{children}</CommerceProvider>;
 }

@@ -64,7 +64,7 @@ import {
   formatFileSize,
   getFileType,
 } from '@/hooks/use-files';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 // File type icons
 const fileTypeIcons = {
@@ -319,25 +319,7 @@ export default function FilesPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="files"
-      title="Files"
-      description="Manage your documents, images, and files"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2" onClick={() => setShowNewFolderDialog(true)}>
-            <FolderPlus className="h-4 w-4" />
-            New Folder
-          </Button>
-          <Button className="gap-2">
-            <Upload className="h-4 w-4" />
-            Upload
-          </Button>
-        </div>
-      }
-    >
+    <UnifiedLayout hubId="home" pageTitle="Files" stats={stats} fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Main Content */}
@@ -645,6 +627,6 @@ export default function FilesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

@@ -2,7 +2,7 @@
 
 import { Bot, Plus, CheckCircle, Activity, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 export default function AIAgentsPage() {
   const stats = [
@@ -12,21 +12,15 @@ export default function AIAgentsPage() {
     createStat('AI Actions', '0', Sparkles, 'emerald'),
   ];
 
+  const actions = [createAction('New AI Agent', Plus, () => {}, { primary: true })];
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="automation"
-      showTopBar={false}
-      showSidebar={false}
-      title="AI Agents"
-      description="Intelligent automation powered by AI"
+      pageTitle="AI Agents"
       stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New AI Agent
-        </Button>
-      }
+      actions={actions}
+      fixedMenu={null}
     >
       <div className="h-full overflow-y-auto p-6">
         <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
@@ -41,6 +35,6 @@ export default function AIAgentsPage() {
           </Button>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

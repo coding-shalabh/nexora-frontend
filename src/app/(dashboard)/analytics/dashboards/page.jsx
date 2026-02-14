@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -126,9 +127,9 @@ const iconMap = {
   'bar-chart': BarChart3,
   'trending-up': TrendingUp,
   'pie-chart': PieChart,
-  'activity': Activity,
-  'target': Target,
-  'dollar': DollarSign,
+  activity: Activity,
+  target: Target,
+  dollar: DollarSign,
 };
 
 const visibilityConfig = {
@@ -240,6 +241,19 @@ export default function DashboardsPage() {
   const [editDashboard, setEditDashboard] = useState(null);
   const [dashboards, setDashboards] = useState(mockDashboards);
 
+  // Stats for layout
+  const starredCount = dashboards.filter((d) => d.starred).length;
+  const publicCount = dashboards.filter((d) => d.visibility === 'public').length;
+  const layoutStats = [
+    createStat('Total Dashboards', dashboards.length.toString(), LayoutDashboard, 'blue'),
+    createStat('Starred', starredCount.toString(), Star, 'amber'),
+    createStat('Public', publicCount.toString(), Globe, 'green'),
+  ];
+
+  const actions = [
+    createAction('New Dashboard', Plus, () => setCreateDialogOpen(true), { primary: true }),
+  ];
+
   const filteredDashboards = dashboards.filter((dashboard) => {
     if (filterVisibility !== 'all' && dashboard.visibility !== filterVisibility) return false;
     if (showStarredOnly && !dashboard.starred) return false;
@@ -255,9 +269,11 @@ export default function DashboardsPage() {
 
   const handleCreateDashboard = (formData) => {
     if (editDashboard) {
-      setDashboards(dashboards.map((d) =>
-        d.id === editDashboard.id ? { ...d, ...formData, updatedAt: new Date().toISOString() } : d
-      ));
+      setDashboards(
+        dashboards.map((d) =>
+          d.id === editDashboard.id ? { ...d, ...formData, updatedAt: new Date().toISOString() } : d
+        )
+      );
     } else {
       const newDashboard = {
         id: Date.now().toString(),
@@ -275,9 +291,7 @@ export default function DashboardsPage() {
   };
 
   const handleToggleStar = (id) => {
-    setDashboards(dashboards.map((d) =>
-      d.id === id ? { ...d, starred: !d.starred } : d
-    ));
+    setDashboards(dashboards.map((d) => (d.id === id ? { ...d, starred: !d.starred } : d)));
   };
 
   const handleDuplicate = (dashboard) => {
@@ -306,182 +320,185 @@ export default function DashboardsPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboards</h1>
-          <p className="text-muted-foreground">Create and manage custom dashboards</p>
-        </div>
-        <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Dashboard
-        </Button>
-      </div>
-
-      {/* Filters */}
-      <Card className="p-4">
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search dashboards..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+    <UnifiedLayout
+      hubId="analytics"
+      pageTitle="Dashboards"
+      stats={layoutStats}
+      actions={actions}
+      fixedMenu={null}
+    >
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        {/* Filters */}
+        <Card className="p-4">
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search dashboards..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={filterVisibility} onValueChange={setFilterVisibility}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Visibility" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Dashboards</SelectItem>
+                <SelectItem value="public">Public</SelectItem>
+                <SelectItem value="team">Team</SelectItem>
+                <SelectItem value="private">Private</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button
+              variant={showStarredOnly ? 'secondary' : 'outline'}
+              onClick={() => setShowStarredOnly(!showStarredOnly)}
+              className="gap-2"
+            >
+              <Star
+                className={cn('h-4 w-4', showStarredOnly && 'fill-yellow-400 text-yellow-400')}
+              />
+              Starred
+            </Button>
           </div>
-          <Select value={filterVisibility} onValueChange={setFilterVisibility}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Visibility" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Dashboards</SelectItem>
-              <SelectItem value="public">Public</SelectItem>
-              <SelectItem value="team">Team</SelectItem>
-              <SelectItem value="private">Private</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button
-            variant={showStarredOnly ? 'secondary' : 'outline'}
-            onClick={() => setShowStarredOnly(!showStarredOnly)}
-            className="gap-2"
-          >
-            <Star className={cn('h-4 w-4', showStarredOnly && 'fill-yellow-400 text-yellow-400')} />
-            Starred
-          </Button>
-        </div>
-      </Card>
-
-      {/* Dashboard Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredDashboards.map((dashboard) => {
-          const IconComponent = iconMap[dashboard.icon] || LayoutDashboard;
-          const VisibilityIcon = visibilityConfig[dashboard.visibility].icon;
-
-          return (
-            <Card key={dashboard.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="p-6">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <IconComponent className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-semibold">{dashboard.name}</h3>
-                        <button
-                          onClick={() => handleToggleStar(dashboard.id)}
-                          className="text-muted-foreground hover:text-yellow-500"
-                        >
-                          <Star
-                            className={cn(
-                              'h-4 w-4',
-                              dashboard.starred && 'fill-yellow-400 text-yellow-400'
-                            )}
-                          />
-                        </button>
-                      </div>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <VisibilityIcon className={cn('h-3 w-3', visibilityConfig[dashboard.visibility].color)} />
-                        <span>{visibilityConfig[dashboard.visibility].label}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Dashboard
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setEditDashboard(dashboard);
-                          setCreateDialogOpen(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDuplicate(dashboard)}>
-                        <Copy className="h-4 w-4 mr-2" />
-                        Duplicate
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <Share2 className="h-4 w-4 mr-2" />
-                        Share
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleDelete(dashboard.id)}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-
-                <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
-                  {dashboard.description}
-                </p>
-
-                <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span>{dashboard.widgets} widgets</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Eye className="h-4 w-4" />
-                    <span>{dashboard.views}</span>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-4 border-t flex items-center justify-between text-xs text-muted-foreground">
-                  <span>By {dashboard.createdBy}</span>
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    <span>{formatDate(dashboard.updatedAt)}</span>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      {filteredDashboards.length === 0 && (
-        <Card className="p-12 text-center">
-          <LayoutDashboard className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No dashboards found</h3>
-          <p className="text-muted-foreground mb-4">
-            {searchQuery
-              ? 'Try adjusting your search or filters'
-              : 'Create your first dashboard to start tracking metrics'}
-          </p>
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Dashboard
-          </Button>
         </Card>
-      )}
 
-      {/* Create/Edit Dialog */}
-      <CreateDashboardDialog
-        open={createDialogOpen}
-        onOpenChange={(open) => {
-          setCreateDialogOpen(open);
-          if (!open) setEditDashboard(null);
-        }}
-        onSubmit={handleCreateDashboard}
-        editDashboard={editDashboard}
-      />
-    </div>
+        {/* Dashboard Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredDashboards.map((dashboard) => {
+            const IconComponent = iconMap[dashboard.icon] || LayoutDashboard;
+            const VisibilityIcon = visibilityConfig[dashboard.visibility].icon;
+
+            return (
+              <Card
+                key={dashboard.id}
+                className="overflow-hidden hover:shadow-lg transition-shadow"
+              >
+                <div className="p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <IconComponent className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-semibold">{dashboard.name}</h3>
+                          <button
+                            onClick={() => handleToggleStar(dashboard.id)}
+                            className="text-muted-foreground hover:text-yellow-500"
+                          >
+                            <Star
+                              className={cn(
+                                'h-4 w-4',
+                                dashboard.starred && 'fill-yellow-400 text-yellow-400'
+                              )}
+                            />
+                          </button>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <VisibilityIcon
+                            className={cn('h-3 w-3', visibilityConfig[dashboard.visibility].color)}
+                          />
+                          <span>{visibilityConfig[dashboard.visibility].label}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Dashboard
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setEditDashboard(dashboard);
+                            setCreateDialogOpen(true);
+                          }}
+                        >
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDuplicate(dashboard)}>
+                          <Copy className="h-4 w-4 mr-2" />
+                          Duplicate
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Share2 className="h-4 w-4 mr-2" />
+                          Share
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(dashboard.id)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <p className="mt-3 text-sm text-muted-foreground line-clamp-2">
+                    {dashboard.description}
+                  </p>
+
+                  <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <LayoutDashboard className="h-4 w-4" />
+                      <span>{dashboard.widgets} widgets</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Eye className="h-4 w-4" />
+                      <span>{dashboard.views}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t flex items-center justify-between text-xs text-muted-foreground">
+                    <span>By {dashboard.createdBy}</span>
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      <span>{formatDate(dashboard.updatedAt)}</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+
+        {filteredDashboards.length === 0 && (
+          <Card className="p-12 text-center">
+            <LayoutDashboard className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No dashboards found</h3>
+            <p className="text-muted-foreground mb-4">
+              {searchQuery
+                ? 'Try adjusting your search or filters'
+                : 'Create your first dashboard to start tracking metrics'}
+            </p>
+            <Button onClick={() => setCreateDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Dashboard
+            </Button>
+          </Card>
+        )}
+
+        {/* Create/Edit Dialog */}
+        <CreateDashboardDialog
+          open={createDialogOpen}
+          onOpenChange={(open) => {
+            setCreateDialogOpen(open);
+            if (!open) setEditDashboard(null);
+          }}
+          onSubmit={handleCreateDashboard}
+          editDashboard={editDashboard}
+        />
+      </div>
+    </UnifiedLayout>
   );
 }

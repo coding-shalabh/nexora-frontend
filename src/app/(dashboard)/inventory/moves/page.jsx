@@ -35,6 +35,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 // Mock stock moves data
 const stockMoves = [
@@ -121,151 +122,165 @@ export default function InventoryMovesPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
 
+  const layoutStats = [
+    createStat('Stock In (Today)', '300', ArrowDown, 'green'),
+    createStat('Stock Out (Today)', '125', ArrowUp, 'red'),
+    createStat('Transfers (Week)', '12', ArrowRight, 'blue'),
+    createStat('Adjustments (Week)', '8', ArrowDownUp, 'amber'),
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Stock Movements</h1>
-          <p className="text-muted-foreground">Track all inventory ins, outs, and transfers</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-          <Link href="/inventory/moves/new">
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              New Movement
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <stat.icon className={cn('h-5 w-5', stat.color)} />
-                </div>
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by product, SKU, or reference..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="All Types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="in">Stock In</SelectItem>
-                <SelectItem value="out">Stock Out</SelectItem>
-                <SelectItem value="transfer">Transfer</SelectItem>
-                <SelectItem value="adjustment">Adjustment</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" className="gap-2">
-              <Calendar className="h-4 w-4" />
-              Date Range
-            </Button>
+    <UnifiedLayout
+      hubId="inventory"
+      pageTitle="Stock Movements"
+      stats={layoutStats}
+      fixedMenu={null}
+    >
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Stock Movements</h1>
+            <p className="text-muted-foreground">Track all inventory ins, outs, and transfers</p>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-2">
+              <Download className="h-4 w-4" />
+              Export
+            </Button>
+            <Link href="/inventory/moves/new">
+              <Button className="gap-2">
+                <Plus className="h-4 w-4" />
+                New Movement
+              </Button>
+            </Link>
+          </div>
+        </div>
 
-      {/* Movements Table */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <ArrowDownUp className="h-4 w-4" />
-            Movement History
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>ID</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead className="text-right">Qty</TableHead>
-                <TableHead>From</TableHead>
-                <TableHead>To</TableHead>
-                <TableHead>Reference</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {stockMoves.map((move) => {
-                const typeConfig = getTypeConfig(move.type);
-                return (
-                  <TableRow key={move.id}>
-                    <TableCell className="font-mono text-sm">{move.id}</TableCell>
-                    <TableCell className="text-sm">{move.date}</TableCell>
-                    <TableCell>
-                      <Badge className={typeConfig.badge}>
-                        <typeConfig.icon className="h-3 w-3 mr-1" />
-                        {typeConfig.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{move.product}</p>
-                        <p className="text-xs text-muted-foreground font-mono">{move.sku}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      <span className={cn(move.qty > 0 ? 'text-green-600' : 'text-red-600')}>
-                        {move.qty > 0 ? '+' : ''}
-                        {move.qty}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{move.from}</TableCell>
-                    <TableCell className="text-sm text-muted-foreground">{move.to}</TableCell>
-                    <TableCell className="font-mono text-sm">{move.reference}</TableCell>
-                    <TableCell>
-                      <Badge
-                        className={cn(
-                          move.status === 'completed' && 'bg-green-100 text-green-700',
-                          move.status === 'pending' && 'bg-yellow-100 text-yellow-700'
-                        )}
-                      >
-                        {move.status}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <stat.icon className={cn('h-5 w-5', stat.color)} />
+                  </div>
+                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Filters */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="relative flex-1 min-w-[200px]">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by product, SKU, or reference..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Select value={typeFilter} onValueChange={setTypeFilter}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="in">Stock In</SelectItem>
+                  <SelectItem value="out">Stock Out</SelectItem>
+                  <SelectItem value="transfer">Transfer</SelectItem>
+                  <SelectItem value="adjustment">Adjustment</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" className="gap-2">
+                <Calendar className="h-4 w-4" />
+                Date Range
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Movements Table */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <ArrowDownUp className="h-4 w-4" />
+              Movement History
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Product</TableHead>
+                  <TableHead className="text-right">Qty</TableHead>
+                  <TableHead>From</TableHead>
+                  <TableHead>To</TableHead>
+                  <TableHead>Reference</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {stockMoves.map((move) => {
+                  const typeConfig = getTypeConfig(move.type);
+                  return (
+                    <TableRow key={move.id}>
+                      <TableCell className="font-mono text-sm">{move.id}</TableCell>
+                      <TableCell className="text-sm">{move.date}</TableCell>
+                      <TableCell>
+                        <Badge className={typeConfig.badge}>
+                          <typeConfig.icon className="h-3 w-3 mr-1" />
+                          {typeConfig.label}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium">{move.product}</p>
+                          <p className="text-xs text-muted-foreground font-mono">{move.sku}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-medium">
+                        <span className={cn(move.qty > 0 ? 'text-green-600' : 'text-red-600')}>
+                          {move.qty > 0 ? '+' : ''}
+                          {move.qty}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{move.from}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{move.to}</TableCell>
+                      <TableCell className="font-mono text-sm">{move.reference}</TableCell>
+                      <TableCell>
+                        <Badge
+                          className={cn(
+                            move.status === 'completed' && 'bg-green-100 text-green-700',
+                            move.status === 'pending' && 'bg-yellow-100 text-yellow-700'
+                          )}
+                        >
+                          {move.status}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </UnifiedLayout>
   );
 }

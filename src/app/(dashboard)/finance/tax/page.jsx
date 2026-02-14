@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const taxFilings = [
   {
@@ -119,110 +120,119 @@ const getStatusBadge = (status) => {
 export default function TaxPage() {
   const [year, setYear] = useState('2025-26');
 
+  const layoutStats = [
+    createStat('Tax Payable', '₹3.25L', Calculator, 'blue'),
+    createStat('Filed (Month)', '4', CheckCircle, 'green'),
+    createStat('Due Soon', '2', Clock, 'amber'),
+    createStat('Overdue', '0', AlertTriangle, 'green'),
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Tax Management</h1>
-          <p className="text-muted-foreground">Track tax filings and compliance</p>
+    <UnifiedLayout hubId="finance" pageTitle="Tax Management" stats={layoutStats} fixedMenu={null}>
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">Tax Management</h1>
+            <p className="text-muted-foreground">Track tax filings and compliance</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Select value={year} onValueChange={setYear}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Select Year" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="2025-26">FY 2025-26</SelectItem>
+                <SelectItem value="2024-25">FY 2024-25</SelectItem>
+                <SelectItem value="2023-24">FY 2023-24</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" className="gap-2">
+              <Download className="h-4 w-4" />
+              Download Reports
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Select value={year} onValueChange={setYear}>
-            <SelectTrigger className="w-[150px]">
-              <SelectValue placeholder="Select Year" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="2025-26">FY 2025-26</SelectItem>
-              <SelectItem value="2024-25">FY 2024-25</SelectItem>
-              <SelectItem value="2023-24">FY 2023-24</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Download Reports
-          </Button>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <stat.icon className={cn('h-5 w-5', stat.color)} />
-                  <div>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
-
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <FileText className="h-4 w-4" />
-            Tax Filings & Payments
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead>Period</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {taxFilings.map((filing) => (
-                <TableRow key={filing.id} className="cursor-pointer hover:bg-muted/50">
-                  <TableCell className="font-medium">{filing.type}</TableCell>
-                  <TableCell>{filing.period}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3 text-muted-foreground" />
-                      {filing.dueDate}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <stat.icon className={cn('h-5 w-5', stat.color)} />
+                    <div>
+                      <p className="text-2xl font-bold">{stat.value}</p>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
                     </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {filing.amount > 0 ? formatCurrency(filing.amount) : '-'}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(filing.status)}</TableCell>
-                  <TableCell>
-                    {(filing.status === 'pending' || filing.status === 'due-soon') && (
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="ghost" className="gap-1 h-7">
-                          <Upload className="h-3 w-3" />
-                          File
-                        </Button>
-                      </div>
-                    )}
-                    {(filing.status === 'filed' || filing.status === 'paid') && (
-                      <Button size="sm" variant="ghost" className="gap-1 h-7">
-                        <Download className="h-3 w-3" />
-                        Receipt
-                      </Button>
-                    )}
-                  </TableCell>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Tax Filings & Payments
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Period</TableHead>
+                  <TableHead>Due Date</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+              </TableHeader>
+              <TableBody>
+                {taxFilings.map((filing) => (
+                  <TableRow key={filing.id} className="cursor-pointer hover:bg-muted/50">
+                    <TableCell className="font-medium">{filing.type}</TableCell>
+                    <TableCell>{filing.period}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-3 w-3 text-muted-foreground" />
+                        {filing.dueDate}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {filing.amount > 0 ? formatCurrency(filing.amount) : '-'}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(filing.status)}</TableCell>
+                    <TableCell>
+                      {(filing.status === 'pending' || filing.status === 'due-soon') && (
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="ghost" className="gap-1 h-7">
+                            <Upload className="h-3 w-3" />
+                            File
+                          </Button>
+                        </div>
+                      )}
+                      {(filing.status === 'filed' || filing.status === 'paid') && (
+                        <Button size="sm" variant="ghost" className="gap-1 h-7">
+                          <Download className="h-3 w-3" />
+                          Receipt
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </UnifiedLayout>
   );
 }

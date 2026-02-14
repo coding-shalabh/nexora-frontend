@@ -58,7 +58,7 @@ import {
   UserMinus,
   RefreshCw,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 // WhatsApp icon component
 const WhatsAppIcon = ({ className }) => (
@@ -385,21 +385,17 @@ export default function SequencesPage() {
     createStat('Avg Open Rate', `${avgOpenRate}%`, TrendingUp, 'emerald'),
   ];
 
+  const actions = [
+    createAction('Create Sequence', Plus, () => setCreateDialogOpen(true), { primary: true }),
+  ];
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="automation"
-      showTopBar={false}
-      showSidebar={false}
-      title="Sequences"
-      description="Automated multi-step messaging campaigns"
+      pageTitle="Sequences"
       stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Sequence
-        </Button>
-      }
+      actions={actions}
+      fixedMenu={null}
     >
       <div className="h-full overflow-y-auto p-6 space-y-6">
         {/* Filters */}
@@ -617,6 +613,6 @@ export default function SequencesPage() {
         onSubmit={handleCreateSequence}
         editSequence={editSequence}
       />
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

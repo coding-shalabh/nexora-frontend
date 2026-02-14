@@ -1,33 +1,12 @@
 'use client';
 
-import { Filter, Plus, Users, Settings, RefreshCw } from 'lucide-react';
+import { Filter, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 export default function DynamicSegmentsPage() {
-  const stats = [
-    createStat('Segments', '0', Filter, 'blue'),
-    createStat('Contacts', '0', Users, 'green'),
-    createStat('Conditions', '0', Settings, 'purple'),
-    createStat('Updated', '0', RefreshCw, 'amber'),
-  ];
-
   return (
-    <HubLayout
-      hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Dynamic Segments"
-      description="Auto-updating segments based on criteria"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Segment
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="crm" pageTitle="Dynamic Segments" fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6">
         <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
           <Filter className="h-12 w-12 text-muted-foreground mb-4" />
@@ -41,6 +20,6 @@ export default function DynamicSegmentsPage() {
           </Button>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

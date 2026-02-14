@@ -57,12 +57,11 @@ export function HubSidebar({ hubId: propHubId }) {
 
   // Get hub config
   const hub = hubId ? HUBS[hubId.toUpperCase()] : null;
-  if (!hub) return null;
 
-  const HubIcon = hub.icon;
-
-  // Load collapsed state from localStorage
+  // Load collapsed state from localStorage (SSR-safe)
+  // Hook must be called before any conditional returns (Rules of Hooks)
   useEffect(() => {
+    if (typeof window === 'undefined' || !hubId) return;
     const saved = localStorage.getItem(`hub-sidebar-collapsed-${hubId}`);
     if (saved !== null) {
       setIsCollapsed(JSON.parse(saved));
@@ -73,8 +72,15 @@ export function HubSidebar({ hubId: propHubId }) {
   const toggleCollapsed = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
-    localStorage.setItem(`hub-sidebar-collapsed-${hubId}`, JSON.stringify(newState));
+    if (typeof window !== 'undefined' && hubId) {
+      localStorage.setItem(`hub-sidebar-collapsed-${hubId}`, JSON.stringify(newState));
+    }
   };
+
+  // Early return after all hooks
+  if (!hub) return null;
+
+  const HubIcon = hub.icon;
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -204,6 +210,7 @@ export function HubSidebar({ hubId: propHubId }) {
           variant="outline"
           size="icon"
           onClick={toggleCollapsed}
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           className="absolute -right-3 top-20 h-6 w-6 rounded-full bg-white border-gray-200 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
         >
           {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}

@@ -15,7 +15,7 @@ import {
   User,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -298,17 +298,14 @@ export default function KBArticlesPage() {
   );
 
   return (
-    <HubLayout
-      title="Knowledge Base Articles"
-      description="Manage help articles and documentation"
+    <UnifiedLayout
+      hubId="service"
+      pageTitle="Knowledge Base Articles"
       stats={layoutStats}
-      searchValue={searchQuery}
-      onSearchChange={handleSearch}
-      searchPlaceholder="Search articles..."
-      actionButtons={actionButtons}
-      showFixedMenu={false}
+      actions={[]}
+      fixedMenu={null}
     >
       {mainContent}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

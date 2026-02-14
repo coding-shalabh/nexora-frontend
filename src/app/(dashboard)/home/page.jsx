@@ -38,7 +38,7 @@ import {
   useRecentConversations,
   useRecentActivities,
 } from '@/hooks/use-dashboard';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const statusColors = {
   online: 'bg-green-500',
@@ -127,7 +127,7 @@ export default function HomePage() {
   // Error state (still show error if API fails)
   if (statsError && !statsLoading) {
     return (
-      <HubLayout hubId="home" showFixedMenu={false}>
+      <UnifiedLayout hubId="home" pageTitle="Dashboard" fixedMenu={null}>
         <div className="flex flex-col items-center justify-center h-[400px] gap-4">
           <AlertCircle className="h-12 w-12 text-destructive" />
           <p className="text-lg font-medium">Failed to load dashboard</p>
@@ -137,7 +137,7 @@ export default function HomePage() {
             Try Again
           </Button>
         </div>
-      </HubLayout>
+      </UnifiedLayout>
     );
   }
 
@@ -164,14 +164,7 @@ export default function HomePage() {
   );
 
   return (
-    <HubLayout
-      hubId="home"
-      title="Dashboard"
-      description="Welcome back! Here's what's happening today."
-      stats={hubStats}
-      actions={actions}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="home" pageTitle="Dashboard" stats={hubStats} fixedMenu={null}>
       <motion.div
         className="space-y-6 p-6 h-full overflow-y-auto"
         variants={containerVariants}
@@ -481,6 +474,6 @@ export default function HomePage() {
           </GlassCard>
         </motion.div>
       </motion.div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

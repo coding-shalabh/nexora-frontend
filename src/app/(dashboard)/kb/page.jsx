@@ -43,7 +43,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 // Mock categories
 const mockCategories = [
@@ -170,29 +170,7 @@ export default function KnowledgeBasePage() {
   ];
 
   return (
-    <HubLayout
-      hubId="kb"
-      title="Knowledge Base"
-      description="Create and manage help articles for your customers"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <div className="flex items-center gap-2">
-          <Link href="/kb/categories">
-            <Button variant="outline">
-              <FolderOpen className="mr-2 h-4 w-4" />
-              Categories
-            </Button>
-          </Link>
-          <Link href="/kb/articles/new">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              New Article
-            </Button>
-          </Link>
-        </div>
-      }
-    >
+    <UnifiedLayout hubId="home" pageTitle="Knowledge Base" stats={stats} fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6 space-y-6">
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -533,6 +511,6 @@ export default function KnowledgeBasePage() {
           </TabsContent>
         </Tabs>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

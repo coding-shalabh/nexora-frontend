@@ -93,6 +93,7 @@ export function IconRail() {
                       ? '/settings/organization'
                       : item.href
             }
+            aria-label={item.title}
           >
             <motion.div
               whileHover={{ scale: 1.05 }}

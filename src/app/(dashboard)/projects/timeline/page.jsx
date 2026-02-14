@@ -1,6 +1,6 @@
 'use client';
 
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -54,19 +54,17 @@ export default function ProjectsTimelinePage() {
 
   const monthName = viewMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 
+  const actions = [
+    createAction('New Project', Plus, () => console.log('new project'), { primary: true }),
+  ];
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="projects"
-      title="Timeline"
-      description="Gantt-style project timeline view"
+      pageTitle="Timeline"
       stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Project
-        </Button>
-      }
+      actions={actions}
+      fixedMenu={null}
     >
       <div className="h-full overflow-auto p-6 space-y-6">
         {/* Month Navigation */}
@@ -160,6 +158,6 @@ export default function ProjectsTimelinePage() {
           </Card>
         )}
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

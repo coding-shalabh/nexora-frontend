@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { UnifiedLayout } from '@/components/layout/unified';
 import {
   Mail,
   Plus,
@@ -325,591 +326,595 @@ export default function EmailAccountsPage() {
   const isSubmitting = createInbox.isPending || updateInbox.isPending;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Mail className="h-6 w-6" />
-            Email Accounts
-          </h1>
-          <p className="text-muted-foreground">
-            Manage connected email accounts and shared inboxes
-          </p>
+    <UnifiedLayout hubId="settings" pageTitle="Email Accounts" fixedMenu={null}>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <Mail className="h-6 w-6" />
+              Email Accounts
+            </h1>
+            <p className="text-muted-foreground">
+              Manage connected email accounts and shared inboxes
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                <Mail className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{emailAccounts.length}</p>
-                <p className="text-sm text-muted-foreground">Connected Accounts</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                <Inbox className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{sharedInboxes.length}</p>
-                <p className="text-sm text-muted-foreground">Shared Inboxes</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                <Users className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">
-                  {sharedInboxes.reduce((sum, inbox) => sum + (inbox.memberCount || 0), 0)}
-                </p>
-                <p className="text-sm text-muted-foreground">Total Members</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="accounts" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="accounts" className="flex items-center gap-2">
-            <Mail className="h-4 w-4" />
-            Connected Accounts
-          </TabsTrigger>
-          <TabsTrigger value="shared-inboxes" className="flex items-center gap-2">
-            <Inbox className="h-4 w-4" />
-            Shared Inboxes
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Connected Accounts Tab */}
-        <TabsContent value="accounts" className="space-y-4">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <Mail className="h-5 w-5 text-blue-600" />
+                </div>
                 <div>
-                  <CardTitle>Connected Email Accounts</CardTitle>
-                  <CardDescription>
-                    Email accounts connected via OAuth or IMAP for sending and receiving emails
-                  </CardDescription>
+                  <p className="text-2xl font-bold">{emailAccounts.length}</p>
+                  <p className="text-sm text-muted-foreground">Connected Accounts</p>
                 </div>
-                <Button onClick={() => setShowAddAccountDialog(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Connect Account
-                </Button>
               </div>
-            </CardHeader>
-            <CardContent>
-              {accountsLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                  <Inbox className="h-5 w-5 text-purple-600" />
                 </div>
-              ) : emailAccounts.length === 0 ? (
-                <div className="text-center py-12">
-                  <Mail className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <h3 className="font-medium mb-2">No email accounts connected</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Connect your Gmail or Outlook account to start sending and receiving emails
+                <div>
+                  <p className="text-2xl font-bold">{sharedInboxes.length}</p>
+                  <p className="text-sm text-muted-foreground">Shared Inboxes</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                  <Users className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold">
+                    {sharedInboxes.reduce((sum, inbox) => sum + (inbox.memberCount || 0), 0)}
                   </p>
+                  <p className="text-sm text-muted-foreground">Total Members</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Tabs defaultValue="accounts" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="accounts" className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              Connected Accounts
+            </TabsTrigger>
+            <TabsTrigger value="shared-inboxes" className="flex items-center gap-2">
+              <Inbox className="h-4 w-4" />
+              Shared Inboxes
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Connected Accounts Tab */}
+          <TabsContent value="accounts" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Connected Email Accounts</CardTitle>
+                    <CardDescription>
+                      Email accounts connected via OAuth or IMAP for sending and receiving emails
+                    </CardDescription>
+                  </div>
                   <Button onClick={() => setShowAddAccountDialog(true)}>
                     <Plus className="h-4 w-4 mr-2" />
-                    Connect Your First Account
+                    Connect Account
                   </Button>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {emailAccounts.map((account) => (
-                    <div
-                      key={account.id}
-                      className="flex items-center justify-between p-4 rounded-lg border bg-card"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                          {getProviderIcon(account.provider)}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium">{account.email}</p>
-                            <StatusBadge status={account.status} />
-                            {account.isDefault && (
-                              <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">
-                                Default
-                              </Badge>
-                            )}
+              </CardHeader>
+              <CardContent>
+                {accountsLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : emailAccounts.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Mail className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                    <h3 className="font-medium mb-2">No email accounts connected</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Connect your Gmail or Outlook account to start sending and receiving emails
+                    </p>
+                    <Button onClick={() => setShowAddAccountDialog(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Connect Your First Account
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {emailAccounts.map((account) => (
+                      <div
+                        key={account.id}
+                        className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                            {getProviderIcon(account.provider)}
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            {account.displayName || account.provider} • Last synced:{' '}
-                            {account.lastSyncAt
-                              ? new Date(account.lastSyncAt).toLocaleString()
-                              : 'Never'}
-                          </p>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{account.email}</p>
+                              <StatusBadge status={account.status} />
+                              {account.isDefault && (
+                                <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">
+                                  Default
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {account.displayName || account.provider} • Last synced:{' '}
+                              {account.lastSyncAt
+                                ? new Date(account.lastSyncAt).toLocaleString()
+                                : 'Never'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => refetchAccounts()}>
+                            <RefreshCw className="h-4 w-4" />
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem>
+                                <Settings className="h-4 w-4 mr-2" />
+                                Settings
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Users className="h-4 w-4 mr-2" />
+                                Manage Access
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => setDisconnectConfirmDialog(account)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Disconnect
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => refetchAccounts()}>
-                          <RefreshCw className="h-4 w-4" />
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem>
-                              <Settings className="h-4 w-4 mr-2" />
-                              Settings
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                              <Users className="h-4 w-4 mr-2" />
-                              Manage Access
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive"
-                              onClick={() => setDisconnectConfirmDialog(account)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Disconnect
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        {/* Shared Inboxes Tab */}
-        <TabsContent value="shared-inboxes" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Shared Inboxes</CardTitle>
-                  <CardDescription>
-                    Team inboxes that multiple agents can access and respond from
-                  </CardDescription>
-                </div>
-                <Button
-                  onClick={() => {
-                    setEditingInbox(null);
-                    setInboxForm(defaultSharedInboxForm);
-                    setShowCreateInboxDialog(true);
-                  }}
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Inbox
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {inboxesLoading ? (
-                <div className="flex items-center justify-center py-12">
-                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                </div>
-              ) : sharedInboxes.length === 0 ? (
-                <div className="text-center py-12">
-                  <Inbox className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
-                  <h3 className="font-medium mb-2">No shared inboxes</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Create a shared inbox so your team can collaborate on customer emails
-                  </p>
-                  <Button onClick={() => setShowCreateInboxDialog(true)}>
+          {/* Shared Inboxes Tab */}
+          <TabsContent value="shared-inboxes" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Shared Inboxes</CardTitle>
+                    <CardDescription>
+                      Team inboxes that multiple agents can access and respond from
+                    </CardDescription>
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setEditingInbox(null);
+                      setInboxForm(defaultSharedInboxForm);
+                      setShowCreateInboxDialog(true);
+                    }}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
-                    Create First Inbox
+                    Create Inbox
                   </Button>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {sharedInboxes.map((inbox) => (
-                    <div
-                      key={inbox.id}
-                      className="flex items-center justify-between p-4 rounded-lg border bg-card"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                          <Inbox className="h-6 w-6 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                {inboxesLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : sharedInboxes.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Inbox className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+                    <h3 className="font-medium mb-2">No shared inboxes</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Create a shared inbox so your team can collaborate on customer emails
+                    </p>
+                    <Button onClick={() => setShowCreateInboxDialog(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create First Inbox
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {sharedInboxes.map((inbox) => (
+                      <div
+                        key={inbox.id}
+                        className="flex items-center justify-between p-4 rounded-lg border bg-card"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                            <Inbox className="h-6 w-6 text-purple-600" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium">{inbox.name}</p>
+                              <StatusBadge status={inbox.status} />
+                            </div>
+                            <p className="text-sm text-muted-foreground">{inbox.email}</p>
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                {inbox.memberCount || 0} members
+                              </span>
+                              {inbox.autoAssign && (
+                                <Badge variant="outline" className="text-xs">
+                                  Auto-assign: {inbox.assignmentType?.replace('_', ' ')}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium">{inbox.name}</p>
-                            <StatusBadge status={inbox.status} />
-                          </div>
-                          <p className="text-sm text-muted-foreground">{inbox.email}</p>
-                          <div className="flex items-center gap-3 mt-1">
-                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Users className="h-3 w-3" />
-                              {inbox.memberCount || 0} members
-                            </span>
-                            {inbox.autoAssign && (
-                              <Badge variant="outline" className="text-xs">
-                                Auto-assign: {inbox.assignmentType?.replace('_', ' ')}
-                              </Badge>
-                            )}
-                          </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleManageMembers(inbox)}
+                          >
+                            <Users className="h-4 w-4 mr-2" />
+                            Members
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEditInbox(inbox)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleManageMembers(inbox)}>
+                                <Users className="h-4 w-4 mr-2" />
+                                Manage Members
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => setDeleteConfirmDialog(inbox)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleManageMembers(inbox)}
-                        >
-                          <Users className="h-4 w-4 mr-2" />
-                          Members
-                        </Button>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => handleEditInbox(inbox)}>
-                              <Edit className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleManageMembers(inbox)}>
-                              <Users className="h-4 w-4 mr-2" />
-                              Manage Members
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              className="text-destructive"
-                              onClick={() => setDeleteConfirmDialog(inbox)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-          {/* Tips Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-blue-500" />
-                About Shared Inboxes
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground space-y-2">
-              <p>• Shared inboxes allow multiple team members to view and respond to emails</p>
-              <p>• Auto-assign distributes new emails to available agents automatically</p>
-              <p>• Round Robin assigns emails evenly across team members</p>
-              <p>• Load Balanced assigns to the agent with fewest active conversations</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            {/* Tips Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-blue-500" />
+                  About Shared Inboxes
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground space-y-2">
+                <p>• Shared inboxes allow multiple team members to view and respond to emails</p>
+                <p>• Auto-assign distributes new emails to available agents automatically</p>
+                <p>• Round Robin assigns emails evenly across team members</p>
+                <p>• Load Balanced assigns to the agent with fewest active conversations</p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
 
-      {/* Add Account Dialog */}
-      <Dialog open={showAddAccountDialog} onOpenChange={setShowAddAccountDialog}>
-        <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Connect Email Account</DialogTitle>
-            <DialogDescription>
-              Connect your email account via OAuth or IMAP to send and receive emails
-            </DialogDescription>
-          </DialogHeader>
-          <EmailSetup
-            onComplete={() => {
-              setShowAddAccountDialog(false);
-              refetchAccounts();
-            }}
-            onBack={() => setShowAddAccountDialog(false)}
-          />
-        </DialogContent>
-      </Dialog>
+        {/* Add Account Dialog */}
+        <Dialog open={showAddAccountDialog} onOpenChange={setShowAddAccountDialog}>
+          <DialogContent className="sm:max-w-[700px] max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Connect Email Account</DialogTitle>
+              <DialogDescription>
+                Connect your email account via OAuth or IMAP to send and receive emails
+              </DialogDescription>
+            </DialogHeader>
+            <EmailSetup
+              onComplete={() => {
+                setShowAddAccountDialog(false);
+                refetchAccounts();
+              }}
+              onBack={() => setShowAddAccountDialog(false)}
+            />
+          </DialogContent>
+        </Dialog>
 
-      {/* Create/Edit Inbox Dialog */}
-      <Dialog open={showCreateInboxDialog} onOpenChange={setShowCreateInboxDialog}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>{editingInbox ? 'Edit Shared Inbox' : 'Create Shared Inbox'}</DialogTitle>
-            <DialogDescription>
-              {editingInbox
-                ? 'Update the shared inbox settings'
-                : 'Create a new shared inbox for your team'}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="inbox-name">Inbox Name *</Label>
-              <Input
-                id="inbox-name"
-                placeholder="e.g., Support Inbox"
-                value={inboxForm.name}
-                onChange={(e) => setInboxForm({ ...inboxForm, name: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="inbox-email">Email Address *</Label>
-              <Input
-                id="inbox-email"
-                type="email"
-                placeholder="e.g., support@yourcompany.com"
-                value={inboxForm.email}
-                onChange={(e) => setInboxForm({ ...inboxForm, email: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Inbound Type</Label>
-              <Select
-                value={inboxForm.inboundType}
-                onValueChange={(value) => setInboxForm({ ...inboxForm, inboundType: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="forwarding">Email Forwarding</SelectItem>
-                  <SelectItem value="oauth">OAuth (Gmail/Outlook)</SelectItem>
-                  <SelectItem value="imap">IMAP</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                How emails will be received in this inbox
-              </p>
-            </div>
-            <div className="flex items-center justify-between p-3 border rounded-lg">
-              <div>
-                <Label>Auto-Assign</Label>
-                <p className="text-xs text-muted-foreground">
-                  Automatically assign new emails to team members
-                </p>
-              </div>
-              <Switch
-                checked={inboxForm.autoAssign}
-                onCheckedChange={(checked) => setInboxForm({ ...inboxForm, autoAssign: checked })}
-              />
-            </div>
-            {inboxForm.autoAssign && (
+        {/* Create/Edit Inbox Dialog */}
+        <Dialog open={showCreateInboxDialog} onOpenChange={setShowCreateInboxDialog}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>
+                {editingInbox ? 'Edit Shared Inbox' : 'Create Shared Inbox'}
+              </DialogTitle>
+              <DialogDescription>
+                {editingInbox
+                  ? 'Update the shared inbox settings'
+                  : 'Create a new shared inbox for your team'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label>Assignment Type</Label>
+                <Label htmlFor="inbox-name">Inbox Name *</Label>
+                <Input
+                  id="inbox-name"
+                  placeholder="e.g., Support Inbox"
+                  value={inboxForm.name}
+                  onChange={(e) => setInboxForm({ ...inboxForm, name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="inbox-email">Email Address *</Label>
+                <Input
+                  id="inbox-email"
+                  type="email"
+                  placeholder="e.g., support@yourcompany.com"
+                  value={inboxForm.email}
+                  onChange={(e) => setInboxForm({ ...inboxForm, email: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Inbound Type</Label>
                 <Select
-                  value={inboxForm.assignmentType}
-                  onValueChange={(value) => setInboxForm({ ...inboxForm, assignmentType: value })}
+                  value={inboxForm.inboundType}
+                  onValueChange={(value) => setInboxForm({ ...inboxForm, inboundType: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="round_robin">Round Robin</SelectItem>
-                    <SelectItem value="load_balanced">Load Balanced</SelectItem>
-                    <SelectItem value="manual">Manual</SelectItem>
+                    <SelectItem value="forwarding">Email Forwarding</SelectItem>
+                    <SelectItem value="oauth">OAuth (Gmail/Outlook)</SelectItem>
+                    <SelectItem value="imap">IMAP</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  How emails will be received in this inbox
+                </p>
+              </div>
+              <div className="flex items-center justify-between p-3 border rounded-lg">
+                <div>
+                  <Label>Auto-Assign</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Automatically assign new emails to team members
+                  </p>
+                </div>
+                <Switch
+                  checked={inboxForm.autoAssign}
+                  onCheckedChange={(checked) => setInboxForm({ ...inboxForm, autoAssign: checked })}
+                />
+              </div>
+              {inboxForm.autoAssign && (
+                <div className="space-y-2">
+                  <Label>Assignment Type</Label>
+                  <Select
+                    value={inboxForm.assignmentType}
+                    onValueChange={(value) => setInboxForm({ ...inboxForm, assignmentType: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="round_robin">Round Robin</SelectItem>
+                      <SelectItem value="load_balanced">Load Balanced</SelectItem>
+                      <SelectItem value="manual">Manual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="inbox-signature">Email Signature</Label>
+                <Textarea
+                  id="inbox-signature"
+                  placeholder="Add a signature for outgoing emails..."
+                  rows={3}
+                  value={inboxForm.signature}
+                  onChange={(e) => setInboxForm({ ...inboxForm, signature: e.target.value })}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowCreateInboxDialog(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleSaveInbox} disabled={isSubmitting}>
+                {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                {editingInbox ? 'Save Changes' : 'Create Inbox'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Members Dialog */}
+        <Dialog open={showMembersDialog} onOpenChange={setShowMembersDialog}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Manage Members</DialogTitle>
+              <DialogDescription>
+                {selectedInbox?.name} - {selectedInbox?.email}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm text-muted-foreground">
+                  {selectedInbox?.members?.length || 0} members
+                </p>
+                <Button size="sm" onClick={() => setShowAddMemberDialog(true)}>
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add Member
+                </Button>
+              </div>
+              {selectedInbox?.members?.length === 0 ? (
+                <div className="text-center py-8">
+                  <Users className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
+                  <p className="text-sm text-muted-foreground">No members yet</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {selectedInbox?.members?.map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex items-center justify-between p-3 rounded-lg border"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={member.user?.avatarUrl} />
+                          <AvatarFallback>
+                            {member.user?.firstName?.[0]}
+                            {member.user?.lastName?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-sm font-medium">
+                            {member.user?.firstName} {member.user?.lastName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{member.user?.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          {member.role}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
+                          onClick={() => handleRemoveMember(member.userId)}
+                        >
+                          <UserMinus className="h-4 w-4 text-muted-foreground" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Member Dialog */}
+        <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
+          <DialogContent className="sm:max-w-[400px]">
+            <DialogHeader>
+              <DialogTitle>Add Member</DialogTitle>
+              <DialogDescription>Add a team member to this shared inbox</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Search User</Label>
+                <Input
+                  placeholder="Enter email to search..."
+                  value={newMemberEmail}
+                  onChange={(e) => setNewMemberEmail(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Role</Label>
+                <Select value={newMemberRole} onValueChange={setNewMemberRole}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="member">Member</SelectItem>
+                    <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="inbox-signature">Email Signature</Label>
-              <Textarea
-                id="inbox-signature"
-                placeholder="Add a signature for outgoing emails..."
-                rows={3}
-                value={inboxForm.signature}
-                onChange={(e) => setInboxForm({ ...inboxForm, signature: e.target.value })}
-              />
             </div>
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowCreateInboxDialog(false)}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleSaveInbox} disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              {editingInbox ? 'Save Changes' : 'Create Inbox'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Members Dialog */}
-      <Dialog open={showMembersDialog} onOpenChange={setShowMembersDialog}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Manage Members</DialogTitle>
-            <DialogDescription>
-              {selectedInbox?.name} - {selectedInbox?.email}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-muted-foreground">
-                {selectedInbox?.members?.length || 0} members
-              </p>
-              <Button size="sm" onClick={() => setShowAddMemberDialog(true)}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                Add Member
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowAddMemberDialog(false)}>
+                Cancel
               </Button>
-            </div>
-            {selectedInbox?.members?.length === 0 ? (
-              <div className="text-center py-8">
-                <Users className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-                <p className="text-sm text-muted-foreground">No members yet</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {selectedInbox?.members?.map((member) => (
-                  <div
-                    key={member.id}
-                    className="flex items-center justify-between p-3 rounded-lg border"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={member.user?.avatarUrl} />
-                        <AvatarFallback>
-                          {member.user?.firstName?.[0]}
-                          {member.user?.lastName?.[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">
-                          {member.user?.firstName} {member.user?.lastName}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{member.user?.email}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        {member.role}
-                      </Badge>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7"
-                        onClick={() => handleRemoveMember(member.userId)}
-                      >
-                        <UserMinus className="h-4 w-4 text-muted-foreground" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+              <Button onClick={handleAddMember}>Add Member</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {/* Add Member Dialog */}
-      <Dialog open={showAddMemberDialog} onOpenChange={setShowAddMemberDialog}>
-        <DialogContent className="sm:max-w-[400px]">
-          <DialogHeader>
-            <DialogTitle>Add Member</DialogTitle>
-            <DialogDescription>Add a team member to this shared inbox</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Search User</Label>
-              <Input
-                placeholder="Enter email to search..."
-                value={newMemberEmail}
-                onChange={(e) => setNewMemberEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Role</Label>
-              <Select value={newMemberRole} onValueChange={setNewMemberRole}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="member">Member</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddMemberDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleAddMember}>Add Member</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+        {/* Delete Inbox Confirmation */}
+        <AlertDialog
+          open={!!deleteConfirmDialog}
+          onOpenChange={(open) => !open && setDeleteConfirmDialog(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Shared Inbox</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{deleteConfirmDialog?.name}"? This will remove all
+                members and cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deleteInbox.isPending}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDeleteInbox}
+                className="bg-destructive hover:bg-destructive/90"
+                disabled={deleteInbox.isPending}
+              >
+                {deleteInbox.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-      {/* Delete Inbox Confirmation */}
-      <AlertDialog
-        open={!!deleteConfirmDialog}
-        onOpenChange={(open) => !open && setDeleteConfirmDialog(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Shared Inbox</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{deleteConfirmDialog?.name}"? This will remove all
-              members and cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteInbox.isPending}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteInbox}
-              className="bg-destructive hover:bg-destructive/90"
-              disabled={deleteInbox.isPending}
-            >
-              {deleteInbox.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Disconnect Account Confirmation */}
-      <AlertDialog
-        open={!!disconnectConfirmDialog}
-        onOpenChange={(open) => !open && setDisconnectConfirmDialog(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Disconnect Email Account</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to disconnect "{disconnectConfirmDialog?.email}"? You can
-              reconnect it later.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={disconnectAccount.isPending}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDisconnectAccount}
-              className="bg-destructive hover:bg-destructive/90"
-              disabled={disconnectAccount.isPending}
-            >
-              {disconnectAccount.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Disconnect
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        {/* Disconnect Account Confirmation */}
+        <AlertDialog
+          open={!!disconnectConfirmDialog}
+          onOpenChange={(open) => !open && setDisconnectConfirmDialog(null)}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Disconnect Email Account</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to disconnect "{disconnectConfirmDialog?.email}"? You can
+                reconnect it later.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={disconnectAccount.isPending}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDisconnectAccount}
+                className="bg-destructive hover:bg-destructive/90"
+                disabled={disconnectAccount.isPending}
+              >
+                {disconnectAccount.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Disconnect
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </UnifiedLayout>
   );
 }

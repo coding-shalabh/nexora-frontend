@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { UnifiedLayout } from '@/components/layout/unified';
 import {
   FormInput,
   Search,
@@ -410,338 +411,340 @@ export default function CustomFieldsPage() {
   );
 
   return (
-    <motion.div
-      className="flex-1 p-6 space-y-6 overflow-auto"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {/* Header with Stats */}
-      <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-2xl bg-purple-50 flex items-center justify-center">
-              <FormInput className="h-7 w-7 text-purple-600" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">Custom Fields</h1>
-              <p className="text-sm text-gray-500">
-                Create custom properties to store additional data
-              </p>
-            </div>
-          </div>
-          <Button onClick={() => setShowCreateDialog(true)} className="rounded-xl">
-            <Plus className="mr-2 h-4 w-4" />
-            Create Field
-          </Button>
-        </div>
-
-        {/* Stats Bar */}
-        <div className="mt-6 flex items-center gap-8">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-purple-50 flex items-center justify-center">
-              <FormInput className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{fields.length}</p>
-              <p className="text-xs text-gray-500">Total Fields</p>
-            </div>
-          </div>
-          <div className="h-10 w-px bg-gray-100" />
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
-              <Users className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{fieldCounts.CONTACT}</p>
-              <p className="text-xs text-gray-500">Contacts</p>
-            </div>
-          </div>
-          <div className="h-10 w-px bg-gray-100" />
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{fieldCounts.COMPANY}</p>
-              <p className="text-xs text-gray-500">Companies</p>
-            </div>
-          </div>
-          <div className="h-10 w-px bg-gray-100" />
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-orange-50 flex items-center justify-center">
-              <Briefcase className="h-5 w-5 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-gray-900">{fieldCounts.DEAL}</p>
-              <p className="text-xs text-gray-500">Deals</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Entity Tabs */}
-      <motion.div variants={itemVariants}>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex items-center justify-between mb-4">
-            <TabsList className="bg-white rounded-xl p-1 shadow-sm">
-              {ENTITY_TYPES.map((entity) => (
-                <TabsTrigger
-                  key={entity.value}
-                  value={entity.value}
-                  className="rounded-lg data-[state=active]:bg-gray-100"
-                >
-                  <entity.icon className="mr-2 h-4 w-4" />
-                  {entity.label}
-                  <Badge variant="secondary" className="ml-2 bg-gray-100">
-                    {fieldCounts[entity.value]}
-                  </Badge>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                placeholder="Search fields..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-10 rounded-xl bg-white border-0 shadow-sm"
-              />
-            </div>
-          </div>
-
-          {ENTITY_TYPES.map((entity) => (
-            <TabsContent key={entity.value} value={entity.value} className="mt-0">
-              <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                {filteredFields.length === 0 ? (
-                  <div className="text-center py-16">
-                    <div className="h-16 w-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
-                      <FormInput className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <p className="text-lg font-medium text-gray-900">No custom fields</p>
-                    <p className="text-sm text-gray-500 mb-4">
-                      {searchQuery
-                        ? 'Try a different search term'
-                        : `Create custom fields for ${entity.label.toLowerCase()}`}
-                    </p>
-                    {!searchQuery && (
-                      <Button onClick={() => setShowCreateDialog(true)} className="rounded-xl">
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create Field
-                      </Button>
-                    )}
-                  </div>
-                ) : (
-                  <div className="divide-y divide-gray-100">
-                    {/* Header */}
-                    <div className="px-6 py-3 bg-gray-50 grid grid-cols-12 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <div className="col-span-1"></div>
-                      <div className="col-span-3">Field Name</div>
-                      <div className="col-span-2">API Name</div>
-                      <div className="col-span-2">Type</div>
-                      <div className="col-span-2">Required</div>
-                      <div className="col-span-1">Created</div>
-                      <div className="col-span-1 text-right">Actions</div>
-                    </div>
-
-                    {/* Field Rows */}
-                    {filteredFields.map((field, index) => {
-                      const FieldIcon = getFieldTypeIcon(field.fieldType);
-                      const fieldTypeColor = getFieldTypeColor(field.fieldType);
-                      return (
-                        <motion.div
-                          key={field.id}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: index * 0.03 }}
-                          className="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="col-span-1">
-                            <GripVertical className="h-4 w-4 text-gray-300 cursor-move" />
-                          </div>
-                          <div className="col-span-3">
-                            <div className="flex items-center gap-3">
-                              <div
-                                className={cn(
-                                  'h-9 w-9 rounded-lg flex items-center justify-center',
-                                  fieldTypeColor.split(' ')[0]
-                                )}
-                              >
-                                <FieldIcon
-                                  className={cn('h-4 w-4', fieldTypeColor.split(' ')[1])}
-                                />
-                              </div>
-                              <div>
-                                <p className="font-medium text-gray-900">{field.name}</p>
-                                {field.description && (
-                                  <p className="text-xs text-gray-500 truncate max-w-[200px]">
-                                    {field.description}
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="col-span-2">
-                            <code className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-lg">
-                              {field.apiName}
-                            </code>
-                          </div>
-                          <div className="col-span-2">
-                            <Badge
-                              variant="secondary"
-                              className="bg-gray-100 text-gray-700 font-normal"
-                            >
-                              {FIELD_TYPES.find((f) => f.value === field.fieldType)?.label ||
-                                field.fieldType}
-                            </Badge>
-                          </div>
-                          <div className="col-span-2">
-                            {field.isRequired ? (
-                              <Badge className="bg-orange-50 text-orange-700 hover:bg-orange-100">
-                                Required
-                              </Badge>
-                            ) : (
-                              <span className="text-sm text-gray-400">Optional</span>
-                            )}
-                          </div>
-                          <div className="col-span-1">
-                            <span className="text-sm text-gray-500">
-                              {new Date(field.createdAt).toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: 'numeric',
-                              })}
-                            </span>
-                          </div>
-                          <div className="col-span-1 text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0 rounded-lg hover:bg-gray-100"
-                                >
-                                  <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuItem onClick={() => handleEditField(field)}>
-                                  <Edit className="mr-2 h-4 w-4" />
-                                  Edit Field
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  className="text-red-600"
-                                  onClick={() => handleDeleteField(field)}
-                                >
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  Delete Field
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                )}
+    <UnifiedLayout hubId="settings" pageTitle="Custom Fields" fixedMenu={null}>
+      <motion.div
+        className="flex-1 p-6 space-y-6 overflow-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        {/* Header with Stats */}
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-2xl bg-purple-50 flex items-center justify-center">
+                <FormInput className="h-7 w-7 text-purple-600" />
               </div>
-            </TabsContent>
-          ))}
-        </Tabs>
-      </motion.div>
-
-      {/* Create Field Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Create Custom Field</DialogTitle>
-            <DialogDescription>
-              Add a custom field to{' '}
-              {ENTITY_TYPES.find((e) => e.value === activeTab)?.label.toLowerCase()}
-            </DialogDescription>
-          </DialogHeader>
-          <FieldForm />
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowCreateDialog(false);
-                setFormData(initialFormData);
-                setOptionsInput('');
-              }}
-              className="rounded-xl"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleCreateField}
-              disabled={createField.isPending}
-              className="rounded-xl"
-            >
-              {createField.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">Custom Fields</h1>
+                <p className="text-sm text-gray-500">
+                  Create custom properties to store additional data
+                </p>
+              </div>
+            </div>
+            <Button onClick={() => setShowCreateDialog(true)} className="rounded-xl">
+              <Plus className="mr-2 h-4 w-4" />
               Create Field
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
 
-      {/* Edit Field Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Edit Custom Field</DialogTitle>
-            <DialogDescription>Update the field configuration</DialogDescription>
-          </DialogHeader>
-          <FieldForm isEdit />
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowEditDialog(false);
-                setSelectedField(null);
-                setFormData(initialFormData);
-                setOptionsInput('');
-              }}
-              className="rounded-xl"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleUpdateField}
-              disabled={updateField.isPending}
-              className="rounded-xl"
-            >
-              {updateField.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          {/* Stats Bar */}
+          <div className="mt-6 flex items-center gap-8">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-purple-50 flex items-center justify-center">
+                <FormInput className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{fields.length}</p>
+                <p className="text-xs text-gray-500">Total Fields</p>
+              </div>
+            </div>
+            <div className="h-10 w-px bg-gray-100" />
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <Users className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{fieldCounts.CONTACT}</p>
+                <p className="text-xs text-gray-500">Contacts</p>
+              </div>
+            </div>
+            <div className="h-10 w-px bg-gray-100" />
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
+                <Building2 className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{fieldCounts.COMPANY}</p>
+                <p className="text-xs text-gray-500">Companies</p>
+              </div>
+            </div>
+            <div className="h-10 w-px bg-gray-100" />
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-orange-50 flex items-center justify-center">
+                <Briefcase className="h-5 w-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-gray-900">{fieldCounts.DEAL}</p>
+                <p className="text-xs text-gray-500">Deals</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
-      {/* Delete Confirmation */}
-      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Custom Field?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the field &quot;{selectedField?.name}&quot; and remove
-              all associated data from records. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700 rounded-xl"
-              onClick={confirmDeleteField}
-              disabled={deleteField.isPending}
-            >
-              {deleteField.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Delete Field
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </motion.div>
+        {/* Entity Tabs */}
+        <motion.div variants={itemVariants}>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <div className="flex items-center justify-between mb-4">
+              <TabsList className="bg-white rounded-xl p-1 shadow-sm">
+                {ENTITY_TYPES.map((entity) => (
+                  <TabsTrigger
+                    key={entity.value}
+                    value={entity.value}
+                    className="rounded-lg data-[state=active]:bg-gray-100"
+                  >
+                    <entity.icon className="mr-2 h-4 w-4" />
+                    {entity.label}
+                    <Badge variant="secondary" className="ml-2 bg-gray-100">
+                      {fieldCounts[entity.value]}
+                    </Badge>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              <div className="relative w-64">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <Input
+                  placeholder="Search fields..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-10 rounded-xl bg-white border-0 shadow-sm"
+                />
+              </div>
+            </div>
+
+            {ENTITY_TYPES.map((entity) => (
+              <TabsContent key={entity.value} value={entity.value} className="mt-0">
+                <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+                  {filteredFields.length === 0 ? (
+                    <div className="text-center py-16">
+                      <div className="h-16 w-16 rounded-2xl bg-gray-50 flex items-center justify-center mx-auto mb-4">
+                        <FormInput className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <p className="text-lg font-medium text-gray-900">No custom fields</p>
+                      <p className="text-sm text-gray-500 mb-4">
+                        {searchQuery
+                          ? 'Try a different search term'
+                          : `Create custom fields for ${entity.label.toLowerCase()}`}
+                      </p>
+                      {!searchQuery && (
+                        <Button onClick={() => setShowCreateDialog(true)} className="rounded-xl">
+                          <Plus className="mr-2 h-4 w-4" />
+                          Create Field
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gray-100">
+                      {/* Header */}
+                      <div className="px-6 py-3 bg-gray-50 grid grid-cols-12 gap-4 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <div className="col-span-1"></div>
+                        <div className="col-span-3">Field Name</div>
+                        <div className="col-span-2">API Name</div>
+                        <div className="col-span-2">Type</div>
+                        <div className="col-span-2">Required</div>
+                        <div className="col-span-1">Created</div>
+                        <div className="col-span-1 text-right">Actions</div>
+                      </div>
+
+                      {/* Field Rows */}
+                      {filteredFields.map((field, index) => {
+                        const FieldIcon = getFieldTypeIcon(field.fieldType);
+                        const fieldTypeColor = getFieldTypeColor(field.fieldType);
+                        return (
+                          <motion.div
+                            key={field.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.03 }}
+                            className="px-6 py-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-colors"
+                          >
+                            <div className="col-span-1">
+                              <GripVertical className="h-4 w-4 text-gray-300 cursor-move" />
+                            </div>
+                            <div className="col-span-3">
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className={cn(
+                                    'h-9 w-9 rounded-lg flex items-center justify-center',
+                                    fieldTypeColor.split(' ')[0]
+                                  )}
+                                >
+                                  <FieldIcon
+                                    className={cn('h-4 w-4', fieldTypeColor.split(' ')[1])}
+                                  />
+                                </div>
+                                <div>
+                                  <p className="font-medium text-gray-900">{field.name}</p>
+                                  {field.description && (
+                                    <p className="text-xs text-gray-500 truncate max-w-[200px]">
+                                      {field.description}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="col-span-2">
+                              <code className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-lg">
+                                {field.apiName}
+                              </code>
+                            </div>
+                            <div className="col-span-2">
+                              <Badge
+                                variant="secondary"
+                                className="bg-gray-100 text-gray-700 font-normal"
+                              >
+                                {FIELD_TYPES.find((f) => f.value === field.fieldType)?.label ||
+                                  field.fieldType}
+                              </Badge>
+                            </div>
+                            <div className="col-span-2">
+                              {field.isRequired ? (
+                                <Badge className="bg-orange-50 text-orange-700 hover:bg-orange-100">
+                                  Required
+                                </Badge>
+                              ) : (
+                                <span className="text-sm text-gray-400">Optional</span>
+                              )}
+                            </div>
+                            <div className="col-span-1">
+                              <span className="text-sm text-gray-500">
+                                {new Date(field.createdAt).toLocaleDateString('en-US', {
+                                  month: 'short',
+                                  day: 'numeric',
+                                })}
+                              </span>
+                            </div>
+                            <div className="col-span-1 text-right">
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-8 p-0 rounded-lg hover:bg-gray-100"
+                                  >
+                                    <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end" className="w-48">
+                                  <DropdownMenuItem onClick={() => handleEditField(field)}>
+                                    <Edit className="mr-2 h-4 w-4" />
+                                    Edit Field
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-red-600"
+                                    onClick={() => handleDeleteField(field)}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete Field
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </motion.div>
+
+        {/* Create Field Dialog */}
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Create Custom Field</DialogTitle>
+              <DialogDescription>
+                Add a custom field to{' '}
+                {ENTITY_TYPES.find((e) => e.value === activeTab)?.label.toLowerCase()}
+              </DialogDescription>
+            </DialogHeader>
+            <FieldForm />
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCreateDialog(false);
+                  setFormData(initialFormData);
+                  setOptionsInput('');
+                }}
+                className="rounded-xl"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateField}
+                disabled={createField.isPending}
+                className="rounded-xl"
+              >
+                {createField.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Create Field
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Field Dialog */}
+        <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Edit Custom Field</DialogTitle>
+              <DialogDescription>Update the field configuration</DialogDescription>
+            </DialogHeader>
+            <FieldForm isEdit />
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowEditDialog(false);
+                  setSelectedField(null);
+                  setFormData(initialFormData);
+                  setOptionsInput('');
+                }}
+                className="rounded-xl"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleUpdateField}
+                disabled={updateField.isPending}
+                className="rounded-xl"
+              >
+                {updateField.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Delete Confirmation */}
+        <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Custom Field?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete the field &quot;{selectedField?.name}&quot; and remove
+                all associated data from records. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="rounded-xl">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-600 hover:bg-red-700 rounded-xl"
+                onClick={confirmDeleteField}
+                disabled={deleteField.isPending}
+              >
+                {deleteField.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Delete Field
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </motion.div>
+    </UnifiedLayout>
   );
 }

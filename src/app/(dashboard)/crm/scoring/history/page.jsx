@@ -1,26 +1,11 @@
 'use client';
 
-import { History, Calendar, TrendingUp, Activity } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { History } from 'lucide-react';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 export default function ScoringHistoryPage() {
-  const stats = [
-    createStat('Changes', '0', History, 'blue'),
-    createStat('Today', '0', Calendar, 'green'),
-    createStat('Increased', '0', TrendingUp, 'purple'),
-    createStat('Decreased', '0', Activity, 'red'),
-  ];
-
   return (
-    <HubLayout
-      hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Score History"
-      description="Track score changes over time"
-      stats={stats}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="crm" pageTitle="Score History" fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6">
         <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
           <History className="h-12 w-12 text-muted-foreground mb-4" />
@@ -30,6 +15,6 @@ export default function ScoringHistoryPage() {
           </p>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

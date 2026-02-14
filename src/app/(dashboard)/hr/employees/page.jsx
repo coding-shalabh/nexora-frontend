@@ -5,38 +5,25 @@ import { motion } from 'framer-motion';
 import {
   Users,
   Plus,
-  Search,
   Download,
   Upload,
   Edit,
   Trash2,
-  Eye,
   Mail,
   MapPin,
   UserPlus,
   UserCheck,
-  UserX,
   Calendar,
   ChevronRight,
   CheckSquare,
   Square,
   MinusSquare,
   FileDown,
-  Briefcase,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
-import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 const employees = [
   {
@@ -290,70 +277,14 @@ export default function EmployeesPage() {
     createStat('New', stats.newThisMonth, UserPlus, 'purple'),
   ];
 
-  // FixedMenuPanel configuration - only filters and selection toggle
-  const fixedMenuConfig = {
-    primaryActions: [
-      {
-        id: 'selection',
-        label: selectionMode ? 'Exit Selection' : 'Select',
-        icon: selectionMode ? MinusSquare : CheckSquare,
-        variant: selectionMode ? 'secondary' : 'outline',
-      },
-    ],
-    filters: {
-      quickFilters: [
-        { id: 'all', label: 'All' },
-        { id: 'active', label: 'Active' },
-        { id: 'on-leave', label: 'On Leave' },
-      ],
-    },
-  };
-
-  // Handle FixedMenuPanel actions
-  const handleMenuAction = (actionId) => {
-    switch (actionId) {
-      case 'selection':
-        toggleSelectionMode();
-        break;
-      default:
-        break;
-    }
-  };
-
-  // Actions for the stats bar (top bar)
-  const topBarActions = (
-    <>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-7 gap-1.5"
-        onClick={() => console.log('Import')}
-      >
-        <Upload className="h-3.5 w-3.5" />
-        <span className="text-xs">Import</span>
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        className="h-7 gap-1.5"
-        onClick={() => console.log('Export')}
-      >
-        <Download className="h-3.5 w-3.5" />
-        <span className="text-xs">Export</span>
-      </Button>
-      <Button size="sm" className="h-7 gap-1.5" onClick={() => console.log('Add Employee')}>
-        <Plus className="h-3.5 w-3.5" />
-        <span className="text-xs">Add Employee</span>
-      </Button>
-    </>
-  );
-
-  // Bulk actions configuration
-  const bulkActions = [
-    { id: 'export', label: 'Export', icon: FileDown, variant: 'outline' },
-    { id: 'delete', label: 'Delete', icon: Trash2, variant: 'destructive' },
+  // Actions for the status bar
+  const actions = [
+    createAction('Import', Upload, () => console.log('Import')),
+    createAction('Export', Download, () => console.log('Export')),
+    createAction('Add Employee', Plus, () => console.log('Add Employee'), { primary: true }),
   ];
 
+  // Handle bulk actions
   const handleBulkAction = (actionId) => {
     switch (actionId) {
       case 'export':
@@ -370,99 +301,58 @@ export default function EmployeesPage() {
     }
   };
 
-  // Fixed menu list
-  const fixedMenuListContent = (
-    <div className="py-2">
-      {/* Search Bar */}
-      <div className="px-4 mb-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search employees..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+  // Fixed menu config for UnifiedLayout
+  const fixedMenuConfig = {
+    items: filteredEmployees,
+    searchPlaceholder: 'Search employees...',
+    emptyMessage: searchQuery ? 'No employees match your search' : 'Add your first employee',
+    EmptyIcon: Users,
+    filters: [
+      {
+        id: 'status',
+        label: 'Status',
+        options: [
+          { value: 'all', label: 'All' },
+          { value: 'active', label: 'Active' },
+          { value: 'on-leave', label: 'On Leave' },
+        ],
+      },
+    ],
+    switchOptions: [
+      { value: 'all', label: 'All Departments' },
+      { value: 'engineering', label: 'Engineering' },
+      { value: 'design', label: 'Design' },
+      { value: 'marketing', label: 'Marketing' },
+      { value: 'sales', label: 'Sales' },
+      { value: 'human resources', label: 'Human Resources' },
+    ],
+    getItemId: (emp) => emp.id,
+    renderItem: ({ item: employee, isSelected }) => (
+      <EmployeeListItem
+        employee={employee}
+        isSelected={isSelected}
+        onClick={() => openEmployee(employee)}
+        showCheckbox={selectionMode}
+        isChecked={selectedIds.has(employee.id)}
+        onCheckChange={() => toggleSelectEmployee(employee.id)}
+      />
+    ),
+    footer: selectionMode && selectedIds.size > 0 && (
+      <div className="p-3 border-t bg-slate-50 flex items-center justify-between">
+        <span className="text-sm text-muted-foreground">{selectedIds.size} selected</span>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => handleBulkAction('export')}>
+            <FileDown className="h-3.5 w-3.5 mr-1" />
+            Export
+          </Button>
+          <Button variant="destructive" size="sm" onClick={() => handleBulkAction('delete')}>
+            <Trash2 className="h-3.5 w-3.5 mr-1" />
+            Delete
+          </Button>
         </div>
       </div>
-
-      {/* Department Filter */}
-      <div className="px-4 mb-4">
-        <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-          <SelectTrigger className="h-8 text-xs">
-            <Briefcase className="h-3 w-3 mr-1" />
-            <SelectValue placeholder="Department" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all" className="text-xs">
-              All Departments
-            </SelectItem>
-            <SelectItem value="engineering" className="text-xs">
-              Engineering
-            </SelectItem>
-            <SelectItem value="design" className="text-xs">
-              Design
-            </SelectItem>
-            <SelectItem value="marketing" className="text-xs">
-              Marketing
-            </SelectItem>
-            <SelectItem value="sales" className="text-xs">
-              Sales
-            </SelectItem>
-            <SelectItem value="human resources" className="text-xs">
-              Human Resources
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {filteredEmployees.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-          <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-            <Users className="h-8 w-8 text-slate-400" />
-          </div>
-          <p className="font-medium mb-1">No employees found</p>
-          <p className="text-xs text-muted-foreground mb-4">
-            {searchQuery ? 'Try a different search term' : 'Add your first employee'}
-          </p>
-        </div>
-      ) : (
-        <>
-          {/* Select All Row */}
-          {selectionMode && filteredEmployees.length > 0 && (
-            <button
-              onClick={selectAllEmployees}
-              className="w-full px-5 py-2 flex items-center gap-3 text-sm hover:bg-slate-50 transition-colors border-b border-gray-100"
-            >
-              {selectedIds.size === filteredEmployees.length ? (
-                <CheckSquare className="h-4 w-4 text-primary" />
-              ) : selectedIds.size > 0 ? (
-                <MinusSquare className="h-4 w-4 text-primary" />
-              ) : (
-                <Square className="h-4 w-4 text-muted-foreground" />
-              )}
-              <span className="text-muted-foreground">
-                {selectedIds.size === filteredEmployees.length
-                  ? 'Deselect all'
-                  : `Select all (${filteredEmployees.length})`}
-              </span>
-            </button>
-          )}
-          {filteredEmployees.map((employee) => (
-            <EmployeeListItem
-              key={employee.id}
-              employee={employee}
-              isSelected={selectedEmployee?.id === employee.id}
-              onClick={() => openEmployee(employee)}
-              showCheckbox={selectionMode}
-              isChecked={selectedIds.has(employee.id)}
-              onCheckChange={() => toggleSelectEmployee(employee.id)}
-            />
-          ))}
-        </>
-      )}
-    </div>
-  );
+    ),
+  };
 
   // Content area - Employee Detail View
   const contentArea = (
@@ -549,31 +439,31 @@ export default function EmployeesPage() {
     </div>
   );
 
+  // Handle filter changes from UnifiedLayout
+  const handleFilterApply = (filters) => {
+    if (filters.status) {
+      setStatusFilter(filters.status);
+    }
+  };
+
+  // Handle switch (department) changes
+  const handleSwitchChange = (value) => {
+    setDepartmentFilter(value);
+  };
+
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="hr"
-      showTopBar={false}
-      showSidebar={false}
-      title="Employees"
-      description="Manage your team members"
+      pageTitle="Employees"
       stats={layoutStats}
-      actions={topBarActions}
-      showFixedMenu={true}
-      fixedMenuFilters={
-        <FixedMenuPanel
-          config={fixedMenuConfig}
-          activeFilter={statusFilter}
-          onFilterChange={setStatusFilter}
-          onAction={handleMenuAction}
-          selectedCount={selectedIds.size}
-          bulkActions={bulkActions}
-          onBulkAction={handleBulkAction}
-          className="p-4"
-        />
-      }
-      fixedMenuList={fixedMenuListContent}
+      actions={actions}
+      fixedMenu={{
+        ...fixedMenuConfig,
+        onFilterApply: handleFilterApply,
+        onSwitchChange: handleSwitchChange,
+      }}
     >
       {contentArea}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

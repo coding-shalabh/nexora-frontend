@@ -32,7 +32,7 @@ import {
   Pause,
 } from 'lucide-react';
 
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -263,14 +263,7 @@ export default function SurveysPage() {
   );
 
   return (
-    <HubLayout
-      hubId="surveys"
-      title="Customer Surveys"
-      description="Measure customer satisfaction with NPS and CSAT surveys"
-      stats={stats}
-      actions={createSurveyDialog}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="home" pageTitle="Customer Surveys" stats={stats} fixedMenu={null}>
       <div className="flex flex-col h-full overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
           <div className="px-6 pt-4 pb-2">
@@ -660,6 +653,6 @@ export default function SurveysPage() {
           </TabsContent>
         </Tabs>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

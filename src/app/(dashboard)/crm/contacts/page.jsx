@@ -85,8 +85,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ContactImportExportModal } from '@/components/crm/contact-import-export-modal';
 import { ContactDetailPanel } from '@/components/crm/contact-detail-panel';
 import { Skeleton } from '@/components/ui/skeleton';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
-import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 // Helper to safely render a value (avoids rendering objects)
 function safeRender(value, fallback = '') {
@@ -321,7 +320,7 @@ function ContactForm({ contact, onSubmit, onCancel, isSubmitting, companies }) {
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onCancel}>
+        <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Cancel">
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -796,214 +795,6 @@ export default function ContactsPage() {
     createStat('Customers', stats.customers, Star, 'purple'),
   ];
 
-  // FixedMenuPanel configuration
-  const fixedMenuConfig = {
-    primaryActions: [{ id: 'create', label: 'Add Contact', icon: Plus, variant: 'default' }],
-    secondaryActions: [
-      { id: 'import', label: 'Import', icon: Upload, variant: 'ghost' },
-      {
-        id: 'selection',
-        label: selectionMode ? 'Exit Selection' : 'Select',
-        icon: selectionMode ? MinusSquare : CheckSquare,
-        variant: selectionMode ? 'secondary' : 'ghost',
-      },
-    ],
-    filters: {
-      quickFilters: [
-        { id: 'all', label: 'All' },
-        { id: 'ACTIVE', label: 'Active' },
-        { id: 'INACTIVE', label: 'Inactive' },
-      ],
-    },
-  };
-
-  // Handle FixedMenuPanel actions
-  const handleMenuAction = (actionId) => {
-    switch (actionId) {
-      case 'create':
-        openCreate();
-        break;
-      case 'import':
-        setShowImportModal(true);
-        break;
-      case 'selection':
-        toggleSelectionMode();
-        break;
-      default:
-        break;
-    }
-  };
-
-  // Bulk actions configuration
-  const bulkActions = [
-    { id: 'export', label: 'Export', icon: FileDown, variant: 'outline' },
-    { id: 'delete', label: 'Delete', icon: Trash2, variant: 'destructive' },
-  ];
-
-  const handleBulkAction = (actionId) => {
-    switch (actionId) {
-      case 'export':
-        handleBulkExport();
-        break;
-      case 'delete':
-        handleBulkDelete();
-        break;
-      default:
-        break;
-    }
-  };
-
-  // Fixed menu list
-  const fixedMenuListContent = (
-    <div className="py-2">
-      {/* Search Bar */}
-      <div className="px-4 mb-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search contacts..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-      </div>
-
-      {/* Lifecycle & Sort Filters */}
-      <div className="px-4 mb-4 flex gap-2">
-        <Select value={filterLifecycle} onValueChange={setFilterLifecycle}>
-          <SelectTrigger className="h-8 text-xs flex-1">
-            <Target className="h-3 w-3 mr-1" />
-            <SelectValue placeholder="Lifecycle" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all" className="text-xs">
-              All Stages
-            </SelectItem>
-            {LIFECYCLE_STAGES.map((s) => (
-              <SelectItem key={s.value} value={s.value} className="text-xs">
-                {s.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="h-8 text-xs w-[110px]">
-            <ArrowUpDown className="h-3 w-3 mr-1" />
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest" className="text-xs">
-              Newest
-            </SelectItem>
-            <SelectItem value="oldest" className="text-xs">
-              Oldest
-            </SelectItem>
-            <SelectItem value="name" className="text-xs">
-              Name A-Z
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {isLoading ? (
-        <div className="px-4 space-y-3">
-          {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="p-4 rounded-xl border">
-              <div className="flex gap-3">
-                <Skeleton className="h-11 w-11 rounded-xl shrink-0" />
-                <div className="flex-1">
-                  <Skeleton className="h-4 w-32 mb-2" />
-                  <Skeleton className="h-3 w-20 mb-2" />
-                  <Skeleton className="h-5 w-16" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : sortedContacts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-          <div className="h-16 w-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-4">
-            <Users className="h-8 w-8 text-slate-400" />
-          </div>
-          <p className="font-medium mb-1">No contacts found</p>
-          <p className="text-xs text-muted-foreground mb-4">
-            {searchQuery ? 'Try a different search term' : 'Add your first contact'}
-          </p>
-          {!searchQuery && (
-            <Button size="sm" onClick={openCreate}>
-              <Plus className="h-4 w-4 mr-1" /> Add Contact
-            </Button>
-          )}
-        </div>
-      ) : (
-        <>
-          {/* Select All Row */}
-          {selectionMode && sortedContacts.length > 0 && (
-            <button
-              onClick={selectAllContacts}
-              className="w-full px-5 py-2 flex items-center gap-3 text-sm hover:bg-slate-50 transition-colors border-b border-gray-100"
-            >
-              {selectedIds.size === sortedContacts.length ? (
-                <CheckSquare className="h-4 w-4 text-primary" />
-              ) : selectedIds.size > 0 ? (
-                <MinusSquare className="h-4 w-4 text-primary" />
-              ) : (
-                <Square className="h-4 w-4 text-muted-foreground" />
-              )}
-              <span className="text-muted-foreground">
-                {selectedIds.size === sortedContacts.length
-                  ? 'Deselect all'
-                  : `Select all (${sortedContacts.length})`}
-              </span>
-            </button>
-          )}
-          {sortedContacts.map((contact) => (
-            <ContactListItem
-              key={contact.id}
-              contact={contact}
-              isSelected={selectedContact?.id === contact.id && viewMode === 'preview'}
-              onClick={() => openPreview(contact)}
-              showCheckbox={selectionMode}
-              isChecked={selectedIds.has(contact.id)}
-              onCheckChange={() => toggleSelectContact(contact.id)}
-            />
-          ))}
-        </>
-      )}
-    </div>
-  );
-
-  // Fixed menu footer (pagination)
-  const fixedMenuFooterContent =
-    sortedContacts.length > 0 ? (
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">
-          Page {meta.page} of {meta.totalPages}
-        </span>
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 text-xs"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Prev
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 text-xs"
-            disabled={page >= meta.totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-    ) : null;
-
   // Content area
   const contentArea = (
     <AnimatePresence mode="wait">
@@ -1084,33 +875,166 @@ export default function ContactsPage() {
     </AnimatePresence>
   );
 
+  // Actions for status bar
+  const layoutActions = [
+    createAction('Import', Upload, () => setShowImportModal(true)),
+    createAction('Add Contact', Plus, openCreate, { primary: true }),
+  ];
+
+  // Fixed menu configuration for UnifiedLayout
+  const unifiedFixedMenuConfig = {
+    items: sortedContacts,
+    getItemId: (item) => item.id,
+    getItemLabel: (item) =>
+      item.displayName || `${item.firstName || ''} ${item.lastName || ''}`.trim() || 'Unknown',
+    getItemSubLabel: (item) => item.email || '',
+    getItemBadge: (item) => item.lifecycleStage,
+    selectedId: selectedContact?.id,
+    searchPlaceholder: 'Search contacts...',
+    searchValue: searchQuery,
+    onSearchChange: setSearchQuery,
+    onSelect: openPreview,
+    isLoading: isLoading,
+    emptyMessage: searchQuery ? 'No contacts found' : 'No contacts yet',
+    emptyAction: !searchQuery ? { label: 'Add Contact', onClick: openCreate } : null,
+    renderItem: ({ item, isSelected }) => (
+      <ContactListItem
+        key={item.id}
+        contact={item}
+        isSelected={isSelected}
+        onClick={() => openPreview(item)}
+        showCheckbox={selectionMode}
+        isChecked={selectedIds.has(item.id)}
+        onCheckChange={() => toggleSelectContact(item.id)}
+      />
+    ),
+    customFilters: (
+      <div className="px-4 mb-4 flex gap-2">
+        <Select value={filterLifecycle} onValueChange={setFilterLifecycle}>
+          <SelectTrigger className="h-8 text-xs flex-1">
+            <Target className="h-3 w-3 mr-1" />
+            <SelectValue placeholder="Lifecycle" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all" className="text-xs">
+              All Stages
+            </SelectItem>
+            {LIFECYCLE_STAGES.map((s) => (
+              <SelectItem key={s.value} value={s.value} className="text-xs">
+                {s.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="h-8 text-xs w-[110px]">
+            <ArrowUpDown className="h-3 w-3 mr-1" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest" className="text-xs">
+              Newest
+            </SelectItem>
+            <SelectItem value="oldest" className="text-xs">
+              Oldest
+            </SelectItem>
+            <SelectItem value="name" className="text-xs">
+              Name A-Z
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    ),
+    customHeader:
+      selectionMode && sortedContacts.length > 0 ? (
+        <div className="px-4 py-2 border-b flex items-center justify-between">
+          <button
+            onClick={selectAllContacts}
+            className="flex items-center gap-2 text-sm hover:text-primary transition-colors"
+          >
+            {selectedIds.size === sortedContacts.length ? (
+              <CheckSquare className="h-4 w-4 text-primary" />
+            ) : selectedIds.size > 0 ? (
+              <MinusSquare className="h-4 w-4 text-primary" />
+            ) : (
+              <Square className="h-4 w-4 text-muted-foreground" />
+            )}
+            <span className="text-muted-foreground">
+              {selectedIds.size === sortedContacts.length
+                ? 'Deselect all'
+                : `Select all (${sortedContacts.length})`}
+            </span>
+          </button>
+          {selectedIds.size > 0 && (
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={handleBulkExport}
+              >
+                <FileDown className="h-3 w-3 mr-1" /> Export
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={handleBulkDelete}
+              >
+                <Trash2 className="h-3 w-3 mr-1" /> Delete
+              </Button>
+            </div>
+          )}
+        </div>
+      ) : null,
+    customFooter:
+      sortedContacts.length > 0 ? (
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            Page {meta.page} of {meta.totalPages}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Prev
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              disabled={page >= meta.totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      ) : null,
+    secondaryActions: [
+      {
+        label: selectionMode ? 'Exit Selection' : 'Select',
+        icon: selectionMode ? MinusSquare : CheckSquare,
+        onClick: toggleSelectionMode,
+      },
+    ],
+  };
+
   return (
     <>
-      <HubLayout
+      <UnifiedLayout
         hubId="crm"
-      showTopBar={false}
-        title="Contacts"
-        description="Manage your contacts and leads"
+        pageTitle="Contacts"
         stats={layoutStats}
-        showSidebar={false}
-        showFixedMenu={true}
-        fixedMenuFilters={
-          <FixedMenuPanel
-            config={fixedMenuConfig}
-            activeFilter={filterStatus}
-            onFilterChange={setFilterStatus}
-            onAction={handleMenuAction}
-            selectedCount={selectedIds.size}
-            bulkActions={bulkActions}
-            onBulkAction={handleBulkAction}
-            className="p-4"
-          />
-        }
-        fixedMenuList={fixedMenuListContent}
-        fixedMenuFooter={fixedMenuFooterContent}
+        actions={layoutActions}
+        fixedMenu={unifiedFixedMenuConfig}
       >
         {contentArea}
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Import/Export Modal */}
       <ContactImportExportModal

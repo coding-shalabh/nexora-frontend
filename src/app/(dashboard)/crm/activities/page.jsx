@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useDeferredValue } from 'react';
+import { useState, useDeferredValue, useMemo } from 'react';
 import Link from 'next/link';
 import {
   Search,
@@ -32,7 +32,10 @@ import {
   Flag,
   UserCircle,
   ArrowUpRight,
+  Activity,
+  ListTodo,
 } from 'lucide-react';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -213,6 +216,25 @@ export default function ActivitiesPage() {
   const activities = data?.data || [];
   const meta = data?.meta || { total: 0, page: 1, totalPages: 1 };
 
+  // Calculate stats for UnifiedLayout status bar
+  const layoutStats = useMemo(() => {
+    const total = meta.total || activities.length;
+    const pending = activities.filter((a) => !a.completed).length;
+    const completed = activities.filter((a) => a.completed).length;
+    const calls = activities.filter((a) => a.type === 'CALL').length;
+    return [
+      createStat('Total', total, Activity, 'blue'),
+      createStat('Pending', pending, Clock, 'amber'),
+      createStat('Completed', completed, CheckSquare, 'green'),
+      createStat('Calls', calls, Phone, 'purple'),
+    ];
+  }, [activities, meta.total]);
+
+  // Actions for UnifiedLayout status bar
+  const layoutActions = [
+    createAction('Add Activity', Plus, () => setShowAddModal(true), { primary: true }),
+  ];
+
   const handleSearch = (e) => {
     setSearchQuery(e.target.value);
     setPage(1);
@@ -355,29 +377,25 @@ export default function ActivitiesPage() {
     }
   };
 
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  // Loading content
+  const loadingContent = (
+    <div className="flex items-center justify-center h-full">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  );
 
-  // Error state
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full gap-4">
-        <AlertCircle className="h-12 w-12 text-destructive" />
-        <p className="text-lg font-medium">Failed to load activities</p>
-        <p className="text-sm text-muted-foreground">{error.message}</p>
-        <Button onClick={() => refetch()}>
-          <RefreshCw className="h-4 w-4 mr-2" />
-          Try Again
-        </Button>
-      </div>
-    );
-  }
+  // Error content
+  const errorContent = (
+    <div className="flex flex-col items-center justify-center h-full gap-4">
+      <AlertCircle className="h-12 w-12 text-destructive" />
+      <p className="text-lg font-medium">Failed to load activities</p>
+      <p className="text-sm text-muted-foreground">{error?.message}</p>
+      <Button onClick={() => refetch()}>
+        <RefreshCw className="h-4 w-4 mr-2" />
+        Try Again
+      </Button>
+    </div>
+  );
 
   // Main content
   const mainContent = (
@@ -641,7 +659,7 @@ export default function ActivitiesPage() {
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" aria-label="More options">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -805,7 +823,12 @@ export default function ActivitiesPage() {
                     </button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          aria-label="More options"
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -929,7 +952,9 @@ export default function ActivitiesPage() {
 
   return (
     <>
-      {mainContent}
+      <UnifiedLayout hubId="crm" pageTitle="Activities" stats={layoutStats} actions={layoutActions}>
+        {isLoading ? loadingContent : error ? errorContent : mainContent}
+      </UnifiedLayout>
 
       {/* Add Activity Modal */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>

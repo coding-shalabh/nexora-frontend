@@ -1,6 +1,6 @@
 'use client';
 
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -55,21 +55,7 @@ export default function ReportsPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="reports"
-      title="Reports"
-      description="Build custom reports to track any metric. Drag-and-drop builder, scheduled delivery, and multiple export formats."
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button variant="outline" asChild>
-          <Link href="/analytics">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Go to Dashboards
-          </Link>
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="home" pageTitle="Reports" stats={stats} fixedMenu={null}>
       <div className="h-full overflow-y-auto p-8">
         <div className="max-w-4xl mx-auto">
           {/* Coming Soon Banner */}
@@ -115,6 +101,6 @@ export default function ReportsPage() {
           </Card>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

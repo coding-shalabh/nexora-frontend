@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { UnifiedLayout } from '@/components/layout/unified';
 import {
   FileSignature,
   Plus,
@@ -111,11 +112,36 @@ const SIGNATURE_TYPES = [
 // Social/Link types
 const LINK_TYPES = [
   { id: 'website', label: 'Website', icon: Globe, placeholder: 'https://yourcompany.com' },
-  { id: 'linkedin', label: 'LinkedIn', icon: Linkedin, placeholder: 'https://linkedin.com/in/yourprofile' },
-  { id: 'twitter', label: 'Twitter/X', icon: Twitter, placeholder: 'https://twitter.com/yourhandle' },
-  { id: 'facebook', label: 'Facebook', icon: Facebook, placeholder: 'https://facebook.com/yourpage' },
-  { id: 'instagram', label: 'Instagram', icon: Instagram, placeholder: 'https://instagram.com/yourhandle' },
-  { id: 'youtube', label: 'YouTube', icon: Youtube, placeholder: 'https://youtube.com/@yourchannel' },
+  {
+    id: 'linkedin',
+    label: 'LinkedIn',
+    icon: Linkedin,
+    placeholder: 'https://linkedin.com/in/yourprofile',
+  },
+  {
+    id: 'twitter',
+    label: 'Twitter/X',
+    icon: Twitter,
+    placeholder: 'https://twitter.com/yourhandle',
+  },
+  {
+    id: 'facebook',
+    label: 'Facebook',
+    icon: Facebook,
+    placeholder: 'https://facebook.com/yourpage',
+  },
+  {
+    id: 'instagram',
+    label: 'Instagram',
+    icon: Instagram,
+    placeholder: 'https://instagram.com/yourhandle',
+  },
+  {
+    id: 'youtube',
+    label: 'YouTube',
+    icon: Youtube,
+    placeholder: 'https://youtube.com/@yourchannel',
+  },
 ];
 
 // Query keys
@@ -295,7 +321,7 @@ function SignatureDialog({ open, onOpenChange, signature, mode = 'create' }) {
   const isLoading = createSignature.isPending || updateSignature.isPending;
 
   // Get current signature type config
-  const currentTypeConfig = SIGNATURE_TYPES.find(t => t.id === signatureType);
+  const currentTypeConfig = SIGNATURE_TYPES.find((t) => t.id === signatureType);
   const availableChannels = currentTypeConfig?.channels || [];
 
   // Reset form when dialog opens
@@ -308,14 +334,16 @@ function SignatureDialog({ open, onOpenChange, signature, mode = 'create' }) {
         setIsActive(signature.isActive);
         setLogoUrl(signature.logoUrl || '');
         setLogoPreview(signature.logoUrl || '');
-        setLinks(signature.links || {
-          website: '',
-          linkedin: '',
-          twitter: '',
-          facebook: '',
-          instagram: '',
-          youtube: '',
-        });
+        setLinks(
+          signature.links || {
+            website: '',
+            linkedin: '',
+            twitter: '',
+            facebook: '',
+            instagram: '',
+            youtube: '',
+          }
+        );
       } else {
         setName('');
         setContent('');
@@ -360,7 +388,7 @@ function SignatureDialog({ open, onOpenChange, signature, mode = 'create' }) {
   };
 
   const handleLinkChange = (linkId, value) => {
-    setLinks(prev => ({ ...prev, [linkId]: value }));
+    setLinks((prev) => ({ ...prev, [linkId]: value }));
   };
 
   const handleSave = () => {
@@ -377,16 +405,11 @@ function SignatureDialog({ open, onOpenChange, signature, mode = 'create' }) {
       signatureType,
       isActive,
       logoUrl: logoPreview || logoUrl,
-      links: Object.fromEntries(
-        Object.entries(links).filter(([_, value]) => value.trim())
-      ),
+      links: Object.fromEntries(Object.entries(links).filter(([_, value]) => value.trim())),
     };
 
     if (mode === 'edit') {
-      updateSignature.mutate(
-        { id: signature.id, data },
-        { onSuccess: () => onOpenChange(false) }
-      );
+      updateSignature.mutate({ id: signature.id, data }, { onSuccess: () => onOpenChange(false) });
     } else {
       createSignature.mutate(data, { onSuccess: () => onOpenChange(false) });
     }
@@ -457,12 +480,16 @@ function SignatureDialog({ open, onOpenChange, signature, mode = 'create' }) {
                         : 'border-muted hover:border-muted-foreground/30'
                     )}
                   >
-                    <Icon className={cn(
-                      'h-6 w-6',
-                      signatureType === type.id ? 'text-primary' : 'text-muted-foreground'
-                    )} />
+                    <Icon
+                      className={cn(
+                        'h-6 w-6',
+                        signatureType === type.id ? 'text-primary' : 'text-muted-foreground'
+                      )}
+                    />
                     <span className="text-sm font-medium">{type.name}</span>
-                    <span className="text-xs text-muted-foreground text-center">{type.description}</span>
+                    <span className="text-xs text-muted-foreground text-center">
+                      {type.description}
+                    </span>
                   </button>
                 );
               })}
@@ -473,7 +500,10 @@ function SignatureDialog({ open, onOpenChange, signature, mode = 'create' }) {
               <span className="text-xs text-muted-foreground">Available in:</span>
               <div className="flex gap-1.5">
                 <ChannelBadge channel="email" available={availableChannels.includes('email')} />
-                <ChannelBadge channel="whatsapp" available={availableChannels.includes('whatsapp')} />
+                <ChannelBadge
+                  channel="whatsapp"
+                  available={availableChannels.includes('whatsapp')}
+                />
                 <ChannelBadge channel="sms" available={availableChannels.includes('sms')} />
               </div>
             </div>
@@ -594,11 +624,7 @@ function SignatureDialog({ open, onOpenChange, signature, mode = 'create' }) {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>Signature Text</Label>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowPreview(!showPreview)}
-              >
+              <Button variant="ghost" size="sm" onClick={() => setShowPreview(!showPreview)}>
                 {showPreview ? (
                   <>
                     <EyeOff className="h-4 w-4 mr-1" />
@@ -618,11 +644,7 @@ function SignatureDialog({ open, onOpenChange, signature, mode = 'create' }) {
                 {/* Logo in preview */}
                 {signatureType === 'with_logo' && logoPreview && (
                   <div className="mb-3">
-                    <img
-                      src={logoPreview}
-                      alt="Logo"
-                      className="h-12 object-contain"
-                    />
+                    <img src={logoPreview} alt="Logo" className="h-12 object-contain" />
                   </div>
                 )}
 
@@ -637,7 +659,7 @@ function SignatureDialog({ open, onOpenChange, signature, mode = 'create' }) {
                 {activeLinks.length > 0 && (
                   <div className="mt-3 pt-3 border-t flex flex-wrap gap-3">
                     {activeLinks.map(([key, value]) => {
-                      const linkType = LINK_TYPES.find(l => l.id === key);
+                      const linkType = LINK_TYPES.find((l) => l.id === key);
                       const Icon = linkType?.icon || Globe;
                       return (
                         <a
@@ -739,7 +761,8 @@ function SignatureCard({ signature, onEdit, onDelete, onSetDefault }) {
   const ChannelIcon = channelIcons[signature.channel];
 
   // Get signature type config
-  const typeConfig = SIGNATURE_TYPES.find(t => t.id === signature.signatureType) || SIGNATURE_TYPES[0];
+  const typeConfig =
+    SIGNATURE_TYPES.find((t) => t.id === signature.signatureType) || SIGNATURE_TYPES[0];
   const TypeIcon = typeConfig.icon;
 
   // Get links
@@ -841,7 +864,7 @@ function SignatureCard({ signature, onEdit, onDelete, onSetDefault }) {
         {activeLinks.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {activeLinks.slice(0, 4).map(([key, value]) => {
-              const linkType = LINK_TYPES.find(l => l.id === key);
+              const linkType = LINK_TYPES.find((l) => l.id === key);
               const Icon = linkType?.icon || Globe;
               return (
                 <TooltipProvider key={key}>
@@ -922,166 +945,177 @@ export default function SignaturesPage() {
     if (sig.channel === activeTab) return true;
     if (sig.channel === 'all') {
       // For 'all' channel signatures, check type compatibility
-      const typeConfig = SIGNATURE_TYPES.find(t => t.id === sig.signatureType);
+      const typeConfig = SIGNATURE_TYPES.find((t) => t.id === sig.signatureType);
       return typeConfig?.channels.includes(activeTab);
     }
     return false;
   });
 
   return (
-    <div className="flex-1 space-y-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Signatures</h1>
-          <p className="text-muted-foreground">
-            Create and manage your email and message signatures
-          </p>
+    <UnifiedLayout hubId="settings" pageTitle="Signatures" fixedMenu={null}>
+      <div className="flex-1 space-y-6 p-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Signatures</h1>
+            <p className="text-muted-foreground">
+              Create and manage your email and message signatures
+            </p>
+          </div>
+          <Button onClick={handleCreate}>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Signature
+          </Button>
         </div>
-        <Button onClick={handleCreate}>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Signature
-        </Button>
-      </div>
 
-      {/* Channel Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="all" className="gap-2">
-            All
-            <Badge variant="secondary" className="h-5 px-1.5">
-              {signatures.length}
-            </Badge>
-          </TabsTrigger>
-          <TabsTrigger value="email" className="gap-2">
-            <Mail className="h-4 w-4" />
-            Email
-          </TabsTrigger>
-          <TabsTrigger value="whatsapp" className="gap-2">
-            <MessageSquare className="h-4 w-4" />
-            WhatsApp
-          </TabsTrigger>
-          <TabsTrigger value="sms" className="gap-2">
-            <Smartphone className="h-4 w-4" />
-            SMS
-          </TabsTrigger>
-        </TabsList>
+        {/* Channel Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="all" className="gap-2">
+              All
+              <Badge variant="secondary" className="h-5 px-1.5">
+                {signatures.length}
+              </Badge>
+            </TabsTrigger>
+            <TabsTrigger value="email" className="gap-2">
+              <Mail className="h-4 w-4" />
+              Email
+            </TabsTrigger>
+            <TabsTrigger value="whatsapp" className="gap-2">
+              <MessageSquare className="h-4 w-4" />
+              WhatsApp
+            </TabsTrigger>
+            <TabsTrigger value="sms" className="gap-2">
+              <Smartphone className="h-4 w-4" />
+              SMS
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value={activeTab} className="mt-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-48">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : isError ? (
-            <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
-              <AlertCircle className="h-8 w-8 mb-2" />
-              <p>Failed to load signatures</p>
-            </div>
-          ) : filteredSignatures.length === 0 ? (
-            <Card>
-              <CardContent className="flex flex-col items-center justify-center h-48 text-center">
-                <FileSignature className="h-12 w-12 text-muted-foreground/50 mb-4" />
-                <h3 className="text-lg font-medium">No Signatures Yet</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Create your first signature to use in emails and messages
+          <TabsContent value={activeTab} className="mt-6">
+            {isLoading ? (
+              <div className="flex items-center justify-center h-48">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : isError ? (
+              <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
+                <AlertCircle className="h-8 w-8 mb-2" />
+                <p>Failed to load signatures</p>
+              </div>
+            ) : filteredSignatures.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center h-48 text-center">
+                  <FileSignature className="h-12 w-12 text-muted-foreground/50 mb-4" />
+                  <h3 className="text-lg font-medium">No Signatures Yet</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Create your first signature to use in emails and messages
+                  </p>
+                  <Button onClick={handleCreate}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Create Signature
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2">
+                {filteredSignatures.map((signature) => (
+                  <SignatureCard
+                    key={signature.id}
+                    signature={signature}
+                    onEdit={handleEdit}
+                    onDelete={handleDelete}
+                    onSetDefault={handleSetDefault}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
+
+        {/* Tips Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Info className="h-4 w-4 text-primary" />
+              Signature Types & Channel Compatibility
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground space-y-4">
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="p-3 rounded-lg bg-muted/50 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Type className="h-4 w-4 text-primary" />
+                  <span className="font-medium text-foreground">Text Only</span>
+                </div>
+                <p className="text-xs">
+                  Simple text signature. Works on all channels: Email, WhatsApp, and SMS.
                 </p>
-                <Button onClick={handleCreate}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Signature
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {filteredSignatures.map((signature) => (
-                <SignatureCard
-                  key={signature.id}
-                  signature={signature}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onSetDefault={handleSetDefault}
-                />
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
-
-      {/* Tips Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <Info className="h-4 w-4 text-primary" />
-            Signature Types & Channel Compatibility
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="p-3 rounded-lg bg-muted/50 space-y-2">
-              <div className="flex items-center gap-2">
-                <Type className="h-4 w-4 text-primary" />
-                <span className="font-medium text-foreground">Text Only</span>
               </div>
-              <p className="text-xs">Simple text signature. Works on all channels: Email, WhatsApp, and SMS.</p>
-            </div>
-            <div className="p-3 rounded-lg bg-muted/50 space-y-2">
-              <div className="flex items-center gap-2">
-                <Link className="h-4 w-4 text-primary" />
-                <span className="font-medium text-foreground">With Links</span>
+              <div className="p-3 rounded-lg bg-muted/50 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Link className="h-4 w-4 text-primary" />
+                  <span className="font-medium text-foreground">With Links</span>
+                </div>
+                <p className="text-xs">
+                  Text with clickable social/website links. Works on all channels.
+                </p>
               </div>
-              <p className="text-xs">Text with clickable social/website links. Works on all channels.</p>
-            </div>
-            <div className="p-3 rounded-lg bg-muted/50 space-y-2">
-              <div className="flex items-center gap-2">
-                <Image className="h-4 w-4 text-primary" />
-                <span className="font-medium text-foreground">With Logo</span>
+              <div className="p-3 rounded-lg bg-muted/50 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Image className="h-4 w-4 text-primary" />
+                  <span className="font-medium text-foreground">With Logo</span>
+                </div>
+                <p className="text-xs">
+                  Rich signature with company logo. <strong>Email only</strong> - logos don't work
+                  in WhatsApp/SMS.
+                </p>
               </div>
-              <p className="text-xs">Rich signature with company logo. <strong>Email only</strong> - logos don't work in WhatsApp/SMS.</p>
             </div>
-          </div>
 
-          <Separator />
+            <Separator />
 
-          <div className="space-y-2">
-            <p>
-              <strong>Variables:</strong> Use {`{{name}}`}, {`{{company}}`}, {`{{phone}}`}, etc. to automatically insert your details.
-            </p>
-            <p>
-              <strong>Tip:</strong> Create separate signatures for formal emails (with logo) and quick WhatsApp replies (text only).
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+            <div className="space-y-2">
+              <p>
+                <strong>Variables:</strong> Use {`{{name}}`}, {`{{company}}`}, {`{{phone}}`}, etc.
+                to automatically insert your details.
+              </p>
+              <p>
+                <strong>Tip:</strong> Create separate signatures for formal emails (with logo) and
+                quick WhatsApp replies (text only).
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Signature Editor Dialog */}
-      <SignatureDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        signature={selectedSignature}
-        mode={dialogMode}
-      />
+        {/* Signature Editor Dialog */}
+        <SignatureDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          signature={selectedSignature}
+          mode={dialogMode}
+        />
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Signature</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete "{signatureToDelete?.name}"? This action cannot be
-              undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Signature</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{signatureToDelete?.name}"? This action cannot be
+                undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDelete}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </UnifiedLayout>
   );
 }

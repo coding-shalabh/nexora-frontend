@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import {
   UserPlus,
   Mail,
   Sparkles,
   Database,
-  Filter,
   MoreHorizontal,
   Building2,
   Linkedin,
@@ -23,8 +22,8 @@ import {
   Briefcase,
   Search,
 } from 'lucide-react';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -124,7 +123,7 @@ const mockProspects = [
 ];
 
 // Stats
-const stats = {
+const prospectingStats = {
   totalProspects: 156,
   newThisWeek: 42,
   enriched: 89,
@@ -132,23 +131,8 @@ const stats = {
 };
 
 export default function ProspectingPage() {
-  const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedProspects, setSelectedProspects] = useState([]);
-
-  const layoutStats = useMemo(
-    () => [
-      createStat('Prospects', stats.totalProspects, Users, 'blue'),
-      createStat('New', stats.newThisWeek, UserPlus, 'green'),
-      createStat('Enriched', stats.enriched, Database, 'purple'),
-      createStat('Avg Score', stats.avgScore, Target, 'orange'),
-    ],
-    []
-  );
-
-  const handleSearch = (value) => {
-    setSearchQuery(value);
-  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -189,254 +173,247 @@ export default function ProspectingPage() {
   };
 
   const filteredProspects = mockProspects.filter((prospect) => {
-    const matchesSearch =
-      prospect.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prospect.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      prospect.title.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || prospect.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    return statusFilter === 'all' || prospect.status === statusFilter;
   });
 
-  const actionButtons = (
-    <div className="flex items-center gap-2">
-      <Select value={statusFilter} onValueChange={setStatusFilter}>
-        <SelectTrigger className="w-40">
-          <SelectValue placeholder="Status" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Status</SelectItem>
-          <SelectItem value="new">New</SelectItem>
-          <SelectItem value="contacted">Contacted</SelectItem>
-          <SelectItem value="qualified">Qualified</SelectItem>
-        </SelectContent>
-      </Select>
-      <Button variant="outline">
-        <Database className="h-4 w-4 mr-2" />
-        Import Leads
-      </Button>
-      <Button>
-        <Sparkles className="h-4 w-4 mr-2" />
-        AI Search
-      </Button>
-    </div>
-  );
+  const stats = [
+    createStat('Prospects', prospectingStats.totalProspects, Users, 'blue'),
+    createStat('New', prospectingStats.newThisWeek, UserPlus, 'green'),
+    createStat('Enriched', prospectingStats.enriched, Database, 'purple'),
+    createStat('Avg Score', prospectingStats.avgScore, Target, 'orange'),
+  ];
 
-  const mainContent = (
-    <div className="space-y-6">
-      {/* Bulk Actions */}
-      {selectedProspects.length > 0 && (
-        <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
-          <span className="text-sm font-medium">{selectedProspects.length} selected</span>
-          <Button size="sm" variant="outline">
-            <Mail className="h-4 w-4 mr-2" />
-            Send Email
-          </Button>
-          <Button size="sm" variant="outline">
-            <Database className="h-4 w-4 mr-2" />
-            Enrich
-          </Button>
-          <Button size="sm" variant="outline">
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add to Sequence
-          </Button>
-          <Button size="sm" variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
-      )}
-
-      {/* Prospects Table */}
-      <Card>
-        <div className="divide-y">
-          {/* Header */}
-          <div className="flex items-center gap-4 p-4 bg-muted/50 font-medium text-sm">
-            <Checkbox
-              checked={selectedProspects.length === mockProspects.length}
-              onCheckedChange={handleSelectAll}
-            />
-            <div className="flex-1">Name</div>
-            <div className="w-48 hidden lg:block">Company</div>
-            <div className="w-32 hidden md:block">Score</div>
-            <div className="w-24 hidden md:block">Status</div>
-            <div className="w-24">Actions</div>
-          </div>
-
-          {/* Rows */}
-          {filteredProspects.map((prospect, index) => (
-            <motion.div
-              key={prospect.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: index * 0.05 }}
-              className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors"
-            >
-              <Checkbox
-                checked={selectedProspects.includes(prospect.id)}
-                onCheckedChange={() => handleSelectProspect(prospect.id)}
-              />
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{prospect.name}</span>
-                  {prospect.enriched && (
-                    <Badge variant="secondary" className="text-xs">
-                      <CheckCircle2 className="h-3 w-3 mr-1" />
-                      Enriched
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span>{prospect.title}</span>
-                  <span>•</span>
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {prospect.location}
-                  </span>
-                </div>
-                {prospect.signals.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {prospect.signals.map((signal, idx) => (
-                      <Badge
-                        key={idx}
-                        variant="outline"
-                        className="text-xs bg-green-50 text-green-700"
-                      >
-                        <Zap className="h-3 w-3 mr-1" />
-                        {signal}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="w-48 hidden lg:block">
-                <div className="flex items-center gap-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{prospect.company}</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Briefcase className="h-3 w-3" />
-                  <span>{prospect.industry}</span>
-                </div>
-              </div>
-
-              <div className="w-32 hidden md:block">
-                <div className="flex items-center gap-2">
-                  <Target className={cn('h-4 w-4', getScoreColor(prospect.score))} />
-                  <span className={cn('font-bold', getScoreColor(prospect.score))}>
-                    {prospect.score}
-                  </span>
-                </div>
-              </div>
-
-              <div className="w-24 hidden md:block">
-                <Badge variant="outline" className={getStatusColor(prospect.status)}>
-                  {prospect.status}
-                </Badge>
-              </div>
-
-              <div className="w-24 flex items-center gap-1">
-                <Button variant="ghost" size="icon" className="h-8 w-8" title="Email">
-                  <Mail className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8" title="LinkedIn">
-                  <Linkedin className="h-4 w-4" />
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Phone className="h-4 w-4 mr-2" />
-                      Call
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Database className="h-4 w-4 mr-2" />
-                      Enrich Data
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <UserPlus className="h-4 w-4 mr-2" />
-                      Add to Sequence
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Star className="h-4 w-4 mr-2" />
-                      Add to Target Accounts
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <CheckCircle2 className="h-4 w-4 mr-2" />
-                      Mark Qualified
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600">
-                      <XCircle className="h-4 w-4 mr-2" />
-                      Disqualify
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </Card>
-
-      {filteredProspects.length === 0 && (
-        <Card className="p-12">
-          <div className="text-center">
-            <Search className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-            <h3 className="text-lg font-medium mb-2">No prospects found</h3>
-            <p className="text-muted-foreground mb-4">
-              Try adjusting your filters or search criteria
-            </p>
-            <Button>
-              <Sparkles className="h-4 w-4 mr-2" />
-              AI Search for Prospects
-            </Button>
-          </div>
-        </Card>
-      )}
-
-      {/* AI Suggestion */}
-      <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
-        <CardContent className="p-6">
-          <div className="flex gap-4">
-            <div className="p-3 rounded-lg bg-purple-100">
-              <Sparkles className="h-6 w-6 text-purple-600" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-purple-900 mb-1">AI Prospecting Suggestions</h3>
-              <p className="text-sm text-purple-800 mb-3">
-                Based on your ideal customer profile, we found 24 new prospects that match your
-                criteria. Would you like to review them?
-              </p>
-              <div className="flex items-center gap-2">
-                <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                  View Suggestions
-                </Button>
-                <Button size="sm" variant="outline" className="border-purple-300 text-purple-700">
-                  Update ICP
-                </Button>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
+  const actions = [
+    createAction('Import Leads', Database, () => console.log('import')),
+    createAction('AI Search', Sparkles, () => console.log('ai search'), { primary: true }),
+  ];
 
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="sales"
-      title="Prospecting"
-      description="Discover and enrich your ideal prospects"
-      showSidebar={false}
-      showTopBar={false}
-      showFixedMenu={false}
+      pageTitle="Prospecting"
+      stats={stats}
+      actions={actions}
+      fixedMenu={null}
     >
-      {mainContent}
-    </HubLayout>
+      <div className="p-6 space-y-6">
+        {/* Filter */}
+        <div className="flex items-center gap-4">
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="new">New</SelectItem>
+              <SelectItem value="contacted">Contacted</SelectItem>
+              <SelectItem value="qualified">Qualified</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Bulk Actions */}
+        {selectedProspects.length > 0 && (
+          <div className="flex items-center gap-4 p-4 bg-muted rounded-lg">
+            <span className="text-sm font-medium">{selectedProspects.length} selected</span>
+            <Button size="sm" variant="outline">
+              <Mail className="h-4 w-4 mr-2" />
+              Send Email
+            </Button>
+            <Button size="sm" variant="outline">
+              <Database className="h-4 w-4 mr-2" />
+              Enrich
+            </Button>
+            <Button size="sm" variant="outline">
+              <UserPlus className="h-4 w-4 mr-2" />
+              Add to Sequence
+            </Button>
+            <Button size="sm" variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </div>
+        )}
+
+        {/* Prospects Table */}
+        <Card>
+          <div className="divide-y">
+            {/* Header */}
+            <div className="flex items-center gap-4 p-4 bg-muted/50 font-medium text-sm">
+              <Checkbox
+                checked={selectedProspects.length === mockProspects.length}
+                onCheckedChange={handleSelectAll}
+              />
+              <div className="flex-1">Name</div>
+              <div className="w-48 hidden lg:block">Company</div>
+              <div className="w-32 hidden md:block">Score</div>
+              <div className="w-24 hidden md:block">Status</div>
+              <div className="w-24">Actions</div>
+            </div>
+
+            {/* Rows */}
+            {filteredProspects.map((prospect, index) => (
+              <motion.div
+                key={prospect.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: index * 0.05 }}
+                className="flex items-center gap-4 p-4 hover:bg-muted/50 transition-colors"
+              >
+                <Checkbox
+                  checked={selectedProspects.includes(prospect.id)}
+                  onCheckedChange={() => handleSelectProspect(prospect.id)}
+                />
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{prospect.name}</span>
+                    {prospect.enriched && (
+                      <Badge variant="secondary" className="text-xs">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        Enriched
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>{prospect.title}</span>
+                    <span>-</span>
+                    <span className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {prospect.location}
+                    </span>
+                  </div>
+                  {prospect.signals.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {prospect.signals.map((signal, idx) => (
+                        <Badge
+                          key={idx}
+                          variant="outline"
+                          className="text-xs bg-green-50 text-green-700"
+                        >
+                          <Zap className="h-3 w-3 mr-1" />
+                          {signal}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="w-48 hidden lg:block">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">{prospect.company}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Briefcase className="h-3 w-3" />
+                    <span>{prospect.industry}</span>
+                  </div>
+                </div>
+
+                <div className="w-32 hidden md:block">
+                  <div className="flex items-center gap-2">
+                    <Target className={cn('h-4 w-4', getScoreColor(prospect.score))} />
+                    <span className={cn('font-bold', getScoreColor(prospect.score))}>
+                      {prospect.score}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="w-24 hidden md:block">
+                  <Badge variant="outline" className={getStatusColor(prospect.status)}>
+                    {prospect.status}
+                  </Badge>
+                </div>
+
+                <div className="w-24 flex items-center gap-1">
+                  <Button variant="ghost" size="icon" className="h-8 w-8" title="Email">
+                    <Mail className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8" title="LinkedIn">
+                    <Linkedin className="h-4 w-4" />
+                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem>
+                        <Phone className="h-4 w-4 mr-2" />
+                        Call
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Database className="h-4 w-4 mr-2" />
+                        Enrich Data
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Add to Sequence
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Star className="h-4 w-4 mr-2" />
+                        Add to Target Accounts
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <CheckCircle2 className="h-4 w-4 mr-2" />
+                        Mark Qualified
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-red-600">
+                        <XCircle className="h-4 w-4 mr-2" />
+                        Disqualify
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </Card>
+
+        {filteredProspects.length === 0 && (
+          <Card className="p-12">
+            <div className="text-center">
+              <Search className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+              <h3 className="text-lg font-medium mb-2">No prospects found</h3>
+              <p className="text-muted-foreground mb-4">
+                Try adjusting your filters or search criteria
+              </p>
+              <Button>
+                <Sparkles className="h-4 w-4 mr-2" />
+                AI Search for Prospects
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* AI Suggestion */}
+        <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200">
+          <CardContent className="p-6">
+            <div className="flex gap-4">
+              <div className="p-3 rounded-lg bg-purple-100">
+                <Sparkles className="h-6 w-6 text-purple-600" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-purple-900 mb-1">AI Prospecting Suggestions</h3>
+                <p className="text-sm text-purple-800 mb-3">
+                  Based on your ideal customer profile, we found 24 new prospects that match your
+                  criteria. Would you like to review them?
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                    View Suggestions
+                  </Button>
+                  <Button size="sm" variant="outline" className="border-purple-300 text-purple-700">
+                    Update ICP
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </UnifiedLayout>
   );
 }

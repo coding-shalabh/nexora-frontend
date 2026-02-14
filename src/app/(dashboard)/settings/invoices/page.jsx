@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { UnifiedLayout } from '@/components/layout/unified';
 import {
   Receipt,
   Download,
@@ -206,477 +207,483 @@ export default function InvoicesPage() {
   };
 
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      className="flex-1 space-y-6 p-6"
-    >
-      {/* Header */}
-      <motion.div variants={itemVariants} className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Invoices</h1>
-          <p className="text-muted-foreground">View and download your billing history</p>
-        </div>
-        <Button variant="outline" size="sm" className="rounded-lg">
-          <Download className="mr-2 h-4 w-4" />
-          Export All
-        </Button>
-      </motion.div>
-
-      {/* Stats */}
-      <motion.div variants={itemVariants} className="grid gap-4 md:grid-cols-4">
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-200/50">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-              <Receipt className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-blue-900">{invoicesData.length}</p>
-              <p className="text-xs text-blue-600/80">Total Invoices</p>
-            </div>
+    <UnifiedLayout hubId="settings" pageTitle="Invoices" fixedMenu={null}>
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="flex-1 space-y-6 p-6"
+      >
+        {/* Header */}
+        <motion.div variants={itemVariants} className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Invoices</h1>
+            <p className="text-muted-foreground">View and download your billing history</p>
           </div>
-        </div>
+          <Button variant="outline" size="sm" className="rounded-lg">
+            <Download className="mr-2 h-4 w-4" />
+            Export All
+          </Button>
+        </motion.div>
 
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-4 border border-green-200/50">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-              <CheckCircle className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-green-900">{formatCurrency(totalPaid)}</p>
-              <p className="text-xs text-green-600/80">Total Paid</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-4 border border-purple-200/50">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-              <CreditCard className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-purple-900">
-                {formatCurrency(subscriptionTotal)}
-              </p>
-              <p className="text-xs text-purple-600/80">Subscription</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200/50">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-              <Calendar className="h-5 w-5 text-amber-600" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-amber-900">Feb 1, 2024</p>
-              <p className="text-xs text-amber-600/80">Next Invoice</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Tabs */}
-      <motion.div variants={itemVariants}>
-        <Tabs defaultValue="all" className="space-y-6">
-          <div className="flex items-center justify-between">
-            <TabsList className="bg-gray-100/80">
-              <TabsTrigger
-                value="all"
-                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:font-medium data-[state=active]:shadow-sm"
-              >
-                <FileText className="h-4 w-4" />
-                All Invoices
-              </TabsTrigger>
-              <TabsTrigger
-                value="subscription"
-                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:font-medium data-[state=active]:shadow-sm"
-              >
-                <CreditCard className="h-4 w-4" />
-                Subscription
-              </TabsTrigger>
-              <TabsTrigger
-                value="credits"
-                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:font-medium data-[state=active]:shadow-sm"
-              >
-                <DollarSign className="h-4 w-4" />
-                Credits
-              </TabsTrigger>
-            </TabsList>
-
-            {/* Filters */}
+        {/* Stats */}
+        <motion.div variants={itemVariants} className="grid gap-4 md:grid-cols-4">
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-200/50">
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search invoices..."
-                  className="pl-9 w-[200px] rounded-lg"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
+              <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                <Receipt className="h-5 w-5 text-blue-600" />
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[130px] rounded-lg">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="overdue">Overdue</SelectItem>
-                </SelectContent>
-              </Select>
+              <div>
+                <p className="text-2xl font-bold text-blue-900">{invoicesData.length}</p>
+                <p className="text-xs text-blue-600/80">Total Invoices</p>
+              </div>
             </div>
           </div>
 
-          <TabsContent value="all" className="space-y-4">
-            {filteredInvoices.map((invoice) => {
-              const status = statusConfig[invoice.status];
-              const type = typeConfig[invoice.type];
-              const StatusIcon = status.icon;
-              const TypeIcon = type.icon;
-
-              return (
-                <Card
-                  key={invoice.id}
-                  className={`rounded-2xl border hover:shadow-md transition-all cursor-pointer bg-gradient-to-br ${type.gradient}`}
-                  onClick={() => setSelectedInvoice(invoice)}
-                >
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div
-                          className={`h-12 w-12 rounded-xl ${type.iconBg} flex items-center justify-center`}
-                        >
-                          <TypeIcon className={`h-6 w-6 ${type.iconColor}`} />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-semibold">{invoice.id}</p>
-                            <Badge className={`${status.bg} ${status.text} hover:${status.bg}`}>
-                              <StatusIcon className="mr-1 h-3 w-3" />
-                              {status.label}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground">{invoice.description}</p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {new Date(invoice.date).toLocaleDateString('en-US', {
-                              month: 'long',
-                              day: 'numeric',
-                              year: 'numeric',
-                            })}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-right">
-                          <p className="text-xl font-bold">{formatCurrency(invoice.amount)}</p>
-                          <p className="text-xs text-muted-foreground">{invoice.paymentMethod}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="rounded-lg"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedInvoice(invoice);
-                            }}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="rounded-lg"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Download className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </TabsContent>
-
-          <TabsContent value="subscription" className="space-y-4">
-            {filteredInvoices
-              .filter((i) => i.type === 'subscription')
-              .map((invoice) => {
-                const status = statusConfig[invoice.status];
-                const type = typeConfig[invoice.type];
-                const StatusIcon = status.icon;
-                const TypeIcon = type.icon;
-
-                return (
-                  <Card
-                    key={invoice.id}
-                    className={`rounded-2xl border hover:shadow-md transition-all cursor-pointer bg-gradient-to-br ${type.gradient}`}
-                    onClick={() => setSelectedInvoice(invoice)}
-                  >
-                    <CardContent className="pt-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={`h-12 w-12 rounded-xl ${type.iconBg} flex items-center justify-center`}
-                          >
-                            <TypeIcon className={`h-6 w-6 ${type.iconColor}`} />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-semibold">{invoice.id}</p>
-                              <Badge className={`${status.bg} ${status.text} hover:${status.bg}`}>
-                                <StatusIcon className="mr-1 h-3 w-3" />
-                                {status.label}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{invoice.description}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {new Date(invoice.date).toLocaleDateString('en-US', {
-                                month: 'long',
-                                day: 'numeric',
-                                year: 'numeric',
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <p className="text-xl font-bold">{formatCurrency(invoice.amount)}</p>
-                            <p className="text-xs text-muted-foreground">{invoice.paymentMethod}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="rounded-lg">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="rounded-lg"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-          </TabsContent>
-
-          <TabsContent value="credits" className="space-y-4">
-            {filteredInvoices
-              .filter((i) => i.type === 'credits')
-              .map((invoice) => {
-                const status = statusConfig[invoice.status];
-                const type = typeConfig[invoice.type];
-                const StatusIcon = status.icon;
-                const TypeIcon = type.icon;
-
-                return (
-                  <Card
-                    key={invoice.id}
-                    className={`rounded-2xl border hover:shadow-md transition-all cursor-pointer bg-gradient-to-br ${type.gradient}`}
-                    onClick={() => setSelectedInvoice(invoice)}
-                  >
-                    <CardContent className="pt-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                          <div
-                            className={`h-12 w-12 rounded-xl ${type.iconBg} flex items-center justify-center`}
-                          >
-                            <TypeIcon className={`h-6 w-6 ${type.iconColor}`} />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="font-semibold">{invoice.id}</p>
-                              <Badge className={`${status.bg} ${status.text} hover:${status.bg}`}>
-                                <StatusIcon className="mr-1 h-3 w-3" />
-                                {status.label}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{invoice.description}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {new Date(invoice.date).toLocaleDateString('en-US', {
-                                month: 'long',
-                                day: 'numeric',
-                                year: 'numeric',
-                              })}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <p className="text-xl font-bold">{formatCurrency(invoice.amount)}</p>
-                            <p className="text-xs text-muted-foreground">{invoice.paymentMethod}</p>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="rounded-lg">
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="rounded-lg"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Download className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-          </TabsContent>
-        </Tabs>
-      </motion.div>
-
-      {/* Info Accordion */}
-      <motion.div variants={itemVariants}>
-        <Accordion type="single" collapsible className="bg-white rounded-2xl border">
-          <AccordionItem value="invoices" className="border-none">
-            <AccordionTrigger className="px-6 hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <Receipt className="h-4 w-4 text-blue-600" />
-                </div>
-                <span className="font-medium">Understanding Your Invoices</span>
+          <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl p-4 border border-green-200/50">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                <CheckCircle className="h-5 w-5 text-green-600" />
               </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-6 pb-4">
-              <div className="pl-11 space-y-2 text-muted-foreground">
-                <p>
-                  Invoices are generated automatically for all your payments including subscription
-                  renewals and credit purchases.
-                </p>
-                <ul className="list-disc list-inside space-y-1 mt-2">
-                  <li>Subscription invoices are generated monthly on your billing date</li>
-                  <li>Credit purchase invoices are generated immediately after payment</li>
-                  <li>All invoices include GST breakdown for Indian customers</li>
-                  <li>Download PDF invoices for your records</li>
-                </ul>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="payment" className="border-none">
-            <AccordionTrigger className="px-6 hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
-                  <CreditCard className="h-4 w-4 text-green-600" />
-                </div>
-                <span className="font-medium">Payment Methods</span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-6 pb-4">
-              <div className="pl-11 space-y-2 text-muted-foreground">
-                <p>We accept multiple payment methods for your convenience:</p>
-                <ul className="list-disc list-inside space-y-1 mt-2">
-                  <li>Credit/Debit Cards (Visa, Mastercard, RuPay)</li>
-                  <li>UPI (Google Pay, PhonePe, Paytm)</li>
-                  <li>Net Banking (all major banks)</li>
-                  <li>Wallets (Paytm, Amazon Pay)</li>
-                </ul>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="support" className="border-none">
-            <AccordionTrigger className="px-6 hover:no-underline">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <HelpCircle className="h-4 w-4 text-purple-600" />
-                </div>
-                <span className="font-medium">Billing Support</span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-6 pb-4">
-              <div className="pl-11 space-y-3 text-muted-foreground">
-                <p>Need help with billing? Here's how to reach us:</p>
-                <div className="space-y-2">
-                  <div>
-                    <p className="font-medium text-foreground">Email</p>
-                    <p className="text-sm">billing@nexoraos.pro</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">Response Time</p>
-                    <p className="text-sm">We respond to billing queries within 24 hours</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">Refunds</p>
-                    <p className="text-sm">
-                      Refund requests are processed within 5-7 business days
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </motion.div>
-
-      {/* Invoice Detail Dialog */}
-      <Dialog open={!!selectedInvoice} onOpenChange={() => setSelectedInvoice(null)}>
-        <DialogContent className="rounded-2xl max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Receipt className="h-5 w-5" />
-              Invoice Details
-            </DialogTitle>
-            <DialogDescription>View invoice information</DialogDescription>
-          </DialogHeader>
-          {selectedInvoice && (
-            <div className="space-y-4">
-              <div className="p-4 rounded-xl bg-muted/50 space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Invoice ID</span>
-                  <span className="font-medium">{selectedInvoice.id}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Date</span>
-                  <span className="font-medium">
-                    {new Date(selectedInvoice.date).toLocaleDateString('en-US', {
-                      month: 'long',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Description</span>
-                  <span className="font-medium">{selectedInvoice.description}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Payment Method</span>
-                  <span className="font-medium">{selectedInvoice.paymentMethod}</span>
-                </div>
-                <div className="flex justify-between pt-3 border-t">
-                  <span className="text-muted-foreground">Amount</span>
-                  <span className="text-xl font-bold">
-                    {formatCurrency(selectedInvoice.amount)}
-                  </span>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" className="flex-1 rounded-lg">
-                  <Eye className="mr-2 h-4 w-4" />
-                  View PDF
-                </Button>
-                <Button className="flex-1 rounded-lg">
-                  <Download className="mr-2 h-4 w-4" />
-                  Download
-                </Button>
+              <div>
+                <p className="text-2xl font-bold text-green-900">{formatCurrency(totalPaid)}</p>
+                <p className="text-xs text-green-600/80">Total Paid</p>
               </div>
             </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </motion.div>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-50 to-violet-50 rounded-2xl p-4 border border-purple-200/50">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
+                <CreditCard className="h-5 w-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-purple-900">
+                  {formatCurrency(subscriptionTotal)}
+                </p>
+                <p className="text-xs text-purple-600/80">Subscription</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200/50">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-amber-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-amber-900">Feb 1, 2024</p>
+                <p className="text-xs text-amber-600/80">Next Invoice</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Tabs */}
+        <motion.div variants={itemVariants}>
+          <Tabs defaultValue="all" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <TabsList className="bg-gray-100/80">
+                <TabsTrigger
+                  value="all"
+                  className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:font-medium data-[state=active]:shadow-sm"
+                >
+                  <FileText className="h-4 w-4" />
+                  All Invoices
+                </TabsTrigger>
+                <TabsTrigger
+                  value="subscription"
+                  className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:font-medium data-[state=active]:shadow-sm"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Subscription
+                </TabsTrigger>
+                <TabsTrigger
+                  value="credits"
+                  className="flex items-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:font-medium data-[state=active]:shadow-sm"
+                >
+                  <DollarSign className="h-4 w-4" />
+                  Credits
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Filters */}
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search invoices..."
+                    className="pl-9 w-[200px] rounded-lg"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[130px] rounded-lg">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="overdue">Overdue</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <TabsContent value="all" className="space-y-4">
+              {filteredInvoices.map((invoice) => {
+                const status = statusConfig[invoice.status];
+                const type = typeConfig[invoice.type];
+                const StatusIcon = status.icon;
+                const TypeIcon = type.icon;
+
+                return (
+                  <Card
+                    key={invoice.id}
+                    className={`rounded-2xl border hover:shadow-md transition-all cursor-pointer bg-gradient-to-br ${type.gradient}`}
+                    onClick={() => setSelectedInvoice(invoice)}
+                  >
+                    <CardContent className="pt-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                          <div
+                            className={`h-12 w-12 rounded-xl ${type.iconBg} flex items-center justify-center`}
+                          >
+                            <TypeIcon className={`h-6 w-6 ${type.iconColor}`} />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold">{invoice.id}</p>
+                              <Badge className={`${status.bg} ${status.text} hover:${status.bg}`}>
+                                <StatusIcon className="mr-1 h-3 w-3" />
+                                {status.label}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">{invoice.description}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {new Date(invoice.date).toLocaleDateString('en-US', {
+                                month: 'long',
+                                day: 'numeric',
+                                year: 'numeric',
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="text-xl font-bold">{formatCurrency(invoice.amount)}</p>
+                            <p className="text-xs text-muted-foreground">{invoice.paymentMethod}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="rounded-lg"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedInvoice(invoice);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="rounded-lg"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Download className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </TabsContent>
+
+            <TabsContent value="subscription" className="space-y-4">
+              {filteredInvoices
+                .filter((i) => i.type === 'subscription')
+                .map((invoice) => {
+                  const status = statusConfig[invoice.status];
+                  const type = typeConfig[invoice.type];
+                  const StatusIcon = status.icon;
+                  const TypeIcon = type.icon;
+
+                  return (
+                    <Card
+                      key={invoice.id}
+                      className={`rounded-2xl border hover:shadow-md transition-all cursor-pointer bg-gradient-to-br ${type.gradient}`}
+                      onClick={() => setSelectedInvoice(invoice)}
+                    >
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`h-12 w-12 rounded-xl ${type.iconBg} flex items-center justify-center`}
+                            >
+                              <TypeIcon className={`h-6 w-6 ${type.iconColor}`} />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold">{invoice.id}</p>
+                                <Badge className={`${status.bg} ${status.text} hover:${status.bg}`}>
+                                  <StatusIcon className="mr-1 h-3 w-3" />
+                                  {status.label}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">{invoice.description}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {new Date(invoice.date).toLocaleDateString('en-US', {
+                                  month: 'long',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <p className="text-xl font-bold">{formatCurrency(invoice.amount)}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {invoice.paymentMethod}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="rounded-lg">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="rounded-lg"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+            </TabsContent>
+
+            <TabsContent value="credits" className="space-y-4">
+              {filteredInvoices
+                .filter((i) => i.type === 'credits')
+                .map((invoice) => {
+                  const status = statusConfig[invoice.status];
+                  const type = typeConfig[invoice.type];
+                  const StatusIcon = status.icon;
+                  const TypeIcon = type.icon;
+
+                  return (
+                    <Card
+                      key={invoice.id}
+                      className={`rounded-2xl border hover:shadow-md transition-all cursor-pointer bg-gradient-to-br ${type.gradient}`}
+                      onClick={() => setSelectedInvoice(invoice)}
+                    >
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4">
+                            <div
+                              className={`h-12 w-12 rounded-xl ${type.iconBg} flex items-center justify-center`}
+                            >
+                              <TypeIcon className={`h-6 w-6 ${type.iconColor}`} />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold">{invoice.id}</p>
+                                <Badge className={`${status.bg} ${status.text} hover:${status.bg}`}>
+                                  <StatusIcon className="mr-1 h-3 w-3" />
+                                  {status.label}
+                                </Badge>
+                              </div>
+                              <p className="text-sm text-muted-foreground">{invoice.description}</p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {new Date(invoice.date).toLocaleDateString('en-US', {
+                                  month: 'long',
+                                  day: 'numeric',
+                                  year: 'numeric',
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="text-right">
+                              <p className="text-xl font-bold">{formatCurrency(invoice.amount)}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {invoice.paymentMethod}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button variant="ghost" size="sm" className="rounded-lg">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="rounded-lg"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Download className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+            </TabsContent>
+          </Tabs>
+        </motion.div>
+
+        {/* Info Accordion */}
+        <motion.div variants={itemVariants}>
+          <Accordion type="single" collapsible className="bg-white rounded-2xl border">
+            <AccordionItem value="invoices" className="border-none">
+              <AccordionTrigger className="px-6 hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                    <Receipt className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <span className="font-medium">Understanding Your Invoices</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-4">
+                <div className="pl-11 space-y-2 text-muted-foreground">
+                  <p>
+                    Invoices are generated automatically for all your payments including
+                    subscription renewals and credit purchases.
+                  </p>
+                  <ul className="list-disc list-inside space-y-1 mt-2">
+                    <li>Subscription invoices are generated monthly on your billing date</li>
+                    <li>Credit purchase invoices are generated immediately after payment</li>
+                    <li>All invoices include GST breakdown for Indian customers</li>
+                    <li>Download PDF invoices for your records</li>
+                  </ul>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="payment" className="border-none">
+              <AccordionTrigger className="px-6 hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+                    <CreditCard className="h-4 w-4 text-green-600" />
+                  </div>
+                  <span className="font-medium">Payment Methods</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-4">
+                <div className="pl-11 space-y-2 text-muted-foreground">
+                  <p>We accept multiple payment methods for your convenience:</p>
+                  <ul className="list-disc list-inside space-y-1 mt-2">
+                    <li>Credit/Debit Cards (Visa, Mastercard, RuPay)</li>
+                    <li>UPI (Google Pay, PhonePe, Paytm)</li>
+                    <li>Net Banking (all major banks)</li>
+                    <li>Wallets (Paytm, Amazon Pay)</li>
+                  </ul>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="support" className="border-none">
+              <AccordionTrigger className="px-6 hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                    <HelpCircle className="h-4 w-4 text-purple-600" />
+                  </div>
+                  <span className="font-medium">Billing Support</span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-4">
+                <div className="pl-11 space-y-3 text-muted-foreground">
+                  <p>Need help with billing? Here's how to reach us:</p>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="font-medium text-foreground">Email</p>
+                      <p className="text-sm">billing@nexoraos.pro</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">Response Time</p>
+                      <p className="text-sm">We respond to billing queries within 24 hours</p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">Refunds</p>
+                      <p className="text-sm">
+                        Refund requests are processed within 5-7 business days
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </motion.div>
+
+        {/* Invoice Detail Dialog */}
+        <Dialog open={!!selectedInvoice} onOpenChange={() => setSelectedInvoice(null)}>
+          <DialogContent className="rounded-2xl max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Receipt className="h-5 w-5" />
+                Invoice Details
+              </DialogTitle>
+              <DialogDescription>View invoice information</DialogDescription>
+            </DialogHeader>
+            {selectedInvoice && (
+              <div className="space-y-4">
+                <div className="p-4 rounded-xl bg-muted/50 space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Invoice ID</span>
+                    <span className="font-medium">{selectedInvoice.id}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Date</span>
+                    <span className="font-medium">
+                      {new Date(selectedInvoice.date).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Description</span>
+                    <span className="font-medium">{selectedInvoice.description}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Payment Method</span>
+                    <span className="font-medium">{selectedInvoice.paymentMethod}</span>
+                  </div>
+                  <div className="flex justify-between pt-3 border-t">
+                    <span className="text-muted-foreground">Amount</span>
+                    <span className="text-xl font-bold">
+                      {formatCurrency(selectedInvoice.amount)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" className="flex-1 rounded-lg">
+                    <Eye className="mr-2 h-4 w-4" />
+                    View PDF
+                  </Button>
+                  <Button className="flex-1 rounded-lg">
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      </motion.div>
+    </UnifiedLayout>
   );
 }

@@ -53,7 +53,7 @@ import {
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useTasks, useTaskStats, useUpdateTask } from '@/hooks/use-tasks';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 // Task status config
@@ -430,47 +430,7 @@ export default function TasksPage() {
 
   return (
     <>
-      <HubLayout
-        hubId="productivity"
-        title="Tasks"
-        description="Manage all your tasks across contacts, deals, projects, and more"
-        stats={stats}
-        showFixedMenu={true}
-        fixedMenuFilters={
-          <FixedMenuPanel
-            config={fixedMenuConfig}
-            activeFilter={statusFilter}
-            onFilterChange={setStatusFilter}
-            onAction={(id) => id === 'create' && setIsCreateOpen(true)}
-            className="p-4"
-          />
-        }
-        fixedMenuList={
-          <div className="space-y-2 p-4">
-            {/* Search Bar */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search tasks..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            {/* Tasks List */}
-            {tasksLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : filteredTasks.length === 0 ? (
-              <EmptyState />
-            ) : (
-              filteredTasks.map((task) => <TaskCard key={task.id} task={task} />)
-            )}
-          </div>
-        }
-      >
+      <UnifiedLayout hubId="home" pageTitle="Tasks" stats={stats} fixedMenu={null}>
         {/* Task Detail View in Content Area */}
         {selectedTask ? (
           <div className="h-full overflow-y-auto p-6">
@@ -612,7 +572,7 @@ export default function TasksPage() {
             </div>
           </div>
         )}
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Create Task Modal */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

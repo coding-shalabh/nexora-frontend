@@ -74,8 +74,9 @@ import {
   useRemoveTeamMember,
 } from '@/hooks/use-users';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
+// HubLayout removed - migrated to UnifiedLayout
 
 // Default roles fallback
 const defaultRoles = ['Admin', 'Manager', 'Agent', 'Viewer'];
@@ -593,6 +594,7 @@ export default function UsersPage() {
                           variant="ghost"
                           size="sm"
                           className="h-7 w-7 p-0 rounded-lg shrink-0"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <MoreHorizontal className="h-4 w-4 text-gray-400" />
                         </Button>
@@ -780,24 +782,22 @@ export default function UsersPage() {
 
   return (
     <>
-      <HubLayout
-        hubId="settings"
-        title="Users"
-        description="Manage users, teams, and invitations"
-        stats={stats}
-        showFixedMenu={true}
-        fixedMenuFilters={
-          <FixedMenuPanel
-            config={fixedMenuConfig}
-            activeFilter={activeTab}
-            onFilterChange={setActiveTab}
-            onAction={handleMenuAction}
-          />
-        }
-        fixedMenuList={fixedMenuListContent}
-      >
-        {contentArea}
-      </HubLayout>
+      <UnifiedLayout hubId="settings" pageTitle="Users" stats={stats} fixedMenu={null}>
+        <div className="flex h-full">
+          {/* Fixed Menu Panel */}
+          <div className="w-80 border-r border-gray-200 flex flex-col">
+            <FixedMenuPanel
+              config={fixedMenuConfig}
+              activeFilter={activeTab}
+              onFilterChange={setActiveTab}
+              onAction={handleMenuAction}
+            />
+            <div className="flex-1 overflow-auto">{fixedMenuListContent}</div>
+          </div>
+          {/* Content Area */}
+          <div className="flex-1 overflow-auto">{contentArea}</div>
+        </div>
+      </UnifiedLayout>
 
       {/* Invite User Dialog */}
       <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>

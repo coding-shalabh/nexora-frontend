@@ -19,7 +19,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
-import { HubLayout } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -179,17 +179,137 @@ export default function BillingPage() {
     }).format(amount);
   };
 
+  const handleDownloadInvoice = (invoice) => {
+    // Generate PDF invoice
+    const invoiceDate = new Date(invoice.date);
+    const invoiceNumber = invoice.id.toUpperCase();
+    const formattedDate = invoiceDate.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
+
+    // Create invoice HTML content
+    const invoiceHTML = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice ${invoiceNumber}</title>
+  <style>
+    @page { size: A4; margin: 20mm; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #333; line-height: 1.6; }
+    .container { max-width: 800px; margin: 0 auto; padding: 40px; }
+    .header { display: flex; justify-content: space-between; margin-bottom: 40px; border-bottom: 3px solid #4F46E5; padding-bottom: 20px; }
+    .logo { font-size: 32px; font-weight: bold; color: #4F46E5; }
+    .invoice-details { text-align: right; }
+    .invoice-details h2 { color: #4F46E5; margin-bottom: 10px; }
+    .invoice-details p { font-size: 14px; color: #666; }
+    .addresses { display: flex; justify-content: space-between; margin-bottom: 40px; }
+    .address-block { flex: 1; }
+    .address-block h3 { color: #4F46E5; margin-bottom: 10px; font-size: 14px; text-transform: uppercase; }
+    .address-block p { font-size: 14px; line-height: 1.8; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+    th { background: #F3F4F6; color: #1F2937; padding: 15px; text-align: left; font-weight: 600; border-bottom: 2px solid #E5E7EB; }
+    td { padding: 15px; border-bottom: 1px solid #E5E7EB; }
+    .total-row { background: #F9FAFB; font-weight: bold; font-size: 16px; }
+    .total-row td { border-top: 2px solid #4F46E5; }
+    .footer { margin-top: 50px; padding-top: 20px; border-top: 2px solid #E5E7EB; text-align: center; color: #666; font-size: 12px; }
+    .status-badge { display: inline-block; padding: 5px 15px; background: #D1FAE5; color: #065F46; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">Nexora</div>
+      <div class="invoice-details">
+        <h2>INVOICE</h2>
+        <p><strong>Invoice #:</strong> ${invoiceNumber}</p>
+        <p><strong>Date:</strong> ${formattedDate}</p>
+        <p><strong>Status:</strong> <span class="status-badge">${invoice.status.toUpperCase()}</span></p>
+      </div>
+    </div>
+
+    <div class="addresses">
+      <div class="address-block">
+        <h3>From:</h3>
+        <p><strong>72orionx Private Limited</strong></p>
+        <p>Business OS Solutions</p>
+        <p>India</p>
+        <p>GSTIN: XXXXXXXXXXXXXXX</p>
+        <p>Email: billing@nexoraos.pro</p>
+      </div>
+      <div class="address-block">
+        <h3>Bill To:</h3>
+        <p><strong>Your Company Name</strong></p>
+        <p>Your Address Line 1</p>
+        <p>Your Address Line 2</p>
+        <p>Email: your@email.com</p>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Period</th>
+          <th>Qty</th>
+          <th style="text-align: right;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>${currentSubscription.plan} Plan</strong> (${currentSubscription.seats} seats)</td>
+          <td>${new Date(currentSubscription.currentPeriodStart).toLocaleDateString('en-IN')} - ${new Date(currentSubscription.currentPeriodEnd).toLocaleDateString('en-IN')}</td>
+          <td>1</td>
+          <td style="text-align: right;">${formatCurrency(invoice.amount)}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="3" style="text-align: right;">Total Amount (incl. GST 18%):</td>
+          <td style="text-align: right;">${formatCurrency(invoice.amount)}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+      <p><strong>Payment Information:</strong></p>
+      <p style="margin-top: 10px;">Payment Method: ${currentSubscription.paymentMethod.brand} ending in ${currentSubscription.paymentMethod.last4}</p>
+      <p>Payment Date: ${formattedDate}</p>
+      <p>Transaction ID: TXN_${invoiceNumber}</p>
+    </div>
+
+    <div class="footer">
+      <p><strong>Thank you for your business!</strong></p>
+      <p>Nexora - Complete Business OS Platform | https://nexoraos.pro</p>
+      <p>For billing inquiries, contact: billing@nexoraos.pro</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    // Create a blob and download
+    const blob = new Blob([invoiceHTML], { type: 'text/html' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Nexora-Invoice-${invoiceNumber}-${invoiceDate.getFullYear()}-${String(invoiceDate.getMonth() + 1).padStart(2, '0')}.html`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // Show success message
+    alert('Invoice downloaded successfully! Open the HTML file in your browser and print as PDF.');
+  };
+
   const daysRemaining = Math.ceil(
     (new Date(currentSubscription.currentPeriodEnd) - new Date()) / (1000 * 60 * 60 * 24)
   );
 
   return (
-    <HubLayout
-      hubId="settings"
-      showFixedMenu={false}
-      title="Billing & Subscription"
-      description="Manage your plan, billing, and payment methods"
-    >
+    <UnifiedLayout hubId="settings" pageTitle="Billing & Subscription" fixedMenu={null}>
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -507,7 +627,13 @@ export default function BillingPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge className="bg-green-100 text-green-700 hover:bg-green-100">Paid</Badge>
-                    <Button variant="ghost" size="sm" className="rounded-lg">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="rounded-lg"
+                      onClick={() => handleDownloadInvoice(invoice)}
+                      title="Download Invoice"
+                    >
                       <Download className="h-4 w-4" />
                     </Button>
                   </div>
@@ -695,6 +821,6 @@ export default function BillingPage() {
           </AlertDialogContent>
         </AlertDialog>
       </motion.div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

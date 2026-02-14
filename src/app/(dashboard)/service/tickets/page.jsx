@@ -33,6 +33,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useTickets, useResolveTicket } from '@/hooks/use-tickets';
 import { useToast } from '@/hooks/use-toast';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 const statusConfig = {
   OPEN: { label: 'Open', icon: AlertCircle, color: 'bg-blue-100 text-blue-700' },
@@ -88,39 +89,21 @@ export default function ServiceTicketsPage() {
   ).length;
   const resolvedCount = tickets.filter((t) => t.status === 'RESOLVED').length;
 
+  // Stats for UnifiedLayout status bar
   const layoutStats = useMemo(
     () => [
-      {
-        label: 'Open',
-        value: openCount,
-        icon: AlertCircle,
-        bgColor: 'bg-blue-100',
-        textColor: 'text-blue-600',
-      },
-      {
-        label: 'Breached',
-        value: breachedCount,
-        icon: Clock,
-        bgColor: 'bg-red-100',
-        textColor: 'text-red-600',
-      },
-      {
-        label: 'Total',
-        value: tickets.length,
-        icon: MessageSquare,
-        bgColor: 'bg-purple-100',
-        textColor: 'text-purple-600',
-      },
-      {
-        label: 'Resolved',
-        value: resolvedCount,
-        icon: CheckCircle,
-        bgColor: 'bg-green-100',
-        textColor: 'text-green-600',
-      },
+      createStat('Open', openCount, AlertCircle, 'blue'),
+      createStat('Breached', breachedCount, Clock, 'red'),
+      createStat('Total', tickets.length, MessageSquare, 'purple'),
+      createStat('Resolved', resolvedCount, CheckCircle, 'green'),
     ],
     [openCount, breachedCount, tickets.length, resolvedCount]
   );
+
+  // Actions for UnifiedLayout status bar
+  const layoutActions = [
+    createAction('Create Ticket', Plus, null, { primary: true, href: '/service/tickets/new' }),
+  ];
 
   const handleResolve = async (ticket) => {
     try {
@@ -291,77 +274,48 @@ export default function ServiceTicketsPage() {
   );
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Support Tickets</h1>
-          <p className="text-muted-foreground">Manage customer support tickets</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link href="/service/tickets/new">
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Ticket
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {layoutStats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index} className="p-4">
-              <div className="flex items-center gap-3">
-                <div className={cn('p-2 rounded-lg', stat.bgColor)}>
-                  <Icon className={cn('h-5 w-5', stat.textColor)} />
-                </div>
-                <div>
-                  <p className="text-2xl font-bold">{stat.value}</p>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
-                </div>
-              </div>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* Filters */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search tickets..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <div className="flex items-center gap-1 border rounded-lg p-1 overflow-x-auto">
-          <Button
-            variant={statusFilter === 'all' ? 'secondary' : 'ghost'}
-            size="sm"
-            onClick={() => setStatusFilter('all')}
-          >
-            All
-          </Button>
-          {Object.entries(statusConfig).map(([status, config]) => (
+    <UnifiedLayout
+      hubId="service"
+      pageTitle="Support Tickets"
+      stats={layoutStats}
+      actions={layoutActions}
+    >
+      <div className="p-6 space-y-6 h-full overflow-auto">
+        {/* Filters */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search tickets..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <div className="flex items-center gap-1 border rounded-lg p-1 overflow-x-auto">
             <Button
-              key={status}
-              variant={statusFilter === status ? 'secondary' : 'ghost'}
+              variant={statusFilter === 'all' ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => setStatusFilter(status)}
+              onClick={() => setStatusFilter('all')}
             >
-              {config.label}
+              All
             </Button>
-          ))}
+            {Object.entries(statusConfig).map(([status, config]) => (
+              <Button
+                key={status}
+                variant={statusFilter === status ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setStatusFilter(status)}
+              >
+                {config.label}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Tickets Content */}
-      {mainContent}
-    </div>
+        {/* Tickets Content */}
+        {mainContent}
+      </div>
+    </UnifiedLayout>
   );
 }

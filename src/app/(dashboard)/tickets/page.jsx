@@ -61,8 +61,7 @@ import {
 import { useContacts } from '@/hooks/use-contacts';
 import { useCompanies } from '@/hooks/use-companies';
 import { useToast } from '@/hooks/use-toast';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
-import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 const statusConfig = {
   OPEN: { label: 'Open', icon: AlertCircle, color: 'bg-blue-100 text-blue-700' },
@@ -314,7 +313,7 @@ export default function TicketsPage() {
   // Compute resolved count
   const resolvedCount = tickets.filter((t) => t.status === 'RESOLVED').length;
 
-  // Stats configuration for HubLayout
+  // Stats configuration for UnifiedLayout
   const stats = [
     createStat('Open', openCount, AlertCircle, 'blue'),
     createStat('SLA Breached', breachedCount, AlertCircle, 'red'),
@@ -322,20 +321,10 @@ export default function TicketsPage() {
     createStat('Resolved', resolvedCount, CheckCircle, 'green'),
   ];
 
-  // FixedMenuPanel configuration
-  const fixedMenuConfig = {
-    primaryActions: [{ id: 'create', label: 'Create Ticket', icon: Plus, variant: 'default' }],
-    filters: {
-      quickFilters: [
-        { id: 'all', label: 'All' },
-        { id: 'OPEN', label: 'Open' },
-        { id: 'IN_PROGRESS', label: 'In Progress' },
-        { id: 'PENDING', label: 'Pending' },
-        { id: 'RESOLVED', label: 'Resolved' },
-        { id: 'CLOSED', label: 'Closed' },
-      ],
-    },
-  };
+  // Actions configuration for UnifiedLayout
+  const actions = [
+    createAction('Create Ticket', Plus, () => setIsCreateOpen(true), { primary: true }),
+  ];
 
   // Empty state component
   const EmptyState = () => (
@@ -489,47 +478,12 @@ export default function TicketsPage() {
 
   return (
     <>
-      <HubLayout
-        hubId="service"
-        showTopBar={false}
-        showSidebar={false}
-        title="Tickets"
-        description="Manage customer support tickets"
+      <UnifiedLayout
+        hubId="tickets"
+        pageTitle="Tickets"
         stats={stats}
-        fixedMenuFilters={
-          <FixedMenuPanel
-            config={fixedMenuConfig}
-            activeFilter={statusFilter}
-            onFilterChange={setStatusFilter}
-            onAction={(id) => id === 'create' && setIsCreateOpen(true)}
-            className="p-4"
-          />
-        }
-        fixedMenuList={
-          <div className="space-y-2 p-4">
-            {/* Search Bar */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search tickets..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-
-            {/* Tickets List */}
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : tickets.length === 0 ? (
-              <EmptyState />
-            ) : (
-              tickets.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} />)
-            )}
-          </div>
-        }
+        actions={actions}
+        fixedMenu={null}
       >
         {/* Ticket Detail View in Content Area */}
         {selectedTicket && ticketDetail && (
@@ -700,7 +654,7 @@ export default function TicketsPage() {
             )}
           </div>
         )}
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Create Ticket Modal */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

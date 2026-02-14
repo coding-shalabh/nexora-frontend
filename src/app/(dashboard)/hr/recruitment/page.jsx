@@ -24,7 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 const jobs = [
@@ -455,27 +455,8 @@ export default function RecruitmentPage() {
   );
 
   return (
-    <HubLayout
-      hubId="hr"
-      showTopBar={false}
-      showSidebar={false}
-      title="Recruitment"
-      description="Manage job postings and candidates"
-      stats={layoutStats}
-      actions={topBarActions}
-      showFixedMenu={true}
-      fixedMenuFilters={
-        <FixedMenuPanel
-          config={fixedMenuConfig}
-          activeFilter={statusFilter}
-          onFilterChange={setStatusFilter}
-          onAction={handleAction}
-          className="p-4"
-        />
-      }
-      fixedMenuList={fixedMenuListContent}
-    >
+    <UnifiedLayout hubId="hr" pageTitle="Recruitment" stats={layoutStats} fixedMenu={null}>
       {contentArea}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

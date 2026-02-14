@@ -51,7 +51,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useBilling, formatCurrency } from '@/hooks/use-billing';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 const statusConfig = {
@@ -449,72 +449,73 @@ export default function OrdersPage() {
     );
   };
 
-  return (
-    <HubLayout
-      hubId="commerce"
-      title="Orders"
-      description="Manage customer orders and fulfillment"
-      stats={stats}
-      showFixedMenu={true}
-      fixedMenuFilters={
-        <FixedMenuPanel
-          config={fixedMenuConfig}
-          activeFilter={statusFilter}
-          onFilterChange={setStatusFilter}
-          onAction={handleAction}
-          className="p-4"
+  const fixedMenuListContent = (
+    <div className="space-y-2 p-4">
+      {/* Search Bar */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search orders by ID or customer..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10"
         />
-      }
-      fixedMenuList={
-        <div className="space-y-2 p-4">
-          {/* Search Bar */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search orders by ID or customer..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+      </div>
 
-          {/* Orders List */}
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-          ) : error ? (
-            <div className="flex flex-col items-center justify-center py-12 gap-2">
-              <AlertCircle className="h-12 w-12 text-destructive" />
-              <p className="text-muted-foreground">Failed to load orders</p>
-              <Button variant="outline" onClick={() => fetchInvoices({ limit: 100 })}>
-                Try Again
-              </Button>
-            </div>
-          ) : filteredOrders.length === 0 ? (
-            <div className="text-center py-12">
-              <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No orders found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchQuery || statusFilter !== 'all'
-                  ? 'Try adjusting your filters'
-                  : 'Create your first order to get started'}
-              </p>
-              {!searchQuery && statusFilter === 'all' && (
-                <Button onClick={() => router.push('/commerce/invoices/new')}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Order
-                </Button>
-              )}
-            </div>
-          ) : (
-            filteredOrders.map((order) => <OrderCard key={order.id} order={order} />)
+      {/* Orders List */}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center py-12 gap-2">
+          <AlertCircle className="h-12 w-12 text-destructive" />
+          <p className="text-muted-foreground">Failed to load orders</p>
+          <Button variant="outline" onClick={() => fetchInvoices({ limit: 100 })}>
+            Try Again
+          </Button>
+        </div>
+      ) : filteredOrders.length === 0 ? (
+        <div className="text-center py-12">
+          <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium mb-2">No orders found</h3>
+          <p className="text-muted-foreground mb-4">
+            {searchQuery || statusFilter !== 'all'
+              ? 'Try adjusting your filters'
+              : 'Create your first order to get started'}
+          </p>
+          {!searchQuery && statusFilter === 'all' && (
+            <Button onClick={() => router.push('/commerce/invoices/new')}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Order
+            </Button>
           )}
         </div>
-      }
-    >
-      {/* Order Detail View */}
-      <OrderDetail order={selectedOrder} />
-    </HubLayout>
+      ) : (
+        filteredOrders.map((order) => <OrderCard key={order.id} order={order} />)
+      )}
+    </div>
+  );
+
+  return (
+    <UnifiedLayout hubId="commerce" pageTitle="Orders" stats={stats} fixedMenu={null}>
+      <div className="flex h-full">
+        {/* Fixed Menu Panel */}
+        <div className="w-80 border-r border-gray-200 flex flex-col">
+          <FixedMenuPanel
+            config={fixedMenuConfig}
+            activeFilter={statusFilter}
+            onFilterChange={setStatusFilter}
+            onAction={handleAction}
+            className="p-4"
+          />
+          <div className="flex-1 overflow-auto">{fixedMenuListContent}</div>
+        </div>
+        {/* Content Area */}
+        <div className="flex-1 overflow-auto">
+          <OrderDetail order={selectedOrder} />
+        </div>
+      </div>
+    </UnifiedLayout>
   );
 }

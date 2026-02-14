@@ -37,6 +37,7 @@ import {
   Search,
   TrendingUp,
 } from 'lucide-react';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -1077,223 +1078,227 @@ export default function ChannelConnectionsPage() {
   }
 
   return (
-    <motion.div
-      className="flex-1 p-6 space-y-6 overflow-auto"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {/* Search Bar - Right Aligned */}
-      <motion.div variants={itemVariants} className="flex justify-end">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search channels..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-11 w-64 pl-10 pr-4 rounded-xl bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-          />
-        </div>
-      </motion.div>
-
-      {/* Two Column Layout */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Filter Section - Left Column */}
-        <motion.div
-          variants={itemVariants}
-          className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-2xl p-6 border border-blue-200/50"
-        >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
-              <Link2 className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Channel Types</h3>
-              <p className="text-sm text-gray-500">Filter by communication type</p>
-            </div>
+    <UnifiedLayout hubId="settings" pageTitle="Channels" fixedMenu={null}>
+      <motion.div
+        className="h-full overflow-y-auto p-6 space-y-6"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        {/* Search Bar - Right Aligned */}
+        <motion.div variants={itemVariants} className="flex justify-end">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search channels..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-11 w-64 pl-10 pr-4 rounded-xl bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            />
           </div>
+        </motion.div>
 
-          <div className="space-y-2">
-            <motion.button
-              whileHover={{ scale: 1.01 }}
-              onClick={() => setFilter('all')}
-              className={cn(
-                'w-full flex items-center justify-between p-3 rounded-xl transition-colors',
-                filter === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white border border-blue-200 hover:border-blue-300'
-              )}
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={cn(
-                    'h-9 w-9 rounded-lg flex items-center justify-center',
-                    filter === 'all' ? 'bg-white/20' : 'bg-blue-50'
-                  )}
-                >
-                  <Link2
-                    className={cn('h-4 w-4', filter === 'all' ? 'text-white' : 'text-blue-600')}
-                  />
-                </div>
-                <span className="font-medium">All Channels</span>
+        {/* Two Column Layout */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Filter Section - Left Column */}
+          <motion.div
+            variants={itemVariants}
+            className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 rounded-2xl p-6 border border-blue-200/50"
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                <Link2 className="h-5 w-5 text-blue-600" />
               </div>
-              <Badge
+              <div>
+                <h3 className="font-semibold text-gray-900">Channel Types</h3>
+                <p className="text-sm text-gray-500">Filter by communication type</p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                onClick={() => setFilter('all')}
                 className={cn(
-                  'rounded-lg',
-                  filter === 'all' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-700'
+                  'w-full flex items-center justify-between p-3 rounded-xl transition-colors',
+                  filter === 'all'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white border border-blue-200 hover:border-blue-300'
                 )}
               >
-                {channels.length}
-              </Badge>
-            </motion.button>
-
-            {Object.entries(channelTypes).map(([type, config]) => {
-              const TypeIcon = config.icon;
-              const count = channels.filter((ch) => ch.channelType === type).length;
-              const isActive = filter === type;
-              return (
-                <motion.button
-                  key={type}
-                  whileHover={{ scale: 1.01 }}
-                  onClick={() => setFilter(type)}
-                  className={cn(
-                    'w-full flex items-center justify-between p-3 rounded-xl transition-colors',
-                    isActive
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white border border-blue-200 hover:border-blue-300'
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={cn(
-                        'h-9 w-9 rounded-lg flex items-center justify-center',
-                        isActive ? 'bg-white/20' : config.bgColor
-                      )}
-                    >
-                      <TypeIcon className={cn('h-4 w-4', isActive ? 'text-white' : config.color)} />
-                    </div>
-                    <span className="font-medium">{config.label}</span>
-                  </div>
-                  <Badge
-                    className={cn(
-                      'rounded-lg',
-                      isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700'
-                    )}
-                  >
-                    {count}
-                  </Badge>
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* Quick Actions - Right Column */}
-        <motion.div
-          variants={itemVariants}
-          className="bg-gradient-to-br from-green-50/50 to-emerald-50/50 rounded-2xl p-6 border border-green-200/50"
-        >
-          <div className="flex items-center gap-3 mb-5">
-            <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
-              <Plus className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Quick Setup</h3>
-              <p className="text-sm text-gray-500">Connect a new channel</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {Object.entries(channelTypes).map(([type, config]) => {
-              const TypeIcon = config.icon;
-              return (
-                <motion.button
-                  key={type}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowAddModal(true)}
-                  className="p-4 rounded-xl bg-white border border-green-200 hover:border-green-300 hover:shadow-sm transition-all text-left"
-                >
+                <div className="flex items-center gap-3">
                   <div
                     className={cn(
-                      'h-10 w-10 rounded-lg flex items-center justify-center mb-3',
-                      config.bgColor
+                      'h-9 w-9 rounded-lg flex items-center justify-center',
+                      filter === 'all' ? 'bg-white/20' : 'bg-blue-50'
                     )}
                   >
-                    <TypeIcon className={cn('h-5 w-5', config.color)} />
+                    <Link2
+                      className={cn('h-4 w-4', filter === 'all' ? 'text-white' : 'text-blue-600')}
+                    />
                   </div>
-                  <p className="font-medium text-gray-900 text-sm">{config.label}</p>
-                  <p className="text-xs text-gray-500 mt-1">{config.description}</p>
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
-      </div>
+                  <span className="font-medium">All Channels</span>
+                </div>
+                <Badge
+                  className={cn(
+                    'rounded-lg',
+                    filter === 'all' ? 'bg-white/20 text-white' : 'bg-blue-100 text-blue-700'
+                  )}
+                >
+                  {channels.length}
+                </Badge>
+              </motion.button>
 
-      {/* Connected Channels */}
-      <motion.div
-        variants={itemVariants}
-        className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl p-6 border border-gray-200"
-      >
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
-              <Wifi className="h-5 w-5 text-gray-600" />
+              {Object.entries(channelTypes).map(([type, config]) => {
+                const TypeIcon = config.icon;
+                const count = channels.filter((ch) => ch.channelType === type).length;
+                const isActive = filter === type;
+                return (
+                  <motion.button
+                    key={type}
+                    whileHover={{ scale: 1.01 }}
+                    onClick={() => setFilter(type)}
+                    className={cn(
+                      'w-full flex items-center justify-between p-3 rounded-xl transition-colors',
+                      isActive
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white border border-blue-200 hover:border-blue-300'
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          'h-9 w-9 rounded-lg flex items-center justify-center',
+                          isActive ? 'bg-white/20' : config.bgColor
+                        )}
+                      >
+                        <TypeIcon
+                          className={cn('h-4 w-4', isActive ? 'text-white' : config.color)}
+                        />
+                      </div>
+                      <span className="font-medium">{config.label}</span>
+                    </div>
+                    <Badge
+                      className={cn(
+                        'rounded-lg',
+                        isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-700'
+                      )}
+                    >
+                      {count}
+                    </Badge>
+                  </motion.button>
+                );
+              })}
             </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">Connected Channels</h3>
-              <p className="text-sm text-gray-500">
-                {filteredChannels.length} channel{filteredChannels.length !== 1 ? 's' : ''}{' '}
-                {filter !== 'all' ? `(${channelTypes[filter]?.label})` : ''}
-              </p>
+          </motion.div>
+
+          {/* Quick Actions - Right Column */}
+          <motion.div
+            variants={itemVariants}
+            className="bg-gradient-to-br from-green-50/50 to-emerald-50/50 rounded-2xl p-6 border border-green-200/50"
+          >
+            <div className="flex items-center gap-3 mb-5">
+              <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                <Plus className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Quick Setup</h3>
+                <p className="text-sm text-gray-500">Connect a new channel</p>
+              </div>
             </div>
-          </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {Object.entries(channelTypes).map(([type, config]) => {
+                const TypeIcon = config.icon;
+                return (
+                  <motion.button
+                    key={type}
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowAddModal(true)}
+                    className="p-4 rounded-xl bg-white border border-green-200 hover:border-green-300 hover:shadow-sm transition-all text-left"
+                  >
+                    <div
+                      className={cn(
+                        'h-10 w-10 rounded-lg flex items-center justify-center mb-3',
+                        config.bgColor
+                      )}
+                    >
+                      <TypeIcon className={cn('h-5 w-5', config.color)} />
+                    </div>
+                    <p className="font-medium text-gray-900 text-sm">{config.label}</p>
+                    <p className="text-xs text-gray-500 mt-1">{config.description}</p>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </motion.div>
         </div>
 
-        {filteredChannels.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-            <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-              <Link2 className="h-7 w-7 text-gray-400" />
+        {/* Connected Channels */}
+        <motion.div
+          variants={itemVariants}
+          className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl p-6 border border-gray-200"
+        >
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                <Wifi className="h-5 w-5 text-gray-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Connected Channels</h3>
+                <p className="text-sm text-gray-500">
+                  {filteredChannels.length} channel{filteredChannels.length !== 1 ? 's' : ''}{' '}
+                  {filter !== 'all' ? `(${channelTypes[filter]?.label})` : ''}
+                </p>
+              </div>
             </div>
-            <p className="text-gray-500 font-medium">
-              {searchQuery ? 'No channels found' : 'No channels connected'}
-            </p>
-            <p className="text-sm text-gray-400 mt-1">
-              {searchQuery
-                ? 'Try adjusting your search'
-                : 'Connect your first channel to get started'}
-            </p>
-            {!searchQuery && (
-              <Button onClick={() => setShowAddModal(true)} className="mt-4 rounded-xl">
-                <Plus className="h-4 w-4 mr-2" /> Add Channel
-              </Button>
-            )}
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <AnimatePresence>
-              {filteredChannels.map((channel) => (
-                <ChannelCard
-                  key={channel.id}
-                  channel={channel}
-                  onToggle={handleToggle}
-                  onDelete={handleDelete}
-                  onRefresh={handleRefresh}
-                />
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
-      </motion.div>
 
-      {/* Add Channel Modal */}
-      <AddChannelModal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        onAdd={handleAdd}
-      />
-    </motion.div>
+          {filteredChannels.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+              <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                <Link2 className="h-7 w-7 text-gray-400" />
+              </div>
+              <p className="text-gray-500 font-medium">
+                {searchQuery ? 'No channels found' : 'No channels connected'}
+              </p>
+              <p className="text-sm text-gray-400 mt-1">
+                {searchQuery
+                  ? 'Try adjusting your search'
+                  : 'Connect your first channel to get started'}
+              </p>
+              {!searchQuery && (
+                <Button onClick={() => setShowAddModal(true)} className="mt-4 rounded-xl">
+                  <Plus className="h-4 w-4 mr-2" /> Add Channel
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <AnimatePresence>
+                {filteredChannels.map((channel) => (
+                  <ChannelCard
+                    key={channel.id}
+                    channel={channel}
+                    onToggle={handleToggle}
+                    onDelete={handleDelete}
+                    onRefresh={handleRefresh}
+                  />
+                ))}
+              </AnimatePresence>
+            </div>
+          )}
+        </motion.div>
+
+        {/* Add Channel Modal */}
+        <AddChannelModal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleAdd}
+        />
+      </motion.div>
+    </UnifiedLayout>
   );
 }

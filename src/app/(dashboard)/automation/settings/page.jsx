@@ -1,7 +1,7 @@
 'use client';
 
 import { Settings, Bell, Shield, Zap } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 export default function AutomationSettingsPage() {
   const stats = [
@@ -12,14 +12,11 @@ export default function AutomationSettingsPage() {
   ];
 
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="automation"
-      showTopBar={false}
-      showSidebar={false}
-      title="Automation Settings"
-      description="Configure automation preferences"
+      pageTitle="Automation Settings"
       stats={stats}
-      showFixedMenu={false}
+      fixedMenu={null}
     >
       <div className="h-full overflow-y-auto p-6">
         <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
@@ -30,6 +27,6 @@ export default function AutomationSettingsPage() {
           </p>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

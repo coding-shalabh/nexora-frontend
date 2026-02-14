@@ -17,11 +17,8 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
-  ChevronRight,
   Search,
-  Filter,
   BarChart3,
-  Eye,
   Pause,
   Megaphone,
   Loader2,
@@ -62,11 +59,11 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/auth-context';
 import { cn } from '@/lib/utils';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
 
@@ -148,10 +145,14 @@ export default function BroadcastsPage() {
     onSuccess: () => {
       queryClient.invalidateQueries(['broadcasts']);
       setIsCreateDialogOpen(false);
-      toast.success('Broadcast created successfully');
+      toast({ title: 'Success', description: 'Broadcast created successfully' });
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to create broadcast');
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to create broadcast',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -163,10 +164,14 @@ export default function BroadcastsPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(['broadcasts']);
-      toast.success('Broadcast sent successfully');
+      toast({ title: 'Success', description: 'Broadcast sent successfully' });
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to send broadcast');
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to send broadcast',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -178,10 +183,14 @@ export default function BroadcastsPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(['broadcasts']);
-      toast.success('Broadcast duplicated successfully');
+      toast({ title: 'Success', description: 'Broadcast duplicated successfully' });
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to duplicate broadcast');
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to duplicate broadcast',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -193,10 +202,14 @@ export default function BroadcastsPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(['broadcasts']);
-      toast.success('Broadcast deleted successfully');
+      toast({ title: 'Success', description: 'Broadcast deleted successfully' });
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to delete broadcast');
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete broadcast',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -208,10 +221,14 @@ export default function BroadcastsPage() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(['broadcasts']);
-      toast.success('Broadcast cancelled');
+      toast({ title: 'Success', description: 'Broadcast cancelled' });
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to cancel broadcast');
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to cancel broadcast',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -224,264 +241,255 @@ export default function BroadcastsPage() {
     b.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Stats cards
-  const stats = {
+  // Stats
+  const broadcastStats = {
     total: broadcasts.length,
     sent: broadcasts.filter((b) => b.status === 'COMPLETED').length,
     scheduled: broadcasts.filter((b) => b.status === 'SCHEDULED').length,
     draft: broadcasts.filter((b) => b.status === 'DRAFT').length,
   };
 
+  const stats = [
+    createStat('Total', broadcastStats.total, Megaphone, 'blue'),
+    createStat('Sent', broadcastStats.sent, CheckCircle2, 'green'),
+    createStat('Scheduled', broadcastStats.scheduled, Clock, 'purple'),
+    createStat('Drafts', broadcastStats.draft, AlertCircle, 'amber'),
+  ];
+
+  const actions = [
+    createAction('Create Broadcast', Plus, () => setIsCreateDialogOpen(true), { primary: true }),
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Broadcasts</h1>
-          <p className="text-muted-foreground">Send bulk messages via WhatsApp, SMS, or Email</p>
-        </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Broadcast
-        </Button>
-      </div>
+    <>
+      <UnifiedLayout
+        hubId="marketing"
+        pageTitle="Broadcasts"
+        stats={stats}
+        actions={actions}
+        fixedMenu={null}
+      >
+        <div className="h-full overflow-auto p-6 space-y-4">
+          {/* Filters */}
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search broadcasts..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="DRAFT">Draft</SelectItem>
+                <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                <SelectItem value="SENDING">Sending</SelectItem>
+                <SelectItem value="COMPLETED">Completed</SelectItem>
+                <SelectItem value="FAILED">Failed</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={channelFilter} onValueChange={setChannelFilter}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Channel" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Channels</SelectItem>
+                <SelectItem value="WHATSAPP">WhatsApp</SelectItem>
+                <SelectItem value="SMS">SMS</SelectItem>
+                <SelectItem value="EMAIL">Email</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total Broadcasts</CardDescription>
-            <CardTitle className="text-2xl">{stats.total}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Sent</CardDescription>
-            <CardTitle className="text-2xl text-green-600">{stats.sent}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Scheduled</CardDescription>
-            <CardTitle className="text-2xl text-blue-600">{stats.scheduled}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Drafts</CardDescription>
-            <CardTitle className="text-2xl text-gray-600">{stats.draft}</CardTitle>
-          </CardHeader>
-        </Card>
-      </div>
-
-      {/* Filters */}
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search broadcasts..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
-        </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="DRAFT">Draft</SelectItem>
-            <SelectItem value="SCHEDULED">Scheduled</SelectItem>
-            <SelectItem value="SENDING">Sending</SelectItem>
-            <SelectItem value="COMPLETED">Completed</SelectItem>
-            <SelectItem value="FAILED">Failed</SelectItem>
-          </SelectContent>
-        </Select>
-        <Select value={channelFilter} onValueChange={setChannelFilter}>
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Channel" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Channels</SelectItem>
-            <SelectItem value="WHATSAPP">WhatsApp</SelectItem>
-            <SelectItem value="SMS">SMS</SelectItem>
-            <SelectItem value="EMAIL">Email</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Broadcasts Table */}
-      <Card>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Channel</TableHead>
-              <TableHead>Recipients</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Delivery</TableHead>
-              <TableHead>Created</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              [...Array(5)].map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[200px]" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[80px]" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[60px]" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[80px]" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[100px]" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[100px]" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[30px]" />
-                  </TableCell>
+          {/* Broadcasts Table */}
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Channel</TableHead>
+                  <TableHead>Recipients</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Delivery</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
-              ))
-            ) : filteredBroadcasts.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <Megaphone className="h-8 w-8" />
-                    <p>No broadcasts found</p>
-                    <Button variant="outline" size="sm" onClick={() => setIsCreateDialogOpen(true)}>
-                      Create your first broadcast
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredBroadcasts.map((broadcast) => {
-                const status = statusConfig[broadcast.status] || statusConfig.DRAFT;
-                const channel = channelConfig[broadcast.channel];
-                const StatusIcon = status.icon;
-                const ChannelIcon = channel?.icon || MessageSquare;
-
-                return (
-                  <TableRow key={broadcast.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{broadcast.name}</p>
-                        {broadcast.templateName && (
-                          <p className="text-xs text-muted-foreground">
-                            Template: {broadcast.templateName}
-                          </p>
-                        )}
+              </TableHeader>
+              <TableBody>
+                {isLoading ? (
+                  [...Array(5)].map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <Skeleton className="h-4 w-[200px]" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-[80px]" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-[60px]" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-[80px]" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-[100px]" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-[100px]" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-4 w-[30px]" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : filteredBroadcasts.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8">
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <Megaphone className="h-8 w-8" />
+                        <p>No broadcasts found</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsCreateDialogOpen(true)}
+                        >
+                          Create your first broadcast
+                        </Button>
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <ChannelIcon className={cn('h-4 w-4', channel?.color)} />
-                        <span className="text-sm">{channel?.label || broadcast.channel}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Users className="h-4 w-4 text-muted-foreground" />
-                        <span>{broadcast.totalRecipients}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={cn('gap-1', status.color)} variant="secondary">
-                        <StatusIcon
-                          className={cn('h-3 w-3', status.icon === Loader2 && 'animate-spin')}
-                        />
-                        {status.label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {broadcast.status === 'COMPLETED' ? (
-                        <div className="text-sm">
-                          <span className="text-green-600">{broadcast.sentCount}</span>
-                          {' / '}
-                          <span className="text-muted-foreground">{broadcast.totalRecipients}</span>
-                          {broadcast.failedCount > 0 && (
-                            <span className="text-red-600 ml-1">
-                              ({broadcast.failedCount} failed)
-                            </span>
-                          )}
-                        </div>
-                      ) : broadcast.scheduledAt ? (
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Calendar className="h-3 w-3" />
-                          {new Date(broadcast.scheduledAt).toLocaleDateString()}
-                        </div>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">-</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {new Date(broadcast.createdAt).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {broadcast.status === 'DRAFT' && (
-                            <DropdownMenuItem onClick={() => sendMutation.mutate(broadcast.id)}>
-                              <Send className="h-4 w-4 mr-2" />
-                              Send Now
-                            </DropdownMenuItem>
-                          )}
-                          {broadcast.status === 'SCHEDULED' && (
-                            <DropdownMenuItem onClick={() => cancelMutation.mutate(broadcast.id)}>
-                              <Pause className="h-4 w-4 mr-2" />
-                              Cancel
-                            </DropdownMenuItem>
-                          )}
-                          {broadcast.status === 'COMPLETED' && (
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setSelectedBroadcast(broadcast);
-                                setIsAnalyticsDialogOpen(true);
-                              }}
-                            >
-                              <BarChart3 className="h-4 w-4 mr-2" />
-                              View Analytics
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem onClick={() => duplicateMutation.mutate(broadcast.id)}>
-                            <Copy className="h-4 w-4 mr-2" />
-                            Duplicate
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          {broadcast.status === 'DRAFT' && (
-                            <DropdownMenuItem
-                              className="text-red-600"
-                              onClick={() => deleteMutation.mutate(broadcast.id)}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+                ) : (
+                  filteredBroadcasts.map((broadcast) => {
+                    const status = statusConfig[broadcast.status] || statusConfig.DRAFT;
+                    const channel = channelConfig[broadcast.channel];
+                    const StatusIcon = status.icon;
+                    const ChannelIcon = channel?.icon || MessageSquare;
+
+                    return (
+                      <TableRow key={broadcast.id}>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{broadcast.name}</p>
+                            {broadcast.templateName && (
+                              <p className="text-xs text-muted-foreground">
+                                Template: {broadcast.templateName}
+                              </p>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <ChannelIcon className={cn('h-4 w-4', channel?.color)} />
+                            <span className="text-sm">{channel?.label || broadcast.channel}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1">
+                            <Users className="h-4 w-4 text-muted-foreground" />
+                            <span>{broadcast.totalRecipients}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Badge className={cn('gap-1', status.color)} variant="secondary">
+                            <StatusIcon
+                              className={cn('h-3 w-3', status.icon === Loader2 && 'animate-spin')}
+                            />
+                            {status.label}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {broadcast.status === 'COMPLETED' ? (
+                            <div className="text-sm">
+                              <span className="text-green-600">{broadcast.sentCount}</span>
+                              {' / '}
+                              <span className="text-muted-foreground">
+                                {broadcast.totalRecipients}
+                              </span>
+                              {broadcast.failedCount > 0 && (
+                                <span className="text-red-600 ml-1">
+                                  ({broadcast.failedCount} failed)
+                                </span>
+                              )}
+                            </div>
+                          ) : broadcast.scheduledAt ? (
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <Calendar className="h-3 w-3" />
+                              {new Date(broadcast.scheduledAt).toLocaleDateString()}
+                            </div>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">-</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {new Date(broadcast.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {broadcast.status === 'DRAFT' && (
+                                <DropdownMenuItem onClick={() => sendMutation.mutate(broadcast.id)}>
+                                  <Send className="h-4 w-4 mr-2" />
+                                  Send Now
+                                </DropdownMenuItem>
+                              )}
+                              {broadcast.status === 'SCHEDULED' && (
+                                <DropdownMenuItem
+                                  onClick={() => cancelMutation.mutate(broadcast.id)}
+                                >
+                                  <Pause className="h-4 w-4 mr-2" />
+                                  Cancel
+                                </DropdownMenuItem>
+                              )}
+                              {broadcast.status === 'COMPLETED' && (
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setSelectedBroadcast(broadcast);
+                                    setIsAnalyticsDialogOpen(true);
+                                  }}
+                                >
+                                  <BarChart3 className="h-4 w-4 mr-2" />
+                                  View Analytics
+                                </DropdownMenuItem>
+                              )}
+                              <DropdownMenuItem
+                                onClick={() => duplicateMutation.mutate(broadcast.id)}
+                              >
+                                <Copy className="h-4 w-4 mr-2" />
+                                Duplicate
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              {broadcast.status === 'DRAFT' && (
+                                <DropdownMenuItem
+                                  className="text-red-600"
+                                  onClick={() => deleteMutation.mutate(broadcast.id)}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
+              </TableBody>
+            </Table>
+          </Card>
+        </div>
+      </UnifiedLayout>
 
       {/* Create Broadcast Dialog */}
       <CreateBroadcastDialog
@@ -501,7 +509,7 @@ export default function BroadcastsPage() {
           broadcast={selectedBroadcast}
         />
       )}
-    </div>
+    </>
   );
 }
 
@@ -526,15 +534,13 @@ function CreateBroadcastDialog({
   const [templates, setTemplates] = useState([]);
   const [loadingTemplates, setLoadingTemplates] = useState(false);
 
-  // Filter WhatsApp channel accounts
   const whatsappAccounts = channelAccounts.filter((a) => a.type === 'WHATSAPP');
 
-  // Load templates when channel account is selected
   useEffect(() => {
     if (formData.channelAccountId && formData.channel === 'WHATSAPP') {
       loadTemplates(formData.channelAccountId);
     }
-  }, [formData.channelAccountId]);
+  }, [formData.channelAccountId, formData.channel]);
 
   const loadTemplates = async (channelAccountId) => {
     setLoadingTemplates(true);
@@ -594,7 +600,6 @@ function CreateBroadcastDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Basic Info */}
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Broadcast Name *</Label>
@@ -619,7 +624,6 @@ function CreateBroadcastDialog({
             </div>
           </div>
 
-          {/* Channel Selection */}
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Channel *</Label>
@@ -713,16 +717,12 @@ function CreateBroadcastDialog({
                         </SelectContent>
                       </Select>
                     )}
-                    <p className="text-xs text-muted-foreground">
-                      WhatsApp requires using pre-approved templates for broadcast messages
-                    </p>
                   </div>
                 )}
               </>
             )}
           </div>
 
-          {/* Audience Selection */}
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>Audience *</Label>
@@ -738,9 +738,6 @@ function CreateBroadcastDialog({
                   <SelectItem value="CONTACTS">Select Contacts</SelectItem>
                   <SelectItem value="SEGMENT" disabled>
                     Segment (Coming Soon)
-                  </SelectItem>
-                  <SelectItem value="FILTER" disabled>
-                    Custom Filter (Coming Soon)
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -799,7 +796,6 @@ function CreateBroadcastDialog({
             )}
           </div>
 
-          {/* Schedule */}
           <div className="space-y-2">
             <Label htmlFor="scheduledAt">Schedule (Optional)</Label>
             <Input
@@ -854,7 +850,13 @@ function CreateBroadcastDialog({
 function AnalyticsDialog({ open, onOpenChange, broadcast }) {
   const { data: analyticsData, isLoading } = useQuery({
     queryKey: ['broadcast-analytics', broadcast?.id],
-    queryFn: () => fetchWithAuth(`/broadcasts/${broadcast.id}/analytics`),
+    queryFn: async () => {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_BASE}/broadcasts/${broadcast.id}/analytics`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.json();
+    },
     enabled: !!broadcast?.id && open,
   });
 
@@ -875,19 +877,20 @@ function AnalyticsDialog({ open, onOpenChange, broadcast }) {
           </div>
         ) : analytics ? (
           <div className="space-y-6">
-            {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="pb-2">
                   <CardDescription>Total Recipients</CardDescription>
-                  <CardTitle className="text-2xl">{analytics.stats.totalRecipients}</CardTitle>
+                  <CardTitle className="text-2xl">
+                    {analytics.stats?.totalRecipients || 0}
+                  </CardTitle>
                 </CardHeader>
               </Card>
               <Card>
                 <CardHeader className="pb-2">
                   <CardDescription>Sent</CardDescription>
                   <CardTitle className="text-2xl text-blue-600">
-                    {analytics.stats.sentCount}
+                    {analytics.stats?.sentCount || 0}
                   </CardTitle>
                 </CardHeader>
               </Card>
@@ -895,7 +898,7 @@ function AnalyticsDialog({ open, onOpenChange, broadcast }) {
                 <CardHeader className="pb-2">
                   <CardDescription>Delivered</CardDescription>
                   <CardTitle className="text-2xl text-green-600">
-                    {analytics.stats.deliveredCount}
+                    {analytics.stats?.deliveredCount || 0}
                   </CardTitle>
                 </CardHeader>
               </Card>
@@ -903,41 +906,26 @@ function AnalyticsDialog({ open, onOpenChange, broadcast }) {
                 <CardHeader className="pb-2">
                   <CardDescription>Read</CardDescription>
                   <CardTitle className="text-2xl text-purple-600">
-                    {analytics.stats.readCount}
+                    {analytics.stats?.readCount || 0}
                   </CardTitle>
                 </CardHeader>
               </Card>
             </div>
 
-            {/* Rates */}
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-muted rounded-lg">
-                <p className="text-2xl font-semibold">{analytics.stats.deliveryRate}%</p>
+                <p className="text-2xl font-semibold">{analytics.stats?.deliveryRate || 0}%</p>
                 <p className="text-sm text-muted-foreground">Delivery Rate</p>
               </div>
               <div className="text-center p-4 bg-muted rounded-lg">
-                <p className="text-2xl font-semibold">{analytics.stats.readRate}%</p>
+                <p className="text-2xl font-semibold">{analytics.stats?.readRate || 0}%</p>
                 <p className="text-sm text-muted-foreground">Read Rate</p>
               </div>
               <div className="text-center p-4 bg-muted rounded-lg">
                 <p className="text-2xl font-semibold text-red-600">
-                  {analytics.stats.failureRate}%
+                  {analytics.stats?.failureRate || 0}%
                 </p>
                 <p className="text-sm text-muted-foreground">Failure Rate</p>
-              </div>
-            </div>
-
-            {/* Timeline */}
-            <div className="space-y-2">
-              <h4 className="font-medium">Timeline</h4>
-              <div className="text-sm text-muted-foreground space-y-1">
-                <p>Created: {new Date(analytics.broadcast.createdAt).toLocaleString()}</p>
-                {analytics.broadcast.startedAt && (
-                  <p>Started: {new Date(analytics.broadcast.startedAt).toLocaleString()}</p>
-                )}
-                {analytics.broadcast.completedAt && (
-                  <p>Completed: {new Date(analytics.broadcast.completedAt).toLocaleString()}</p>
-                )}
               </div>
             </div>
           </div>

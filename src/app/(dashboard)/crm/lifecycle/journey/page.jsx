@@ -1,33 +1,12 @@
 'use client';
 
-import { TrendingUp, Plus, Activity, CheckCircle, UserCircle } from 'lucide-react';
+import { TrendingUp, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 export default function ContactJourneyPage() {
-  const stats = [
-    createStat('Journeys', '0', TrendingUp, 'blue'),
-    createStat('Active', '0', Activity, 'green'),
-    createStat('Completed', '0', CheckCircle, 'purple'),
-    createStat('Dropped', '0', UserCircle, 'red'),
-  ];
-
   return (
-    <HubLayout
-      hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Contact Journey"
-      description="Track contact progression through lifecycle"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Journey
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="crm" pageTitle="Contact Journey" fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6">
         <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
           <TrendingUp className="h-12 w-12 text-muted-foreground mb-4" />
@@ -41,6 +20,6 @@ export default function ContactJourneyPage() {
           </Button>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

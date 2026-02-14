@@ -52,6 +52,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 // Animation variants
 const containerVariants = {
@@ -516,322 +517,326 @@ export default function WhatsAppSettingsPage() {
   }
 
   return (
-    <motion.div
-      className="flex-1 p-6 space-y-6 overflow-auto"
-      variants={containerVariants}
-      initial="hidden"
-      animate="show"
-    >
-      {/* Search Bar - Right Aligned */}
-      <motion.div variants={itemVariants} className="flex justify-end">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search providers..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-11 w-64 pl-10 pr-4 rounded-xl bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20"
-          />
-        </div>
-      </motion.div>
+    <UnifiedLayout hubId="settings" pageTitle="WhatsApp Settings" fixedMenu={null}>
+      <motion.div
+        className="flex-1 p-6 space-y-6 overflow-auto"
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+      >
+        {/* Search Bar - Right Aligned */}
+        <motion.div variants={itemVariants} className="flex justify-end">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search providers..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-11 w-64 pl-10 pr-4 rounded-xl bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/20"
+            />
+          </div>
+        </motion.div>
 
-      {/* Tabs */}
-      <motion.div variants={itemVariants}>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-white rounded-xl p-1 shadow-sm">
-            <TabsTrigger
-              value="connected"
-              className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
-            >
-              <Link2 className="h-4 w-4" />
-              Connected ({connectedProviders.length})
-            </TabsTrigger>
-            <TabsTrigger
-              value="available"
-              className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
-            >
-              <Plus className="h-4 w-4" />
-              Available ({availableProviders.length})
-            </TabsTrigger>
-          </TabsList>
+        {/* Tabs */}
+        <motion.div variants={itemVariants}>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="bg-white rounded-xl p-1 shadow-sm">
+              <TabsTrigger
+                value="connected"
+                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
+              >
+                <Link2 className="h-4 w-4" />
+                Connected ({connectedProviders.length})
+              </TabsTrigger>
+              <TabsTrigger
+                value="available"
+                className="flex items-center gap-2 rounded-lg data-[state=active]:bg-gray-100 data-[state=active]:text-gray-900 data-[state=active]:font-medium"
+              >
+                <Plus className="h-4 w-4" />
+                Available ({availableProviders.length})
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Connected Tab */}
-          <TabsContent value="connected" className="mt-6 space-y-6">
-            {filteredConnected.length > 0 ? (
-              <motion.div className="space-y-4" variants={containerVariants}>
-                {filteredConnected.map((connected) => {
-                  const providerCatalog = providers.find((p) => p.id === connected.provider);
-                  return (
-                    <motion.div key={connected.id} variants={itemVariants}>
-                      <ConnectedAccount
-                        account={connected}
-                        provider={providerCatalog}
-                        onRefresh={fetchData}
-                        onDisconnect={() => handleDisconnect(connected)}
-                      />
-                    </motion.div>
-                  );
-                })}
+            {/* Connected Tab */}
+            <TabsContent value="connected" className="mt-6 space-y-6">
+              {filteredConnected.length > 0 ? (
+                <motion.div className="space-y-4" variants={containerVariants}>
+                  {filteredConnected.map((connected) => {
+                    const providerCatalog = providers.find((p) => p.id === connected.provider);
+                    return (
+                      <motion.div key={connected.id} variants={itemVariants}>
+                        <ConnectedAccount
+                          account={connected}
+                          provider={providerCatalog}
+                          onRefresh={fetchData}
+                          onDisconnect={() => handleDisconnect(connected)}
+                        />
+                      </motion.div>
+                    );
+                  })}
 
-                {/* Help Section */}
+                  {/* Help Section */}
+                  <motion.div
+                    variants={itemVariants}
+                    className="bg-gradient-to-br from-green-50/50 to-emerald-50/50 rounded-2xl p-5 border border-green-200/50"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0">
+                        <HelpCircle className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">Need help with WhatsApp?</h4>
+                        <p className="text-sm text-gray-600 mt-1">
+                          Check our guide for step-by-step instructions on message templates,
+                          broadcasts, and automation.
+                        </p>
+                        <Button variant="link" className="px-0 mt-2 text-green-600" asChild>
+                          <a href="/settings/whatsapp/help">
+                            View WhatsApp Integration Guide
+                            <ArrowRight className="h-4 w-4 ml-1" />
+                          </a>
+                        </Button>
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              ) : (
                 <motion.div
                   variants={itemVariants}
-                  className="bg-gradient-to-br from-green-50/50 to-emerald-50/50 rounded-2xl p-5 border border-green-200/50"
+                  className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl p-12 border border-gray-200 text-center"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0">
-                      <HelpCircle className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900">Need help with WhatsApp?</h4>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Check our guide for step-by-step instructions on message templates,
-                        broadcasts, and automation.
-                      </p>
-                      <Button variant="link" className="px-0 mt-2 text-green-600" asChild>
-                        <a href="/settings/whatsapp/help">
-                          View WhatsApp Integration Guide
-                          <ArrowRight className="h-4 w-4 ml-1" />
-                        </a>
-                      </Button>
-                    </div>
+                  <div className="mx-auto w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-4">
+                    <WhatsAppIcon className="h-8 w-8 text-green-600" />
                   </div>
-                </motion.div>
-              </motion.div>
-            ) : (
-              <motion.div
-                variants={itemVariants}
-                className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl p-12 border border-gray-200 text-center"
-              >
-                <div className="mx-auto w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-4">
-                  <WhatsAppIcon className="h-8 w-8 text-green-600" />
-                </div>
-                <h2 className="text-xl font-semibold mb-2 text-gray-900">
-                  {searchQuery ? 'No providers found' : 'No WhatsApp Provider Connected'}
-                </h2>
-                <p className="text-gray-500 mb-6 max-w-md mx-auto">
-                  {searchQuery
-                    ? 'Try adjusting your search'
-                    : 'Connect a WhatsApp Business API provider to start sending and receiving messages.'}
-                </p>
-                {!searchQuery && (
-                  <Button
-                    size="lg"
-                    className="rounded-xl bg-green-600 hover:bg-green-700"
-                    onClick={() => setActiveTab('available')}
-                  >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Connect Provider
-                  </Button>
-                )}
-              </motion.div>
-            )}
-          </TabsContent>
-
-          {/* Available Tab */}
-          <TabsContent value="available" className="mt-6 space-y-6">
-            {/* Available Providers Grid - At Top */}
-            <motion.div
-              variants={itemVariants}
-              className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl p-6 border border-gray-200"
-            >
-              <div className="flex items-center gap-3 mb-5">
-                <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
-                  <WhatsAppIcon className="h-5 w-5 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900">Available Providers</h3>
-                  <p className="text-sm text-gray-500">
-                    {filteredAvailable.length} provider{filteredAvailable.length !== 1 ? 's' : ''}{' '}
-                    available
-                  </p>
-                </div>
-              </div>
-
-              {filteredAvailable.length === 0 ? (
-                <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-                  <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                    <WhatsAppIcon className="h-7 w-7 text-gray-400" />
-                  </div>
-                  <p className="text-gray-500 font-medium">
-                    {searchQuery ? 'No providers found' : 'All providers are connected'}
-                  </p>
-                  <p className="text-sm text-gray-400 mt-1">
+                  <h2 className="text-xl font-semibold mb-2 text-gray-900">
+                    {searchQuery ? 'No providers found' : 'No WhatsApp Provider Connected'}
+                  </h2>
+                  <p className="text-gray-500 mb-6 max-w-md mx-auto">
                     {searchQuery
                       ? 'Try adjusting your search'
-                      : 'You have connected all available providers'}
+                      : 'Connect a WhatsApp Business API provider to start sending and receiving messages.'}
                   </p>
-                </div>
-              ) : (
-                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                  {filteredAvailable.map((provider) => (
-                    <motion.div
-                      key={provider.id}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="bg-white rounded-xl p-4 border border-gray-200 hover:border-green-300 cursor-pointer group transition-colors"
-                      onClick={() => handleProviderClick(provider)}
+                  {!searchQuery && (
+                    <Button
+                      size="lg"
+                      className="rounded-xl bg-green-600 hover:bg-green-700"
+                      onClick={() => setActiveTab('available')}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-green-50 flex items-center justify-center text-lg font-bold text-green-600 shrink-0">
-                          {provider.name.charAt(0)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900">{provider.name}</h3>
-                          <p className="text-xs text-gray-500 line-clamp-2">
-                            {provider.description}
-                          </p>
-                        </div>
-                        <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-green-500 group-hover:translate-x-1 transition-all shrink-0" />
-                      </div>
-                      {provider.features && (
-                        <div className="mt-3 flex flex-wrap gap-1">
-                          {provider.features.slice(0, 2).map((feature) => (
-                            <Badge
-                              key={feature}
-                              className="text-[10px] bg-gray-50 text-gray-600 border-0"
-                            >
-                              {feature}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </motion.div>
-                  ))}
-                </div>
+                      <Plus className="h-5 w-5 mr-2" />
+                      Connect Provider
+                    </Button>
+                  )}
+                </motion.div>
               )}
-            </motion.div>
+            </TabsContent>
 
-            {/* Accordion Section - At Bottom */}
-            <motion.div variants={itemVariants}>
-              <Accordion type="single" collapsible className="space-y-3">
-                {/* Why Connect WhatsApp */}
-                <AccordionItem
-                  value="why-connect"
-                  className="bg-gradient-to-br from-green-50/50 to-emerald-50/50 rounded-2xl border border-green-200/50 px-6"
-                >
-                  <AccordionTrigger className="hover:no-underline py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
-                        <Zap className="h-5 w-5 text-green-600" />
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-semibold text-gray-900">Why Connect WhatsApp?</h3>
-                        <p className="text-sm text-gray-500">
-                          Powerful business messaging features
-                        </p>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-4">
-                    <div className="space-y-3 pt-2">
-                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white border border-green-200">
-                        <div className="h-8 w-8 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
-                          <MessageSquare className="h-4 w-4 text-green-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-sm text-gray-900">Unified Inbox</h4>
-                          <p className="text-xs text-gray-500">
-                            Manage all WhatsApp conversations in one place
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white border border-green-200">
-                        <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                          <FileText className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-sm text-gray-900">Message Templates</h4>
-                          <p className="text-xs text-gray-500">
-                            Use pre-approved templates for quick messaging
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3 p-3 rounded-xl bg-white border border-green-200">
-                        <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
-                          <Users className="h-4 w-4 text-purple-600" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium text-sm text-gray-900">Broadcast Messages</h4>
-                          <p className="text-xs text-gray-500">
-                            Send messages to multiple contacts at once
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
+            {/* Available Tab */}
+            <TabsContent value="available" className="mt-6 space-y-6">
+              {/* Available Providers Grid - At Top */}
+              <motion.div
+                variants={itemVariants}
+                className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl p-6 border border-gray-200"
+              >
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                    <WhatsAppIcon className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900">Available Providers</h3>
+                    <p className="text-sm text-gray-500">
+                      {filteredAvailable.length} provider{filteredAvailable.length !== 1 ? 's' : ''}{' '}
+                      available
+                    </p>
+                  </div>
+                </div>
 
-                {/* How It Works */}
-                <AccordionItem
-                  value="how-it-works"
-                  className="bg-gradient-to-br from-amber-50/50 to-orange-50/50 rounded-2xl border border-amber-200/50 px-6"
-                >
-                  <AccordionTrigger className="hover:no-underline py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
-                        <HelpCircle className="h-5 w-5 text-amber-600" />
-                      </div>
-                      <div className="text-left">
-                        <h3 className="font-semibold text-gray-900">How It Works</h3>
-                        <p className="text-sm text-gray-500">Quick setup process in 4 steps</p>
-                      </div>
+                {filteredAvailable.length === 0 ? (
+                  <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                    <div className="h-14 w-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                      <WhatsAppIcon className="h-7 w-7 text-gray-400" />
                     </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-4">
-                    <div className="space-y-3 pt-2">
-                      {[
-                        {
-                          step: '1',
-                          title: 'Choose Provider',
-                          desc: 'Select a WhatsApp Business API provider',
-                        },
-                        {
-                          step: '2',
-                          title: 'Enter Credentials',
-                          desc: 'Add your API keys from the provider',
-                        },
-                        {
-                          step: '3',
-                          title: 'Test Connection',
-                          desc: "We'll verify your account is working",
-                        },
-                        {
-                          step: '4',
-                          title: 'Start Messaging',
-                          desc: 'Send and receive WhatsApp messages',
-                        },
-                      ].map((item) => (
-                        <div
-                          key={item.step}
-                          className="flex items-center gap-3 p-3 rounded-xl bg-white border border-amber-200"
-                        >
-                          <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
-                            <span className="text-sm font-bold text-amber-600">{item.step}</span>
+                    <p className="text-gray-500 font-medium">
+                      {searchQuery ? 'No providers found' : 'All providers are connected'}
+                    </p>
+                    <p className="text-sm text-gray-400 mt-1">
+                      {searchQuery
+                        ? 'Try adjusting your search'
+                        : 'You have connected all available providers'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+                    {filteredAvailable.map((provider) => (
+                      <motion.div
+                        key={provider.id}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className="bg-white rounded-xl p-4 border border-gray-200 hover:border-green-300 cursor-pointer group transition-colors"
+                        onClick={() => handleProviderClick(provider)}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="h-10 w-10 rounded-lg bg-green-50 flex items-center justify-center text-lg font-bold text-green-600 shrink-0">
+                            {provider.name.charAt(0)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-medium text-gray-900">{provider.name}</h3>
+                            <p className="text-xs text-gray-500 line-clamp-2">
+                              {provider.description}
+                            </p>
+                          </div>
+                          <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-green-500 group-hover:translate-x-1 transition-all shrink-0" />
+                        </div>
+                        {provider.features && (
+                          <div className="mt-3 flex flex-wrap gap-1">
+                            {provider.features.slice(0, 2).map((feature) => (
+                              <Badge
+                                key={feature}
+                                className="text-[10px] bg-gray-50 text-gray-600 border-0"
+                              >
+                                {feature}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </motion.div>
+
+              {/* Accordion Section - At Bottom */}
+              <motion.div variants={itemVariants}>
+                <Accordion type="single" collapsible className="space-y-3">
+                  {/* Why Connect WhatsApp */}
+                  <AccordionItem
+                    value="why-connect"
+                    className="bg-gradient-to-br from-green-50/50 to-emerald-50/50 rounded-2xl border border-green-200/50 px-6"
+                  >
+                    <AccordionTrigger className="hover:no-underline py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                          <Zap className="h-5 w-5 text-green-600" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="font-semibold text-gray-900">Why Connect WhatsApp?</h3>
+                          <p className="text-sm text-gray-500">
+                            Powerful business messaging features
+                          </p>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-4">
+                      <div className="space-y-3 pt-2">
+                        <div className="flex items-start gap-3 p-3 rounded-xl bg-white border border-green-200">
+                          <div className="h-8 w-8 rounded-lg bg-green-50 flex items-center justify-center shrink-0">
+                            <MessageSquare className="h-4 w-4 text-green-600" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-sm text-gray-900">{item.title}</h4>
-                            <p className="text-xs text-gray-500">{item.desc}</p>
+                            <h4 className="font-medium text-sm text-gray-900">Unified Inbox</h4>
+                            <p className="text-xs text-gray-500">
+                              Manage all WhatsApp conversations in one place
+                            </p>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </motion.div>
-          </TabsContent>
-        </Tabs>
-      </motion.div>
+                        <div className="flex items-start gap-3 p-3 rounded-xl bg-white border border-green-200">
+                          <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
+                            <FileText className="h-4 w-4 text-blue-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-sm text-gray-900">Message Templates</h4>
+                            <p className="text-xs text-gray-500">
+                              Use pre-approved templates for quick messaging
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-3 rounded-xl bg-white border border-green-200">
+                          <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center shrink-0">
+                            <Users className="h-4 w-4 text-purple-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-sm text-gray-900">
+                              Broadcast Messages
+                            </h4>
+                            <p className="text-xs text-gray-500">
+                              Send messages to multiple contacts at once
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
 
-      {/* Provider Configuration Dialog */}
-      <ProviderDialog
-        provider={selectedProvider}
-        isOpen={showProviderDialog}
-        onClose={() => setShowProviderDialog(false)}
-        onSuccess={fetchData}
-      />
-    </motion.div>
+                  {/* How It Works */}
+                  <AccordionItem
+                    value="how-it-works"
+                    className="bg-gradient-to-br from-amber-50/50 to-orange-50/50 rounded-2xl border border-amber-200/50 px-6"
+                  >
+                    <AccordionTrigger className="hover:no-underline py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-xl bg-white shadow-sm flex items-center justify-center">
+                          <HelpCircle className="h-5 w-5 text-amber-600" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="font-semibold text-gray-900">How It Works</h3>
+                          <p className="text-sm text-gray-500">Quick setup process in 4 steps</p>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-4">
+                      <div className="space-y-3 pt-2">
+                        {[
+                          {
+                            step: '1',
+                            title: 'Choose Provider',
+                            desc: 'Select a WhatsApp Business API provider',
+                          },
+                          {
+                            step: '2',
+                            title: 'Enter Credentials',
+                            desc: 'Add your API keys from the provider',
+                          },
+                          {
+                            step: '3',
+                            title: 'Test Connection',
+                            desc: "We'll verify your account is working",
+                          },
+                          {
+                            step: '4',
+                            title: 'Start Messaging',
+                            desc: 'Send and receive WhatsApp messages',
+                          },
+                        ].map((item) => (
+                          <div
+                            key={item.step}
+                            className="flex items-center gap-3 p-3 rounded-xl bg-white border border-amber-200"
+                          >
+                            <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+                              <span className="text-sm font-bold text-amber-600">{item.step}</span>
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-sm text-gray-900">{item.title}</h4>
+                              <p className="text-xs text-gray-500">{item.desc}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </motion.div>
+            </TabsContent>
+          </Tabs>
+        </motion.div>
+
+        {/* Provider Configuration Dialog */}
+        <ProviderDialog
+          provider={selectedProvider}
+          isOpen={showProviderDialog}
+          onClose={() => setShowProviderDialog(false)}
+          onSuccess={fetchData}
+        />
+      </motion.div>
+    </UnifiedLayout>
   );
 }

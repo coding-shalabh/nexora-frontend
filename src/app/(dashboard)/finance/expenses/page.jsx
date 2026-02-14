@@ -26,6 +26,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const expenses = [
   {
@@ -131,130 +132,124 @@ const getCategoryColor = (category) => {
 export default function ExpensesPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
+  const layoutStats = [
+    createStat('Pending Approval', '₹33K', Clock, 'amber'),
+    createStat('Approved (Month)', '₹1.8L', CheckCircle, 'green'),
+    createStat('Rejected', '₹4.5K', XCircle, 'red'),
+    createStat('Total (Month)', '₹2.2L', Receipt, 'blue'),
+  ];
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Expenses</h1>
-          <p className="text-muted-foreground">Track and approve employee expenses</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" className="gap-2">
-            <Download className="h-4 w-4" />
-            Export
-          </Button>
-          <Button className="gap-2">
-            <Plus className="h-4 w-4" />
-            Submit Expense
-          </Button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <stat.icon className={cn('h-5 w-5', stat.color)} />
-                  <div>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+    <UnifiedLayout hubId="finance" pageTitle="Expenses" stats={layoutStats} fixedMenu={null}>
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <stat.icon className={cn('h-5 w-5', stat.color)} />
+                    <div>
+                      <p className="text-2xl font-bold">{stat.value}</p>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
 
-      <Card>
-        <CardContent className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search expenses..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search expenses..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <Button variant="outline" className="gap-2">
+                <Filter className="h-4 w-4" />
+                Filters
+              </Button>
             </div>
-            <Button variant="outline" className="gap-2">
-              <Filter className="h-4 w-4" />
-              Filters
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Receipt className="h-4 w-4" />
-            Expense Claims
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Date</TableHead>
-                <TableHead>Employee</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Receipt</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {expenses.map((expense) => (
-                <TableRow key={expense.id} className="cursor-pointer hover:bg-muted/50">
-                  <TableCell>{expense.date}</TableCell>
-                  <TableCell className="font-medium">{expense.employee}</TableCell>
-                  <TableCell>
-                    <Badge className={getCategoryColor(expense.category)}>{expense.category}</Badge>
-                  </TableCell>
-                  <TableCell className="max-w-[200px] truncate">{expense.description}</TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(expense.amount)}
-                  </TableCell>
-                  <TableCell>
-                    {expense.receipt ? (
-                      <Badge variant="secondary" className="gap-1">
-                        <Eye className="h-3 w-3" />
-                        View
-                      </Badge>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">No receipt</span>
-                    )}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(expense.status)}</TableCell>
-                  <TableCell>
-                    {expense.status === 'pending' && (
-                      <div className="flex gap-1">
-                        <Button size="sm" variant="ghost" className="h-7 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm" variant="ghost" className="h-7 text-red-600">
-                          <XCircle className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    )}
-                  </TableCell>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <Receipt className="h-4 w-4" />
+              Expense Claims
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Employee</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Receipt</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+              </TableHeader>
+              <TableBody>
+                {expenses.map((expense) => (
+                  <TableRow key={expense.id} className="cursor-pointer hover:bg-muted/50">
+                    <TableCell>{expense.date}</TableCell>
+                    <TableCell className="font-medium">{expense.employee}</TableCell>
+                    <TableCell>
+                      <Badge className={getCategoryColor(expense.category)}>
+                        {expense.category}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="max-w-[200px] truncate">{expense.description}</TableCell>
+                    <TableCell className="text-right font-medium">
+                      {formatCurrency(expense.amount)}
+                    </TableCell>
+                    <TableCell>
+                      {expense.receipt ? (
+                        <Badge variant="secondary" className="gap-1">
+                          <Eye className="h-3 w-3" />
+                          View
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">No receipt</span>
+                      )}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(expense.status)}</TableCell>
+                    <TableCell>
+                      {expense.status === 'pending' && (
+                        <div className="flex gap-1">
+                          <Button size="sm" variant="ghost" className="h-7 text-green-600">
+                            <CheckCircle className="h-4 w-4" />
+                          </Button>
+                          <Button size="sm" variant="ghost" className="h-7 text-red-600">
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    </UnifiedLayout>
   );
 }

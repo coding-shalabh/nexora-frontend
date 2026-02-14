@@ -1,6 +1,7 @@
 'use client';
 
 import { ComingSoonPage } from '@/components/common/coming-soon-page';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { Heart, TrendingUp, AlertTriangle, Smile, BarChart3, Bell } from 'lucide-react';
 
 const features = [
@@ -38,13 +39,15 @@ const features = [
 
 export default function SentimentAnalysisPage() {
   return (
-    <ComingSoonPage
-      title="Sentiment Analysis"
-      description="Understand customer emotions with AI-powered sentiment analysis. Detect frustration early and take proactive action to improve satisfaction."
-      icon={Heart}
-      features={features}
-      backHref="/service"
-      backLabel="Go to Service"
-    />
+    <UnifiedLayout hubId="service" pageTitle="Sentiment Analysis" fixedMenu={null}>
+      <ComingSoonPage
+        title="Sentiment Analysis"
+        description="Understand customer emotions with AI-powered sentiment analysis. Detect frustration early and take proactive action to improve satisfaction."
+        icon={Heart}
+        features={features}
+        backHref="/service"
+        backLabel="Go to Service"
+      />
+    </UnifiedLayout>
   );
 }

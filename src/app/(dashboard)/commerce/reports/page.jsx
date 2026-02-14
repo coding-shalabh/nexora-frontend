@@ -1,6 +1,7 @@
 'use client';
 
 import { ComingSoonPage } from '@/components/common/coming-soon-page';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { DollarSign, ShoppingCart, TrendingUp, Package, BarChart3, Receipt } from 'lucide-react';
 
 const features = [
@@ -38,13 +39,15 @@ const features = [
 
 export default function CommerceReportsPage() {
   return (
-    <ComingSoonPage
-      title="Commerce Reports"
-      description="Commerce reports are being consolidated into the central Analytics hub. Visit Analytics for comprehensive revenue metrics, order analytics, and product performance."
-      icon={BarChart3}
-      features={features}
-      backHref="/analytics"
-      backLabel="Go to Analytics"
-    />
+    <UnifiedLayout hubId="commerce" pageTitle="Commerce Reports" fixedMenu={null}>
+      <ComingSoonPage
+        title="Commerce Reports"
+        description="Commerce reports are being consolidated into the central Analytics hub. Visit Analytics for comprehensive revenue metrics, order analytics, and product performance."
+        icon={BarChart3}
+        features={features}
+        backHref="/analytics"
+        backLabel="Go to Analytics"
+      />
+    </UnifiedLayout>
   );
 }

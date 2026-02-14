@@ -1,11 +1,11 @@
 'use client';
 
 /**
- * Email Composer - Notion-style compact, user-friendly UI
- * Features: Rich text, attachments, tracking toggle, scheduling
+ * Email Composer - Enhanced with contact autocomplete and shared accounts
+ * Features: Rich text, attachments, tracking toggle, scheduling, contact autocomplete
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import {
   X,
@@ -23,12 +23,20 @@ import {
   FileText,
   Image as ImageIcon,
   File,
+  Plus,
+  User,
+  Users,
+  Mail,
+  Building2,
+  Settings,
+  Share2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { EmailRichEditor } from './email-rich-editor';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import {
@@ -36,6 +44,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import {
   Select,
@@ -43,26 +53,116 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectGroup,
+  SelectLabel,
+  SelectSeparator,
 } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { useSendEmail } from '@/hooks/use-emails';
-import { useEmailAccounts } from '@/hooks/use-email-accounts';
+import { useEmailAccounts, useAccessibleEmailAccounts } from '@/hooks/use-email-accounts';
+import { useContacts } from '@/hooks/use-contacts';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/auth-context';
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/lib/api';
 
-// Email address input with chips
-function EmailInput({ value = [], onChange, placeholder, label }) {
+// Email address input with chips AND autocomplete dropdown
+function EmailInputWithAutocomplete({
+  value = [],
+  onChange,
+  placeholder,
+  label,
+  contacts = [],
+  users = [],
+  className,
+}) {
   const [inputValue, setInputValue] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef(null);
+  const containerRef = useRef(null);
+
+  // Filter suggestions based on input
+  const suggestions = useMemo(() => {
+    if (!inputValue || inputValue.length < 1) return [];
+
+    const searchLower = inputValue.toLowerCase();
+    const results = [];
+
+    // Search contacts
+    contacts.forEach((contact) => {
+      if (
+        contact.email &&
+        (contact.email.toLowerCase().includes(searchLower) ||
+          contact.firstName?.toLowerCase().includes(searchLower) ||
+          contact.lastName?.toLowerCase().includes(searchLower) ||
+          `${contact.firstName} ${contact.lastName}`.toLowerCase().includes(searchLower))
+      ) {
+        if (!value.includes(contact.email)) {
+          results.push({
+            type: 'contact',
+            email: contact.email,
+            name: `${contact.firstName || ''} ${contact.lastName || ''}`.trim() || contact.email,
+            avatar: contact.avatarUrl,
+            company: contact.company?.name,
+          });
+        }
+      }
+    });
+
+    // Search users (team members)
+    users.forEach((user) => {
+      if (
+        user.email &&
+        (user.email.toLowerCase().includes(searchLower) ||
+          user.firstName?.toLowerCase().includes(searchLower) ||
+          user.lastName?.toLowerCase().includes(searchLower) ||
+          user.displayName?.toLowerCase().includes(searchLower))
+      ) {
+        if (!value.includes(user.email)) {
+          results.push({
+            type: 'user',
+            email: user.email,
+            name:
+              user.displayName ||
+              `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+              user.email,
+            avatar: user.avatarUrl,
+          });
+        }
+      }
+    });
+
+    return results.slice(0, 8); // Limit to 8 suggestions
+  }, [inputValue, contacts, users, value]);
+
+  // Reset selected index when suggestions change
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [suggestions]);
 
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
+    if (e.key === 'ArrowDown' && suggestions.length > 0) {
       e.preventDefault();
-      addEmail();
-    }
-    if (e.key === 'Backspace' && !inputValue && value.length > 0) {
+      setShowSuggestions(true);
+      setSelectedIndex((prev) => (prev < suggestions.length - 1 ? prev + 1 : prev));
+    } else if (e.key === 'ArrowUp' && suggestions.length > 0) {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+    } else if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      if (suggestions.length > 0 && showSuggestions) {
+        selectSuggestion(suggestions[selectedIndex]);
+      } else {
+        addEmail();
+      }
+    } else if (e.key === 'Backspace' && !inputValue && value.length > 0) {
       removeEmail(value.length - 1);
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
     }
   };
 
@@ -71,15 +171,37 @@ function EmailInput({ value = [], onChange, placeholder, label }) {
     if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       onChange([...value, email]);
       setInputValue('');
+      setShowSuggestions(false);
     }
+  };
+
+  const selectSuggestion = (suggestion) => {
+    onChange([...value, suggestion.email]);
+    setInputValue('');
+    setShowSuggestions(false);
+    inputRef.current?.focus();
   };
 
   const removeEmail = (index) => {
     onChange(value.filter((_, i) => i !== index));
   };
 
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className="flex items-start gap-2 py-1.5 border-b">
+    <div
+      ref={containerRef}
+      className={cn('relative flex items-start gap-2 py-1.5 border-b', className)}
+    >
       <Label className="text-xs text-muted-foreground w-10 pt-1.5 shrink-0">{label}</Label>
       <div className="flex-1 flex flex-wrap items-center gap-1 min-h-[28px]">
         {value.map((email, index) => (
@@ -95,14 +217,73 @@ function EmailInput({ value = [], onChange, placeholder, label }) {
           ref={inputRef}
           type="email"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            setShowSuggestions(e.target.value.length > 0);
+          }}
           onKeyDown={handleKeyDown}
-          onBlur={addEmail}
+          onFocus={() => inputValue && setShowSuggestions(true)}
+          onBlur={() => setTimeout(addEmail, 200)}
           placeholder={value.length === 0 ? placeholder : ''}
           className="flex-1 min-w-[120px] h-6 text-sm bg-transparent border-0 outline-none placeholder:text-muted-foreground"
         />
       </div>
+
+      {/* Suggestions Dropdown */}
+      {showSuggestions && suggestions.length > 0 && (
+        <div className="absolute left-10 right-0 top-full mt-1 z-50 bg-popover border rounded-lg shadow-lg overflow-hidden">
+          <div className="max-h-[200px] overflow-y-auto py-1">
+            {suggestions.map((suggestion, index) => (
+              <button
+                key={`${suggestion.type}-${suggestion.email}`}
+                type="button"
+                className={cn(
+                  'w-full flex items-center gap-3 px-3 py-2 text-left transition-colors',
+                  index === selectedIndex ? 'bg-accent' : 'hover:bg-accent/50'
+                )}
+                onClick={() => selectSuggestion(suggestion)}
+                onMouseEnter={() => setSelectedIndex(index)}
+              >
+                <Avatar className="h-7 w-7">
+                  <AvatarImage src={suggestion.avatar} />
+                  <AvatarFallback className="text-xs">
+                    {suggestion.name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">{suggestion.name}</div>
+                  <div className="text-xs text-muted-foreground truncate">{suggestion.email}</div>
+                </div>
+                {suggestion.type === 'contact' && (
+                  <Badge variant="outline" className="text-[10px] shrink-0">
+                    {suggestion.company || 'Contact'}
+                  </Badge>
+                )}
+                {suggestion.type === 'user' && (
+                  <Badge variant="secondary" className="text-[10px] shrink-0">
+                    Team
+                  </Badge>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+// Legacy EmailInput for backward compatibility
+function EmailInput({ value = [], onChange, placeholder, label }) {
+  return (
+    <EmailInputWithAutocomplete
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      label={label}
+      contacts={[]}
+      users={[]}
+    />
   );
 }
 
@@ -135,19 +316,61 @@ export function EmailComposer({
   const [scheduledAt, setScheduledAt] = useState(null);
   const [attachments, setAttachments] = useState([]);
   const fileInputRef = useRef(null);
+  const router = useRouter();
 
-  // Hooks
-  const { data: accounts = [], isLoading: accountsLoading } = useEmailAccounts();
+  // Hooks - Get all accessible email accounts (own + shared)
+  const { data: ownAccounts = [], isLoading: ownLoading } = useEmailAccounts();
+  const { data: accessibleData, isLoading: accessibleLoading } = useAccessibleEmailAccounts();
+  const { user } = useAuth() || {};
   const sendEmail = useSendEmail();
   const { toast } = useToast();
 
+  // Get contacts for autocomplete
+  const { data: contactsData } = useContacts({ limit: 500 });
+  const contacts = contactsData?.data || [];
+
+  // Get team users for autocomplete
+  const { data: usersData } = useQuery({
+    queryKey: ['users', 'team'],
+    queryFn: () => api.get('/settings/users'),
+    staleTime: 5 * 60 * 1000,
+  });
+  const users = usersData?.data || [];
+
+  // Categorize accounts: My Accounts vs Shared Accounts
+  const { myAccounts, sharedAccounts } = useMemo(() => {
+    const my = [];
+    const shared = [];
+
+    // Own accounts are always "my accounts"
+    ownAccounts.forEach((acc) => {
+      my.push({ ...acc, category: 'my' });
+    });
+
+    // From accessible, add those that are shared (not owned by current user)
+    if (accessibleData?.data) {
+      accessibleData.data.forEach((acc) => {
+        // Check if it's not already in ownAccounts
+        const isOwn = ownAccounts.some((own) => own.id === acc.id);
+        if (!isOwn) {
+          shared.push({ ...acc, category: 'shared' });
+        }
+      });
+    }
+
+    return { myAccounts: my, sharedAccounts: shared };
+  }, [ownAccounts, accessibleData]);
+
+  const allAccounts = [...myAccounts, ...sharedAccounts];
+  const accountsLoading = ownLoading || accessibleLoading;
+
   // Set default account
   useEffect(() => {
-    if (accounts.length > 0 && !accountId) {
-      const defaultAccount = accounts.find((a) => a.isDefault) || accounts[0];
+    if (allAccounts.length > 0 && !accountId) {
+      const defaultAccount = allAccounts.find((a) => a.isDefault) || allAccounts[0];
       setAccountId(defaultAccount.id);
     }
-  }, [accounts, accountId]);
+  }, [allAccounts, accountId]);
 
   // File attachment helpers
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
@@ -279,25 +502,35 @@ export function EmailComposer({
     }
   };
 
+  const handleConnectEmail = () => {
+    router.push('/settings/channels?tab=email');
+    onClose();
+  };
+
   if (!isOpen) return null;
 
-  const selectedAccount = accounts.find((a) => a.id === accountId);
+  const selectedAccount = allAccounts.find((a) => a.id === accountId);
 
-  // Inline mode: render in content area like a proper email client
+  // Inline mode: render in content area with white background
   if (inline) {
     return (
       <TooltipProvider>
-        <div className="flex flex-col h-full bg-background">
+        <div className="flex flex-col h-full bg-white rounded-2xl shadow-sm border">
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b bg-muted/30">
+          <div className="flex items-center justify-between px-6 py-4 border-b bg-gradient-to-r from-slate-50 to-white rounded-t-2xl">
             <div className="flex items-center gap-3">
-              <h2 className="text-lg font-semibold">New Email</h2>
-              {scheduledAt && (
-                <Badge variant="outline" className="text-xs">
-                  <Clock className="h-3 w-3 mr-1" />
-                  Scheduled for {format(scheduledAt, 'MMM d, yyyy')}
-                </Badge>
-              )}
+              <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10">
+                <Mail className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold">New Email</h2>
+                {scheduledAt && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    Scheduled for {format(scheduledAt, 'MMM d, yyyy h:mm a')}
+                  </p>
+                )}
+              </div>
             </div>
             <Button variant="ghost" size="sm" onClick={onClose}>
               <X className="h-4 w-4 mr-2" />
@@ -308,154 +541,167 @@ export function EmailComposer({
           {/* Email Form */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* From & Recipients */}
-            <div className="px-6 py-2 space-y-0 border-b">
-              {/* From */}
+            <div className="px-6 py-2 space-y-0 border-b bg-white">
+              {/* From - Enhanced with account categories */}
               <div className="flex items-center gap-3 py-2">
                 <Label className="text-sm text-muted-foreground w-16 shrink-0">From</Label>
                 <Select value={accountId} onValueChange={setAccountId}>
                   <SelectTrigger className="h-9 max-w-md">
-                    <SelectValue placeholder="Select account" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {accounts.map((account) => (
-                      <SelectItem key={account.id} value={account.id}>
+                    <SelectValue placeholder="Select account">
+                      {selectedAccount && (
                         <span className="flex items-center gap-2">
-                          {account.email}
-                          {account.isDefault && (
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          {selectedAccount.email}
+                          {selectedAccount.category === 'shared' && (
                             <Badge variant="outline" className="h-4 text-[9px]">
+                              <Share2 className="h-2.5 w-2.5 mr-0.5" />
+                              Shared
+                            </Badge>
+                          )}
+                          {selectedAccount.isDefault && (
+                            <Badge variant="secondary" className="h-4 text-[9px]">
                               Default
                             </Badge>
                           )}
                         </span>
-                      </SelectItem>
-                    ))}
+                      )}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {/* My Accounts */}
+                    {myAccounts.length > 0 && (
+                      <SelectGroup>
+                        <SelectLabel className="flex items-center gap-2 text-xs">
+                          <User className="h-3.5 w-3.5" />
+                          My Accounts
+                        </SelectLabel>
+                        {myAccounts.map((account) => (
+                          <SelectItem key={account.id} value={account.id}>
+                            <span className="flex items-center gap-2">
+                              <Mail className="h-4 w-4 text-muted-foreground" />
+                              {account.email}
+                              {account.isDefault && (
+                                <Badge variant="secondary" className="h-4 text-[9px]">
+                                  Default
+                                </Badge>
+                              )}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    )}
+
+                    {/* Shared Accounts */}
+                    {sharedAccounts.length > 0 && (
+                      <>
+                        <SelectSeparator />
+                        <SelectGroup>
+                          <SelectLabel className="flex items-center gap-2 text-xs">
+                            <Users className="h-3.5 w-3.5" />
+                            Shared with Me
+                          </SelectLabel>
+                          {sharedAccounts.map((account) => (
+                            <SelectItem key={account.id} value={account.id}>
+                              <span className="flex items-center gap-2">
+                                <Share2 className="h-4 w-4 text-blue-500" />
+                                {account.email}
+                                <Badge variant="outline" className="h-4 text-[9px]">
+                                  Shared
+                                </Badge>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </>
+                    )}
+
+                    {/* Connect New Account */}
+                    <SelectSeparator />
+                    <div className="p-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start text-xs"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleConnectEmail();
+                        }}
+                      >
+                        <Plus className="h-3.5 w-3.5 mr-2" />
+                        Connect Email Account
+                      </Button>
+                    </div>
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* To */}
+              {/* To - with autocomplete */}
               <div className="flex items-center gap-3 py-2 border-t">
                 <Label className="text-sm text-muted-foreground w-16 shrink-0">To</Label>
-                <div className="flex-1 flex flex-wrap items-center gap-1 min-h-[36px]">
-                  {to.map((email, index) => (
-                    <Badge
-                      key={index}
-                      variant="secondary"
-                      className="h-7 text-sm font-normal gap-1"
-                    >
-                      {email}
-                      <X
-                        className="h-3 w-3 cursor-pointer hover:text-destructive"
-                        onClick={() => setTo(to.filter((_, i) => i !== index))}
-                      />
-                    </Badge>
-                  ))}
-                  <input
-                    type="email"
-                    placeholder={to.length === 0 ? 'Add recipients...' : ''}
-                    className="flex-1 min-w-[200px] h-8 text-sm bg-transparent border-0 outline-none"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ',') {
-                        e.preventDefault();
-                        const email = e.target.value.trim().replace(/,/g, '');
-                        if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                          setTo([...to, email]);
-                          e.target.value = '';
-                        }
-                      }
-                    }}
-                    onBlur={(e) => {
-                      const email = e.target.value.trim().replace(/,/g, '');
-                      if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                        setTo([...to, email]);
-                        e.target.value = '';
-                      }
-                    }}
+                <div className="flex-1 relative">
+                  <EmailInputWithAutocomplete
+                    value={to}
+                    onChange={setTo}
+                    placeholder="Add recipients..."
+                    label=""
+                    contacts={contacts}
+                    users={users}
+                    className="border-0 py-0"
                   />
                 </div>
-                {!showCc && (
-                  <Button variant="ghost" size="sm" onClick={() => setShowCc(true)}>
-                    Cc
-                  </Button>
-                )}
-                {!showBcc && (
-                  <Button variant="ghost" size="sm" onClick={() => setShowBcc(true)}>
-                    Bcc
-                  </Button>
-                )}
+                <div className="flex gap-1 shrink-0">
+                  {!showCc && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => setShowCc(true)}
+                    >
+                      Cc
+                    </Button>
+                  )}
+                  {!showBcc && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs"
+                      onClick={() => setShowBcc(true)}
+                    >
+                      Bcc
+                    </Button>
+                  )}
+                </div>
               </div>
 
-              {/* Cc */}
+              {/* Cc - with autocomplete */}
               {showCc && (
                 <div className="flex items-center gap-3 py-2 border-t">
                   <Label className="text-sm text-muted-foreground w-16 shrink-0">Cc</Label>
-                  <div className="flex-1 flex flex-wrap items-center gap-1 min-h-[36px]">
-                    {cc.map((email, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="h-7 text-sm font-normal gap-1"
-                      >
-                        {email}
-                        <X
-                          className="h-3 w-3 cursor-pointer hover:text-destructive"
-                          onClick={() => setCc(cc.filter((_, i) => i !== index))}
-                        />
-                      </Badge>
-                    ))}
-                    <input
-                      type="email"
-                      placeholder={cc.length === 0 ? 'Add Cc...' : ''}
-                      className="flex-1 min-w-[200px] h-8 text-sm bg-transparent border-0 outline-none"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ',') {
-                          e.preventDefault();
-                          const email = e.target.value.trim().replace(/,/g, '');
-                          if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                            setCc([...cc, email]);
-                            e.target.value = '';
-                          }
-                        }
-                      }}
-                    />
-                  </div>
+                  <EmailInputWithAutocomplete
+                    value={cc}
+                    onChange={setCc}
+                    placeholder="Add Cc..."
+                    label=""
+                    contacts={contacts}
+                    users={users}
+                    className="border-0 py-0 flex-1"
+                  />
                 </div>
               )}
 
-              {/* Bcc */}
+              {/* Bcc - with autocomplete */}
               {showBcc && (
                 <div className="flex items-center gap-3 py-2 border-t">
                   <Label className="text-sm text-muted-foreground w-16 shrink-0">Bcc</Label>
-                  <div className="flex-1 flex flex-wrap items-center gap-1 min-h-[36px]">
-                    {bcc.map((email, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="h-7 text-sm font-normal gap-1"
-                      >
-                        {email}
-                        <X
-                          className="h-3 w-3 cursor-pointer hover:text-destructive"
-                          onClick={() => setBcc(bcc.filter((_, i) => i !== index))}
-                        />
-                      </Badge>
-                    ))}
-                    <input
-                      type="email"
-                      placeholder={bcc.length === 0 ? 'Add Bcc...' : ''}
-                      className="flex-1 min-w-[200px] h-8 text-sm bg-transparent border-0 outline-none"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ',') {
-                          e.preventDefault();
-                          const email = e.target.value.trim().replace(/,/g, '');
-                          if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                            setBcc([...bcc, email]);
-                            e.target.value = '';
-                          }
-                        }
-                      }}
-                    />
-                  </div>
+                  <EmailInputWithAutocomplete
+                    value={bcc}
+                    onChange={setBcc}
+                    placeholder="Add Bcc..."
+                    label=""
+                    contacts={contacts}
+                    users={users}
+                    className="border-0 py-0 flex-1"
+                  />
                 </div>
               )}
 
@@ -473,7 +719,7 @@ export function EmailComposer({
             </div>
 
             {/* Rich Text Editor */}
-            <div className="flex-1 overflow-hidden border-b">
+            <div className="flex-1 overflow-hidden border-b bg-white">
               <EmailRichEditor
                 content={bodyHtml}
                 onChange={setBodyHtml}
@@ -485,14 +731,14 @@ export function EmailComposer({
 
             {/* Attachments Display */}
             {attachments.length > 0 && (
-              <div className="px-6 py-3 border-b bg-muted/10">
+              <div className="px-6 py-3 border-b bg-slate-50/50">
                 <div className="flex flex-wrap gap-2">
                   {attachments.map((attachment) => {
                     const FileIcon = getFileIcon(attachment.contentType);
                     return (
                       <div
                         key={attachment.id}
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-background border text-sm group"
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white border text-sm group"
                       >
                         <FileIcon className="h-4 w-4 text-muted-foreground shrink-0" />
                         <span className="truncate max-w-[180px]">{attachment.filename}</span>
@@ -524,11 +770,15 @@ export function EmailComposer({
             />
 
             {/* Footer */}
-            <div className="flex items-center justify-between px-6 py-4 bg-muted/20">
+            <div className="flex items-center justify-between px-6 py-4 bg-slate-50/50 rounded-b-2xl">
               <div className="flex items-center gap-3">
                 {/* Send Button */}
                 <div className="flex items-center">
-                  <Button onClick={handleSend} disabled={sendEmail.isPending}>
+                  <Button
+                    onClick={handleSend}
+                    disabled={sendEmail.isPending}
+                    className="rounded-r-none"
+                  >
                     {sendEmail.isPending ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
@@ -538,7 +788,10 @@ export function EmailComposer({
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="ml-1 px-2">
+                      <Button
+                        variant="default"
+                        className="rounded-l-none border-l border-primary-foreground/20 px-2"
+                      >
                         <ChevronDown className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -618,28 +871,29 @@ export function EmailComposer({
     );
   }
 
-  // Floating mode (original behavior)
+  // Floating mode (original behavior with enhancements)
   return (
     <TooltipProvider>
       <div
         className={cn(
-          'fixed bg-background border rounded-t-lg shadow-2xl z-50 flex flex-col transition-all duration-200',
+          'fixed bg-white border rounded-t-lg shadow-2xl z-50 flex flex-col transition-all duration-200',
           isMinimized
             ? 'bottom-0 right-4 w-64 h-10'
             : isMaximized
               ? 'inset-4'
-              : 'bottom-0 right-4 w-[560px] h-[480px]'
+              : 'bottom-0 right-4 w-[560px] h-[520px]'
         )}
       >
         {/* Header */}
         <div
           className={cn(
-            'flex items-center justify-between px-3 h-10 border-b bg-muted/30 rounded-t-lg cursor-pointer',
+            'flex items-center justify-between px-3 h-10 border-b bg-gradient-to-r from-slate-100 to-slate-50 rounded-t-lg cursor-pointer',
             isMinimized && 'rounded-b-lg'
           )}
           onClick={() => isMinimized && setIsMinimized(false)}
         >
           <div className="flex items-center gap-2">
+            <Mail className="h-4 w-4 text-primary" />
             <span className="text-sm font-medium truncate">{subject || 'New Message'}</span>
             {scheduledAt && (
               <Badge variant="outline" className="h-5 text-[10px]">
@@ -694,8 +948,8 @@ export function EmailComposer({
         {!isMinimized && (
           <>
             {/* From & Recipients */}
-            <div className="px-3 space-y-0">
-              {/* From */}
+            <div className="px-3 space-y-0 bg-white">
+              {/* From - Enhanced */}
               <div className="flex items-center gap-2 py-1.5 border-b">
                 <Label className="text-xs text-muted-foreground w-10 shrink-0">From</Label>
                 <Select value={accountId} onValueChange={setAccountId}>
@@ -703,24 +957,80 @@ export function EmailComposer({
                     <SelectValue placeholder="Select account" />
                   </SelectTrigger>
                   <SelectContent>
-                    {accounts.map((account) => (
-                      <SelectItem key={account.id} value={account.id}>
-                        <span className="flex items-center gap-2">
-                          {account.email}
-                          {account.isDefault && (
-                            <Badge variant="outline" className="h-4 text-[9px]">
-                              Default
-                            </Badge>
-                          )}
-                        </span>
-                      </SelectItem>
-                    ))}
+                    {/* My Accounts */}
+                    {myAccounts.length > 0 && (
+                      <SelectGroup>
+                        <SelectLabel className="flex items-center gap-1.5 text-[10px]">
+                          <User className="h-3 w-3" />
+                          My Accounts
+                        </SelectLabel>
+                        {myAccounts.map((account) => (
+                          <SelectItem key={account.id} value={account.id}>
+                            <span className="flex items-center gap-2">
+                              {account.email}
+                              {account.isDefault && (
+                                <Badge variant="outline" className="h-4 text-[9px]">
+                                  Default
+                                </Badge>
+                              )}
+                            </span>
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    )}
+
+                    {/* Shared Accounts */}
+                    {sharedAccounts.length > 0 && (
+                      <>
+                        <SelectSeparator />
+                        <SelectGroup>
+                          <SelectLabel className="flex items-center gap-1.5 text-[10px]">
+                            <Share2 className="h-3 w-3" />
+                            Shared
+                          </SelectLabel>
+                          {sharedAccounts.map((account) => (
+                            <SelectItem key={account.id} value={account.id}>
+                              <span className="flex items-center gap-2">
+                                {account.email}
+                                <Badge variant="outline" className="h-4 text-[9px]">
+                                  Shared
+                                </Badge>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </>
+                    )}
+
+                    {/* Connect New */}
+                    <SelectSeparator />
+                    <div className="p-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-start text-xs h-7"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleConnectEmail();
+                        }}
+                      >
+                        <Plus className="h-3 w-3 mr-1.5" />
+                        Connect Account
+                      </Button>
+                    </div>
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* To */}
-              <EmailInput label="To" value={to} onChange={setTo} placeholder="Recipients" />
+              {/* To - with autocomplete */}
+              <EmailInputWithAutocomplete
+                label="To"
+                value={to}
+                onChange={setTo}
+                placeholder="Recipients"
+                contacts={contacts}
+                users={users}
+              />
 
               {/* Cc/Bcc toggle */}
               {!showCc && !showBcc && (
@@ -746,16 +1056,25 @@ export function EmailComposer({
 
               {/* Cc */}
               {showCc && (
-                <EmailInput label="Cc" value={cc} onChange={setCc} placeholder="Carbon copy" />
+                <EmailInputWithAutocomplete
+                  label="Cc"
+                  value={cc}
+                  onChange={setCc}
+                  placeholder="Carbon copy"
+                  contacts={contacts}
+                  users={users}
+                />
               )}
 
               {/* Bcc */}
               {showBcc && (
-                <EmailInput
+                <EmailInputWithAutocomplete
                   label="Bcc"
                   value={bcc}
                   onChange={setBcc}
                   placeholder="Blind carbon copy"
+                  contacts={contacts}
+                  users={users}
                 />
               )}
 
@@ -773,7 +1092,7 @@ export function EmailComposer({
             </div>
 
             {/* Rich Text Editor with integrated toolbar */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden bg-white">
               <EmailRichEditor
                 content={bodyHtml}
                 onChange={setBodyHtml}
@@ -785,14 +1104,14 @@ export function EmailComposer({
 
             {/* Attachments Display */}
             {attachments.length > 0 && (
-              <div className="px-3 py-2 border-t bg-muted/10">
+              <div className="px-3 py-2 border-t bg-slate-50">
                 <div className="flex flex-wrap gap-2">
                   {attachments.map((attachment) => {
                     const FileIcon = getFileIcon(attachment.contentType);
                     return (
                       <div
                         key={attachment.id}
-                        className="flex items-center gap-1.5 px-2 py-1 rounded bg-background border text-xs group"
+                        className="flex items-center gap-1.5 px-2 py-1 rounded bg-white border text-xs group"
                       >
                         <FileIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         <span className="truncate max-w-[120px]">{attachment.filename}</span>
@@ -824,7 +1143,7 @@ export function EmailComposer({
             />
 
             {/* Footer */}
-            <div className="flex items-center justify-between px-3 py-2 border-t bg-muted/20">
+            <div className="flex items-center justify-between px-3 py-2 border-t bg-slate-50">
               <div className="flex items-center gap-3">
                 {/* Send Button */}
                 <div className="flex items-center">
@@ -843,7 +1162,10 @@ export function EmailComposer({
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button size="sm" className="rounded-l-none border-l px-2">
+                      <Button
+                        size="sm"
+                        className="rounded-l-none border-l border-primary-foreground/20 px-2"
+                      >
                         <ChevronDown className="h-3.5 w-3.5" />
                       </Button>
                     </DropdownMenuTrigger>

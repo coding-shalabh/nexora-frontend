@@ -36,7 +36,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 function useAnalytics(endpoint, params = {}) {
   return useQuery({
@@ -156,14 +156,10 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="analytics"
-      title="Analytics Dashboard"
-      description="Comprehensive insights across all your business operations"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <div className="flex items-center gap-3">
+    <UnifiedLayout hubId="analytics" pageTitle="Analytics Dashboard" stats={stats} fixedMenu={null}>
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        {/* Date Range Filter */}
+        <div className="flex justify-end gap-3">
           <Select value={dateRange} onValueChange={setDateRange}>
             <SelectTrigger className="w-36">
               <Calendar className="h-4 w-4 mr-2" />
@@ -179,9 +175,7 @@ export default function AnalyticsPage() {
             <RefreshCw className="h-4 w-4" />
           </Button>
         </div>
-      }
-    >
-      <div className="h-full overflow-y-auto p-6 space-y-6">
+
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
@@ -720,6 +714,6 @@ export default function AnalyticsPage() {
           )}
         </Tabs>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

@@ -24,7 +24,7 @@ import {
   MoreHorizontal,
   GitBranch,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -872,16 +872,15 @@ export default function IVRSetupPage() {
 
   return (
     <>
-      <HubLayout
+      <UnifiedLayout
         hubId="inbox"
-        title="IVR Setup"
-        description="Configure your Interactive Voice Response system"
+        pageTitle="IVR Setup"
         stats={layoutStats}
         actions={actionButtons}
-        showFixedMenu={false}
+        fixedMenu={null}
       >
         {mainContent}
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Node Edit Dialog */}
       <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>

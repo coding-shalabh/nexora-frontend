@@ -59,8 +59,11 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
-import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
+import {
+  UnifiedLayout,
+  createStat,
+  createAction,
+} from '@/components/layout/unified/unified-layout';
 
 // Lead status options
 const LEAD_STATUSES = [
@@ -256,7 +259,7 @@ function LeadForm({ lead, onSubmit, onCancel, isSubmitting, companies }) {
             </p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onCancel}>
+        <Button variant="ghost" size="icon" onClick={onCancel} aria-label="Cancel">
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -573,7 +576,7 @@ function LeadDetailPanel({ lead, onEdit, onDelete, onClose, onConvert, onQualify
           <Button variant="outline" size="sm" onClick={() => onEdit?.(lead)}>
             <Edit className="h-4 w-4 mr-1" /> Edit
           </Button>
-          <Button variant="ghost" size="icon" onClick={onClose}>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close panel">
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -924,66 +927,6 @@ export default function LeadsPage() {
     createStat('Converted', stats.converted, Star, 'purple'),
   ];
 
-  // FixedMenuPanel configuration
-  const fixedMenuConfig = {
-    primaryActions: [{ id: 'create', label: 'Add Lead', icon: Plus, variant: 'default' }],
-    secondaryActions: [
-      { id: 'import', label: 'Import', icon: Upload, variant: 'ghost' },
-      {
-        id: 'selection',
-        label: selectionMode ? 'Exit Selection' : 'Select',
-        icon: selectionMode ? MinusSquare : CheckSquare,
-        variant: selectionMode ? 'secondary' : 'ghost',
-      },
-    ],
-    filters: {
-      quickFilters: [
-        { id: 'all', label: 'All' },
-        { id: 'NEW', label: 'New' },
-        { id: 'QUALIFIED', label: 'Qualified' },
-        { id: 'CONVERTED', label: 'Converted' },
-      ],
-    },
-  };
-
-  // Handle FixedMenuPanel actions
-  const handleMenuAction = (actionId) => {
-    switch (actionId) {
-      case 'create':
-        openCreate();
-        break;
-      case 'import':
-        toast({ title: 'Import', description: 'Import feature coming soon' });
-        break;
-      case 'selection':
-        toggleSelectionMode();
-        break;
-      default:
-        break;
-    }
-  };
-
-  // Bulk actions configuration
-  const bulkActions = [
-    { id: 'export', label: 'Export', icon: FileDown, variant: 'outline' },
-    { id: 'delete', label: 'Delete', icon: Trash2, variant: 'destructive' },
-  ];
-
-  const handleBulkAction = (actionId) => {
-    switch (actionId) {
-      case 'export':
-        toast({ title: 'Export', description: 'Export feature coming soon' });
-        break;
-      case 'delete':
-        if (selectedIds.size === 0) return;
-        if (!confirm(`Delete ${selectedIds.size} lead(s)? This action cannot be undone.`)) return;
-        toast({ title: 'Delete', description: 'Bulk delete feature coming soon' });
-        break;
-      default:
-        break;
-    }
-  };
-
   // Fixed menu list
   const fixedMenuListContent = (
     <div className="py-2">
@@ -1222,31 +1165,90 @@ export default function LeadsPage() {
     </AnimatePresence>
   );
 
+  // Actions for the status bar
+  const layoutActions = [
+    createAction('Add Lead', Plus, openCreate, { primary: true }),
+    createAction('Import', Upload, () =>
+      toast({ title: 'Import', description: 'Import feature coming soon' })
+    ),
+  ];
+
+  // Fixed menu configuration for UnifiedLayout
+  const fixedMenuConfig = {
+    items: sortedLeads,
+    searchPlaceholder: 'Search leads...',
+    emptyMessage: 'No leads found',
+    EmptyIcon: Target,
+    getItemId: (lead) => lead.id,
+    renderItem: ({ item: lead, isSelected, onSelect }) => (
+      <LeadListItem
+        lead={lead}
+        isSelected={isSelected}
+        onClick={onSelect}
+        showCheckbox={selectionMode}
+        isChecked={selectedIds.has(lead.id)}
+        onCheckChange={() => toggleSelectLead(lead.id)}
+      />
+    ),
+    footer:
+      sortedLeads.length > 0 ? (
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            Page {meta.page} of {meta.totalPages}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+            >
+              Prev
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              disabled={page >= meta.totalPages}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      ) : null,
+    filters: [
+      {
+        id: 'status',
+        label: 'Status',
+        options: [
+          { value: 'all', label: 'All' },
+          ...LEAD_STATUSES.map((s) => ({ value: s.value, label: s.label })),
+        ],
+      },
+      {
+        id: 'priority',
+        label: 'Priority',
+        options: [
+          { value: 'all', label: 'All' },
+          ...LEAD_PRIORITIES.map((p) => ({ value: p.value, label: p.label })),
+        ],
+      },
+    ],
+    onSelect: (lead) => openPreview(lead),
+    onSearchChange: setSearchQuery,
+  };
+
   return (
-    <HubLayout
-      hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Leads"
-      description="Manage your sales leads and prospects"
+    <UnifiedLayout
+      hubId="sales"
+      pageTitle="Leads"
       stats={layoutStats}
-      showFixedMenu={true}
-      fixedMenuFilters={
-        <FixedMenuPanel
-          config={fixedMenuConfig}
-          activeFilter={filterStatus}
-          onFilterChange={setFilterStatus}
-          onAction={handleMenuAction}
-          selectedCount={selectedIds.size}
-          bulkActions={bulkActions}
-          onBulkAction={handleBulkAction}
-          className="p-4"
-        />
-      }
-      fixedMenuList={fixedMenuListContent}
-      fixedMenuFooter={fixedMenuFooterContent}
+      actions={layoutActions}
+      fixedMenu={fixedMenuConfig}
     >
       {contentArea}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

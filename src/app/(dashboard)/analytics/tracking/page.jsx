@@ -49,6 +49,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 
 function generateEmbedCode(apiKey, domain) {
   return `<!-- Nexora Analytics -->
@@ -340,113 +341,115 @@ export default function TrackingScriptsPage() {
     },
   });
 
+  const activeCount = scripts.filter((s) => s.isActive).length;
+  const layoutStats = [
+    createStat('Total Scripts', scripts.length.toString(), Globe, 'blue'),
+    createStat('Active', activeCount.toString(), Code, 'green'),
+  ];
+
+  const actions = [
+    createAction('New Script', Plus, () => setCreateDialogOpen(true), { primary: true }),
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Tracking Scripts</h1>
-          <p className="text-muted-foreground">Manage tracking scripts for your websites</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="icon" onClick={() => refetch()}>
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Script
-          </Button>
-        </div>
-      </div>
-
-      {/* How it works */}
-      <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-        <div className="flex items-start gap-3">
-          <Code className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-          <div>
-            <p className="font-medium text-blue-800 dark:text-blue-200">How it works</p>
-            <ol className="text-sm text-blue-700 dark:text-blue-300 mt-2 space-y-1 list-decimal list-inside">
-              <li>Create a tracking script for each website you want to track</li>
-              <li>
-                Copy the embed code and paste it in your website's HTML (before &lt;/head&gt;)
-              </li>
-              <li>Visitor data will start appearing in your analytics dashboard</li>
-            </ol>
+    <UnifiedLayout
+      hubId="analytics"
+      pageTitle="Tracking Scripts"
+      stats={layoutStats}
+      actions={actions}
+      fixedMenu={null}
+    >
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        {/* How it works */}
+        <Card className="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+          <div className="flex items-start gap-3">
+            <Code className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+            <div>
+              <p className="font-medium text-blue-800 dark:text-blue-200">How it works</p>
+              <ol className="text-sm text-blue-700 dark:text-blue-300 mt-2 space-y-1 list-decimal list-inside">
+                <li>Create a tracking script for each website you want to track</li>
+                <li>
+                  Copy the embed code and paste it in your website's HTML (before &lt;/head&gt;)
+                </li>
+                <li>Visitor data will start appearing in your analytics dashboard</li>
+              </ol>
+            </div>
           </div>
-        </div>
-      </Card>
-
-      {/* Scripts List */}
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : scripts.length === 0 ? (
-        <Card className="p-12 text-center">
-          <Globe className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2">No tracking scripts yet</h3>
-          <p className="text-muted-foreground mb-6">
-            Create your first tracking script to start monitoring visitor activity on your website.
-          </p>
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Your First Script
-          </Button>
         </Card>
-      ) : (
-        <div className="space-y-4">
-          {scripts.map((script) => (
-            <TrackingScriptCard
-              key={script.id}
-              script={script}
-              onCopyCode={() => {
-                toast({
-                  title: 'Code copied!',
-                  description: 'Paste this code in your website HTML before </head>',
-                });
-              }}
-              onRegenerate={(id) => regenerateMutation.mutate(id)}
-              onDelete={(id) => setDeleteId(id)}
-              onUpdate={(id, data) => updateMutation.mutate({ id, data })}
-            />
-          ))}
-        </div>
-      )}
 
-      {/* Create Dialog */}
-      <CreateScriptDialog
-        open={createDialogOpen}
-        onOpenChange={setCreateDialogOpen}
-        onCreate={(data) => createMutation.mutateAsync(data)}
-      />
+        {/* Scripts List */}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : scripts.length === 0 ? (
+          <Card className="p-12 text-center">
+            <Globe className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
+            <h3 className="text-lg font-semibold mb-2">No tracking scripts yet</h3>
+            <p className="text-muted-foreground mb-6">
+              Create your first tracking script to start monitoring visitor activity on your
+              website.
+            </p>
+            <Button onClick={() => setCreateDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Your First Script
+            </Button>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {scripts.map((script) => (
+              <TrackingScriptCard
+                key={script.id}
+                script={script}
+                onCopyCode={() => {
+                  toast({
+                    title: 'Code copied!',
+                    description: 'Paste this code in your website HTML before </head>',
+                  });
+                }}
+                onRegenerate={(id) => regenerateMutation.mutate(id)}
+                onDelete={(id) => setDeleteId(id)}
+                onUpdate={(id, data) => updateMutation.mutate({ id, data })}
+              />
+            ))}
+          </div>
+        )}
 
-      {/* Delete Confirmation */}
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-red-500" />
-              Delete Tracking Script?
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete this tracking script and stop collecting data from the
-              associated website. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-red-500 hover:bg-red-600"
-              onClick={() => {
-                deleteMutation.mutate(deleteId);
-                setDeleteId(null);
-              }}
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-    </div>
+        {/* Create Dialog */}
+        <CreateScriptDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onCreate={(data) => createMutation.mutateAsync(data)}
+        />
+
+        {/* Delete Confirmation */}
+        <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-red-500" />
+                Delete Tracking Script?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete this tracking script and stop collecting data from the
+                associated website. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-500 hover:bg-red-600"
+                onClick={() => {
+                  deleteMutation.mutate(deleteId);
+                  setDeleteId(null);
+                }}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    </UnifiedLayout>
   );
 }

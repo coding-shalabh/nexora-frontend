@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 const leaveRequests = [
@@ -257,48 +257,7 @@ export default function LeavePage() {
   };
 
   return (
-    <HubLayout
-      hubId="hr"
-      showTopBar={false}
-      showSidebar={false}
-      title="Leave Management"
-      description="Manage employee leave requests"
-      stats={stats}
-      actions={topBarActions}
-      showFixedMenu={true}
-      fixedMenuFilters={
-        <FixedMenuPanel
-          config={fixedMenuConfig}
-          activeFilter={statusFilter}
-          onFilterChange={setStatusFilter}
-          onAction={handleAction}
-          className="p-4"
-        />
-      }
-      fixedMenuList={
-        <div className="space-y-2 p-4">
-          {/* Search Bar */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search leave requests..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-
-          {/* Leave Requests List */}
-          {filteredRequests.length === 0 ? (
-            <EmptyState />
-          ) : (
-            filteredRequests.map((request) => (
-              <LeaveRequestCard key={request.id} request={request} />
-            ))
-          )}
-        </div>
-      }
-    >
+    <UnifiedLayout hubId="hr" pageTitle="Leave Management" stats={stats} fixedMenu={null}>
       {/* Detail View in Content Area */}
       {selectedRequest ? (
         <div className="h-full overflow-y-auto p-6">
@@ -376,6 +335,6 @@ export default function LeavePage() {
           </div>
         </div>
       )}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

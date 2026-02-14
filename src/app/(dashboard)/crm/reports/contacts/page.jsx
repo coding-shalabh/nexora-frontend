@@ -1,33 +1,12 @@
 'use client';
 
-import { Users, Download, TrendingUp, Activity, UserCircle } from 'lucide-react';
+import { Users, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 export default function ContactReportsPage() {
-  const stats = [
-    createStat('Contacts', '0', Users, 'blue'),
-    createStat('Growth', '0%', TrendingUp, 'green'),
-    createStat('Active', '0', Activity, 'purple'),
-    createStat('Churn', '0', UserCircle, 'red'),
-  ];
-
   return (
-    <HubLayout
-      hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Contact Reports"
-      description="Analyze your contact database"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button variant="outline">
-          <Download className="h-4 w-4 mr-2" />
-          Export
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="crm" pageTitle="Contact Reports" fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6">
         <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
           <Users className="h-12 w-12 text-muted-foreground mb-4" />
@@ -37,6 +16,6 @@ export default function ContactReportsPage() {
           </p>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

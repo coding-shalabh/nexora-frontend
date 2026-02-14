@@ -290,34 +290,32 @@ export function CRMSidebar() {
               }
 
               return (
-                <div key={section.id} className="space-y-0.5">
-                  {/* Section Header (Accordion Trigger) */}
+                <div key={section.id} className="mb-1">
+                  {/* Section Header (Accordion Trigger) - Matching Inbox Sidebar Pattern */}
                   <button
                     onClick={() => handleSectionClick(section)}
                     className={cn(
-                      'w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-all text-left group',
-                      isSelected || hasActiveItem
-                        ? 'bg-gray-100 text-brand font-medium'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-800'
+                      'w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all group',
+                      isExpanded
+                        ? 'bg-white/70 text-gray-900'
+                        : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'
                     )}
                   >
-                    <SectionIcon
-                      className={cn(
-                        'h-4 w-4 shrink-0',
-                        isSelected || hasActiveItem ? 'text-brand' : 'text-gray-500'
-                      )}
-                    />
-                    <span className="text-sm flex-1 truncate">{section.title}</span>
+                    <div className="flex items-center gap-2">
+                      <SectionIcon
+                        className={cn('h-4 w-4', isExpanded ? 'text-primary' : 'text-gray-500')}
+                      />
+                      <span className="text-sm font-medium">{section.title}</span>
+                    </div>
                     <ChevronDown
                       className={cn(
-                        'h-3.5 w-3.5 shrink-0 transition-transform duration-200',
-                        isExpanded ? 'rotate-180' : '',
-                        isSelected || hasActiveItem ? 'text-brand' : 'text-gray-400'
+                        'h-4 w-4 text-gray-400 transition-transform duration-200',
+                        isExpanded && 'rotate-180'
                       )}
                     />
                   </button>
 
-                  {/* Accordion Content (Sub-items) */}
+                  {/* Accordion Content (Sub-items) - Matching Inbox Sidebar Pattern */}
                   <AnimatePresence initial={false}>
                     {isExpanded && (
                       <motion.div
@@ -327,36 +325,79 @@ export function CRMSidebar() {
                         transition={{ duration: 0.2, ease: 'easeInOut' }}
                         className="overflow-hidden"
                       >
-                        <div className="pl-4 pr-1 py-1 space-y-0.5">
+                        <motion.div
+                          className="pt-1 pl-2 space-y-0.5"
+                          initial="closed"
+                          animate="open"
+                          exit="closed"
+                          variants={{
+                            open: {
+                              transition: {
+                                staggerChildren: 0.05,
+                                delayChildren: 0.1,
+                              },
+                            },
+                            closed: {
+                              transition: {
+                                staggerChildren: 0.03,
+                                staggerDirection: -1,
+                              },
+                            },
+                          }}
+                        >
                           {section.items.map((item) => {
                             const ItemIcon = item.icon;
                             const isActive = isItemActive(item.href);
 
                             return (
-                              <button
+                              <motion.div
                                 key={item.href}
-                                onClick={() => handleItemClick(section, item)}
-                                className={cn(
-                                  'w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md transition-all text-left text-sm',
-                                  isActive
-                                    ? 'bg-brand/10 text-brand font-medium'
-                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-800'
-                                )}
+                                variants={{
+                                  open: {
+                                    y: 0,
+                                    opacity: 1,
+                                    transition: {
+                                      y: { stiffness: 1000, velocity: -100 },
+                                    },
+                                  },
+                                  closed: {
+                                    y: 20,
+                                    opacity: 0,
+                                    transition: {
+                                      y: { stiffness: 1000 },
+                                    },
+                                  },
+                                }}
                               >
-                                <ItemIcon
+                                <button
+                                  onClick={() => handleItemClick(section, item)}
                                   className={cn(
-                                    'h-3.5 w-3.5 shrink-0',
-                                    isActive ? 'text-brand' : 'text-gray-400'
+                                    'w-full flex items-start gap-3 px-3 py-2.5 rounded-lg transition-all text-left',
+                                    isActive && 'text-white bg-primary',
+                                    !isActive &&
+                                      'text-gray-700 hover:bg-white/50 hover:text-gray-900'
                                   )}
-                                />
-                                <span className="truncate">{item.title}</span>
-                                {isActive && (
-                                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-brand shrink-0" />
-                                )}
-                              </button>
+                                >
+                                  <ItemIcon
+                                    className={cn(
+                                      'shrink-0 mt-0.5 h-4 w-4',
+                                      isActive ? 'text-white' : 'text-gray-500'
+                                    )}
+                                  />
+                                  <span
+                                    className={cn(
+                                      'text-sm font-medium whitespace-nowrap',
+                                      isActive && 'text-white',
+                                      !isActive && 'text-gray-900'
+                                    )}
+                                  >
+                                    {item.title}
+                                  </span>
+                                </button>
+                              </motion.div>
                             );
                           })}
-                        </div>
+                        </motion.div>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -371,6 +412,7 @@ export function CRMSidebar() {
           variant="outline"
           size="icon"
           onClick={toggleCollapsed}
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           className="absolute -right-3 top-20 h-6 w-6 rounded-full bg-white border-gray-200 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
         >
           {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
@@ -681,50 +723,121 @@ const pageStats = {
 const pageActions = {
   // People Section
   '/crm/contacts': [
-    { icon: 'download', label: 'Export', variant: 'outline' },
-    { icon: 'plus', label: 'Add Contact', variant: 'default' },
+    { icon: 'download', label: 'Export', variant: 'outline', href: '/crm/export' },
+    { icon: 'plus', label: 'Add Contact', variant: 'default', href: '/crm/contacts/new' },
   ],
   '/crm/companies': [
-    { icon: 'download', label: 'Export', variant: 'outline' },
-    { icon: 'plus', label: 'Add Company', variant: 'default' },
+    { icon: 'download', label: 'Export', variant: 'outline', href: '/crm/export' },
+    { icon: 'plus', label: 'Add Company', variant: 'default', href: '/crm/companies/new' },
   ],
   '/crm/leads': [
-    { icon: 'download', label: 'Export', variant: 'outline' },
-    { icon: 'plus', label: 'Add Lead', variant: 'default' },
+    { icon: 'download', label: 'Export', variant: 'outline', href: '/crm/export' },
+    { icon: 'plus', label: 'Add Lead', variant: 'default', href: '/crm/leads/new' },
   ],
   // Engagement Section
-  '/crm/activities': [{ icon: 'plus', label: 'Log Activity', variant: 'default' }],
-  '/crm/tasks': [{ icon: 'plus', label: 'Add Task', variant: 'default' }],
-  '/crm/calls': [{ icon: 'plus', label: 'Log Call', variant: 'default' }],
-  '/crm/meetings': [{ icon: 'plus', label: 'Schedule Meeting', variant: 'default' }],
-  '/crm/notes': [{ icon: 'plus', label: 'Add Note', variant: 'default' }],
-  '/crm/emails': [{ icon: 'plus', label: 'Send Email', variant: 'default' }],
+  '/crm/activities': [
+    { icon: 'plus', label: 'Log Activity', variant: 'default', href: '/crm/activities/new' },
+  ],
+  '/crm/tasks': [{ icon: 'plus', label: 'Add Task', variant: 'default', href: '/crm/tasks/new' }],
+  '/crm/calls': [{ icon: 'plus', label: 'Log Call', variant: 'default', href: '/crm/calls/new' }],
+  '/crm/meetings': [
+    { icon: 'plus', label: 'Schedule Meeting', variant: 'default', href: '/crm/meetings/new' },
+  ],
+  '/crm/notes': [{ icon: 'plus', label: 'Add Note', variant: 'default', href: '/crm/notes/new' }],
+  '/crm/emails': [
+    { icon: 'plus', label: 'Send Email', variant: 'default', href: '/crm/emails/compose' },
+  ],
   // Segments Section
-  '/crm/segments': [{ icon: 'plus', label: 'Create Segment', variant: 'default' }],
-  '/crm/segments/dynamic': [{ icon: 'plus', label: 'Create Dynamic Segment', variant: 'default' }],
-  '/crm/segments/static': [{ icon: 'plus', label: 'Create Static List', variant: 'default' }],
-  '/crm/segments/custom': [{ icon: 'plus', label: 'Create Custom View', variant: 'default' }],
+  '/crm/segments': [
+    { icon: 'plus', label: 'Create Segment', variant: 'default', href: '/crm/segments/new' },
+  ],
+  '/crm/segments/dynamic': [
+    {
+      icon: 'plus',
+      label: 'Create Dynamic Segment',
+      variant: 'default',
+      href: '/crm/segments/dynamic/new',
+    },
+  ],
+  '/crm/segments/static': [
+    {
+      icon: 'plus',
+      label: 'Create Static List',
+      variant: 'default',
+      href: '/crm/segments/static/new',
+    },
+  ],
+  '/crm/segments/custom': [
+    {
+      icon: 'plus',
+      label: 'Create Custom View',
+      variant: 'default',
+      href: '/crm/segments/custom/new',
+    },
+  ],
   // Scoring Section
-  '/crm/scoring/contacts': [{ icon: 'plus', label: 'Add Rule', variant: 'default' }],
-  '/crm/scoring/companies': [{ icon: 'plus', label: 'Add Rule', variant: 'default' }],
-  '/crm/scoring/rules': [{ icon: 'plus', label: 'Create Rule', variant: 'default' }],
+  '/crm/scoring/contacts': [
+    { icon: 'plus', label: 'Add Rule', variant: 'default', href: '/crm/scoring/contacts/new' },
+  ],
+  '/crm/scoring/companies': [
+    { icon: 'plus', label: 'Add Rule', variant: 'default', href: '/crm/scoring/companies/new' },
+  ],
+  '/crm/scoring/rules': [
+    { icon: 'plus', label: 'Create Rule', variant: 'default', href: '/crm/scoring/rules/new' },
+  ],
   '/crm/scoring/history': [],
   // Lifecycle Section
-  '/crm/lifecycle/stages': [{ icon: 'plus', label: 'Add Stage', variant: 'default' }],
-  '/crm/lifecycle/journey': [{ icon: 'plus', label: 'Create Journey', variant: 'default' }],
-  '/crm/lifecycle/rules': [{ icon: 'plus', label: 'Create Rule', variant: 'default' }],
+  '/crm/lifecycle/stages': [
+    { icon: 'plus', label: 'Add Stage', variant: 'default', href: '/crm/lifecycle/stages/new' },
+  ],
+  '/crm/lifecycle/journey': [
+    {
+      icon: 'plus',
+      label: 'Create Journey',
+      variant: 'default',
+      href: '/crm/lifecycle/journey/new',
+    },
+  ],
+  '/crm/lifecycle/rules': [
+    { icon: 'plus', label: 'Create Rule', variant: 'default', href: '/crm/lifecycle/rules/new' },
+  ],
   // Reports Section
-  '/crm/reports': [{ icon: 'plus', label: 'Create Report', variant: 'default' }],
-  '/crm/reports/contacts': [{ icon: 'download', label: 'Export', variant: 'outline' }],
-  '/crm/reports/companies': [{ icon: 'download', label: 'Export', variant: 'outline' }],
-  '/crm/reports/activities': [{ icon: 'download', label: 'Export', variant: 'outline' }],
-  '/crm/reports/sources': [{ icon: 'download', label: 'Export', variant: 'outline' }],
+  '/crm/reports': [
+    { icon: 'plus', label: 'Create Report', variant: 'default', href: '/crm/reports/new' },
+  ],
+  '/crm/reports/contacts': [
+    { icon: 'download', label: 'Export', variant: 'outline', href: '/crm/export' },
+  ],
+  '/crm/reports/companies': [
+    { icon: 'download', label: 'Export', variant: 'outline', href: '/crm/export' },
+  ],
+  '/crm/reports/activities': [
+    { icon: 'download', label: 'Export', variant: 'outline', href: '/crm/export' },
+  ],
+  '/crm/reports/sources': [
+    { icon: 'download', label: 'Export', variant: 'outline', href: '/crm/export' },
+  ],
   // Tools Section
-  '/crm/import': [{ icon: 'plus', label: 'New Import', variant: 'default' }],
-  '/crm/export': [{ icon: 'plus', label: 'New Export', variant: 'default' }],
-  '/crm/contacts/duplicates': [{ icon: 'plus', label: 'Scan Duplicates', variant: 'default' }],
-  '/crm/enrich': [{ icon: 'plus', label: 'Start Enrichment', variant: 'default' }],
-  '/crm/bulk': [{ icon: 'plus', label: 'New Bulk Action', variant: 'default' }],
+  '/crm/import': [
+    { icon: 'plus', label: 'New Import', variant: 'default', href: '/crm/import/new' },
+  ],
+  '/crm/export': [
+    { icon: 'plus', label: 'New Export', variant: 'default', href: '/crm/export/new' },
+  ],
+  '/crm/contacts/duplicates': [
+    {
+      icon: 'plus',
+      label: 'Scan Duplicates',
+      variant: 'default',
+      href: '/crm/contacts/duplicates/scan',
+    },
+  ],
+  '/crm/enrich': [
+    { icon: 'plus', label: 'Start Enrichment', variant: 'default', href: '/crm/enrich/new' },
+  ],
+  '/crm/bulk': [
+    { icon: 'plus', label: 'New Bulk Action', variant: 'default', href: '/crm/bulk/new' },
+  ],
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -807,19 +920,24 @@ export function CRMHeader() {
           <div className="flex items-center gap-1.5">
             {actions.map((action, index) => {
               const ActionIcon = getActionIcon(action.icon);
+              const buttonClasses = cn(
+                'h-7 w-7 rounded-lg flex items-center justify-center transition-colors',
+                action.variant === 'outline'
+                  ? 'border border-gray-300 hover:bg-gray-50 text-gray-600'
+                  : 'bg-gray-900 hover:bg-gray-800 text-white'
+              );
               return (
                 <Tooltip key={index}>
                   <TooltipTrigger asChild>
-                    <button
-                      className={cn(
-                        'h-7 w-7 rounded-lg flex items-center justify-center transition-colors',
-                        action.variant === 'outline'
-                          ? 'border border-gray-300 hover:bg-gray-50 text-gray-600'
-                          : 'bg-gray-900 hover:bg-gray-800 text-white'
-                      )}
-                    >
-                      <ActionIcon className="h-3.5 w-3.5" />
-                    </button>
+                    {action.href ? (
+                      <Link href={action.href} className={buttonClasses} aria-label={action.label}>
+                        <ActionIcon className="h-3.5 w-3.5" />
+                      </Link>
+                    ) : (
+                      <button className={buttonClasses} aria-label={action.label}>
+                        <ActionIcon className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="text-xs">
                     {action.label}
@@ -832,6 +950,7 @@ export function CRMHeader() {
                 <button
                   onClick={() => setRefreshing(true)}
                   disabled={refreshing}
+                  aria-label="Refresh"
                   className="h-7 w-7 rounded-lg flex items-center justify-center hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
                 >
                   <RefreshCw className={cn('h-3.5 w-3.5', refreshing && 'animate-spin')} />

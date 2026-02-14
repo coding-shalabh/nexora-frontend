@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Ticket, Send, User, Tag, AlertCircle, Paperclip } from 'lucide-react';
+import { Ticket, Send, AlertCircle, Paperclip, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 export default function NewTicketPage() {
   const [subject, setSubject] = useState('');
@@ -25,17 +25,10 @@ export default function NewTicketPage() {
   const stats = [
     createStat('New Ticket', 1, Ticket, 'primary'),
     createStat('Priority', 'Medium', AlertCircle, 'amber'),
-    createStat('Status', 'Draft', Tag, 'gray'),
   ];
 
   return (
-    <HubLayout
-      hubId="service"
-      title="Create New Ticket"
-      description="Submit a new support ticket"
-      stats={stats}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="tickets" pageTitle="Create New Ticket" stats={stats} fixedMenu={null}>
       <div className="p-6 max-w-3xl">
         <Card>
           <CardHeader>
@@ -122,6 +115,6 @@ export default function NewTicketPage() {
           </CardContent>
         </Card>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

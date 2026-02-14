@@ -1,23 +1,29 @@
 'use client';
 
-import { Users } from 'lucide-react';
+import { UnifiedLayout } from '@/components/layout/unified';
+import { ComingSoonPage } from '@/components/common/coming-soon-page';
+import { Users, BarChart3, Calendar, AlertCircle, Clock, Target } from 'lucide-react';
+
+const features = [
+  { icon: Users, title: 'Team Capacity', description: 'View team member availability' },
+  { icon: BarChart3, title: 'Workload Charts', description: 'Visualize work distribution' },
+  { icon: Calendar, title: 'Resource Planning', description: 'Plan resource allocation by week' },
+  { icon: AlertCircle, title: 'Overload Alerts', description: 'Identify overworked team members' },
+  { icon: Clock, title: 'Hours Tracking', description: 'Track estimated vs actual hours' },
+  { icon: Target, title: 'Utilization', description: 'Monitor team utilization rates' },
+];
 
 export default function WorkloadPage() {
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Team Workload</h1>
-          <p className="text-muted-foreground">Monitor team capacity and resource allocation</p>
-        </div>
-      </div>
-      <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
-        <Users className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium mb-2">Workload Overview</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Team member workload and availability will be shown here
-        </p>
-      </div>
-    </div>
+    <UnifiedLayout hubId="projects" pageTitle="Team Workload">
+      <ComingSoonPage
+        title="Team Workload"
+        description="Monitor team capacity and resource allocation. Balance workloads, identify bottlenecks, and ensure optimal team utilization."
+        icon={Users}
+        features={features}
+        backHref="/projects"
+        backLabel="Go to Projects"
+      />
+    </UnifiedLayout>
   );
 }

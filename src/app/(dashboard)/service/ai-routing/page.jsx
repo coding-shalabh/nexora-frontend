@@ -1,6 +1,7 @@
 'use client';
 
 import { ComingSoonPage } from '@/components/common/coming-soon-page';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { Route, Users, Zap, Brain, BarChart3, Settings } from 'lucide-react';
 
 const features = [
@@ -38,13 +39,15 @@ const features = [
 
 export default function AutoRoutingPage() {
   return (
-    <ComingSoonPage
-      title="Auto Routing"
-      description="Automatically route tickets to the right agents using AI. Smart classification and skill-based assignment for faster resolution."
-      icon={Route}
-      features={features}
-      backHref="/service"
-      backLabel="Go to Service"
-    />
+    <UnifiedLayout hubId="service" pageTitle="Auto Routing" fixedMenu={null}>
+      <ComingSoonPage
+        title="Auto Routing"
+        description="Automatically route tickets to the right agents using AI. Smart classification and skill-based assignment for faster resolution."
+        icon={Route}
+        features={features}
+        backHref="/service"
+        backLabel="Go to Service"
+      />
+    </UnifiedLayout>
   );
 }

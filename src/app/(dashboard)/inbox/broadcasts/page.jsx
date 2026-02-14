@@ -32,7 +32,7 @@ import {
   Filter,
   FileText,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -1057,19 +1057,15 @@ export default function BroadcastsPage() {
 
   return (
     <>
-      <HubLayout
+      <UnifiedLayout
         hubId="inbox"
-        title="Broadcasts"
-        description="Create and manage message broadcasts to your contacts"
+        pageTitle="Broadcasts"
         stats={layoutStats}
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder="Search broadcasts..."
         actions={actionButtons}
-        showFixedMenu={false}
+        fixedMenu={null}
       >
         {mainContent}
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Delete Confirmation */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

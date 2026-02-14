@@ -2080,12 +2080,12 @@ export default function InboxPage() {
     },
   });
 
-  // Auto-select first conversation
+  // Auto-select first conversation (but not when email composer is open)
   useEffect(() => {
-    if (!selectedId && conversations.length > 0) {
+    if (!selectedId && conversations.length > 0 && !showEmailComposer) {
       setSelectedId(conversations[0].id);
     }
-  }, [conversations, selectedId]);
+  }, [conversations, selectedId, showEmailComposer]);
 
   // Mark as read when selecting conversation
   useEffect(() => {
@@ -2400,17 +2400,34 @@ export default function InboxPage() {
           </div>
 
           {/* Right side - Actions */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-7 w-7"
-            onClick={() => conversationsQuery.refetch()}
-            disabled={conversationsQuery.isFetching}
-          >
-            <RefreshCw
-              className={cn('h-3.5 w-3.5', conversationsQuery.isFetching && 'animate-spin')}
-            />
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* Compose Email Button - show for email channel */}
+            {channelFilter === 'email' && (
+              <Button
+                variant="default"
+                size="sm"
+                className="h-7 gap-1.5 text-xs"
+                onClick={() => {
+                  setSelectedId(null);
+                  setShowEmailComposer(true);
+                }}
+              >
+                <PenSquare className="h-3.5 w-3.5" />
+                Compose
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => conversationsQuery.refetch()}
+              disabled={conversationsQuery.isFetching}
+            >
+              <RefreshCw
+                className={cn('h-3.5 w-3.5', conversationsQuery.isFetching && 'animate-spin')}
+              />
+            </Button>
+          </div>
         </div>
       </div>
 

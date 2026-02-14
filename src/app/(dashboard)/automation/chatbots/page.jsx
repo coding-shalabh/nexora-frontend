@@ -24,7 +24,7 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -701,19 +701,9 @@ export default function ChatbotsPage() {
 
   return (
     <>
-      <HubLayout
-        hubId="automation"
-        title="Chatbots"
-        description="Create and manage automated chatbots for customer engagement"
-        stats={layoutStats}
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder="Search chatbots..."
-        actions={actionButtons}
-        showFixedMenu={false}
-      >
+      <UnifiedLayout hubId="automation" pageTitle="Chatbots" stats={layoutStats} fixedMenu={null}>
         {mainContent}
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Delete Confirmation */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

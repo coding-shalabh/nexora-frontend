@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const mockInventory = [
   { id: 1, sku: 'PRD-001', name: 'Premium License', stock: 999, reorder: 10, status: 'in-stock' },
@@ -57,19 +57,7 @@ export default function InventoryPage() {
   };
 
   return (
-    <HubLayout
-      hubId="commerce"
-      title="Inventory"
-      description="Manage your product inventory and stock levels"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Item
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="commerce" pageTitle="Inventory" stats={stats} fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="flex items-center gap-4">
           <div className="relative flex-1 max-w-md">
@@ -113,6 +101,6 @@ export default function InventoryPage() {
           </TableBody>
         </Table>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

@@ -1,33 +1,15 @@
 'use client';
 
-import { Video, Plus, Calendar, Clock, CheckCircle } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Video, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 export default function CRMMeetingsPage() {
-  const stats = [
-    createStat('Total Meetings', '0', Video, 'blue'),
-    createStat('Today', '0', Calendar, 'green'),
-    createStat('Upcoming', '0', Clock, 'purple'),
-    createStat('Completed', '0', CheckCircle, 'amber'),
-  ];
+  const router = useRouter();
 
   return (
-    <HubLayout
-      hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Meetings"
-      description="Schedule and manage meetings with contacts"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          Schedule Meeting
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="crm" pageTitle="Meetings" fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6">
         <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
           <Video className="h-12 w-12 text-muted-foreground mb-4" />
@@ -35,12 +17,12 @@ export default function CRMMeetingsPage() {
           <p className="text-sm text-muted-foreground mb-4">
             Schedule meetings to connect with contacts
           </p>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => router.push('/crm/meetings/new')}>
             <Plus className="h-4 w-4 mr-2" />
             Schedule Meeting
           </Button>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

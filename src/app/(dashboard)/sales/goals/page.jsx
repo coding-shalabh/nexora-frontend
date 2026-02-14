@@ -11,10 +11,10 @@ import {
   Clock,
   AlertTriangle,
 } from 'lucide-react';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
 
 const salesGoals = [
   {
@@ -57,7 +57,7 @@ const salesGoals = [
 
 export default function SalesGoalsPage() {
   const stats = [
-    createStat('Total Goals', salesGoals.length, Target, 'primary'),
+    createStat('Total Goals', salesGoals.length, Target, 'blue'),
     createStat(
       'On Track',
       salesGoals.filter((g) => g.status === 'on-track').length,
@@ -68,14 +68,18 @@ export default function SalesGoalsPage() {
       'At Risk',
       salesGoals.filter((g) => g.status === 'at-risk').length,
       AlertTriangle,
-      'amber'
+      'orange'
     ),
     createStat(
       'Achieved',
       salesGoals.filter((g) => g.status === 'achieved').length,
       CheckCircle,
-      'blue'
+      'purple'
     ),
+  ];
+
+  const actions = [
+    createAction('Add Goal', Plus, () => console.log('add goal'), { primary: true }),
   ];
 
   const getStatusBadge = (status) => {
@@ -107,13 +111,12 @@ export default function SalesGoalsPage() {
   };
 
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="sales"
-      title="Sales Goals"
-      description="Set and track sales targets and objectives"
-      showSidebar={false}
-      showTopBar={false}
-      showFixedMenu={false}
+      pageTitle="Sales Goals"
+      stats={stats}
+      actions={actions}
+      fixedMenu={null}
     >
       <div className="p-6 space-y-6">
         <div className="grid gap-4">
@@ -169,6 +172,6 @@ export default function SalesGoalsPage() {
           })}
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

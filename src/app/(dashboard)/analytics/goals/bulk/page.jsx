@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 export default function AnalyticsGoalsBulkPage() {
   const stats = [
@@ -22,13 +22,7 @@ export default function AnalyticsGoalsBulkPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="analytics"
-      title="Bulk Goals"
-      description="Import or export goals in bulk"
-      stats={stats}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="analytics" pageTitle="Bulk Goals" stats={stats} fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="grid md:grid-cols-2 gap-6">
           <Card>
@@ -102,6 +96,6 @@ export default function AnalyticsGoalsBulkPage() {
           </CardContent>
         </Card>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

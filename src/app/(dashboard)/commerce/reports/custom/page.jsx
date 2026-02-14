@@ -5,7 +5,7 @@ import { BarChart3, Plus, Calendar, Filter, Download, Settings } from 'lucide-re
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const mockCustomReports = [
   {
@@ -53,19 +53,7 @@ export default function CommerceReportsCustomPage() {
   };
 
   return (
-    <HubLayout
-      hubId="commerce"
-      title="Custom Reports"
-      description="Create and manage custom commerce reports"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Report
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="commerce" pageTitle="Custom Reports" stats={stats} fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="grid gap-4">
           {mockCustomReports.map((report) => (
@@ -112,6 +100,6 @@ export default function CommerceReportsCustomPage() {
           </CardContent>
         </Card>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

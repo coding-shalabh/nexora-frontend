@@ -1,35 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import {
-  Activity,
-  Upload,
-  Download,
-  CheckCircle,
-  AlertCircle,
-  FileSpreadsheet,
-} from 'lucide-react';
+import { Activity, Upload, Download, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 export default function ActivitiesBulkPage() {
-  const stats = [
-    createStat('Total Activities', 0, Activity, 'primary'),
-    createStat('Imported', 0, CheckCircle, 'green'),
-    createStat('Pending', 0, AlertCircle, 'amber'),
-  ];
-
   return (
-    <HubLayout
-      hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Bulk Activities"
-      description="Import or export activities in bulk"
-      stats={stats}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="crm" pageTitle="Bulk Activities" fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="grid md:grid-cols-2 gap-6">
           <Card>
@@ -71,6 +49,6 @@ export default function ActivitiesBulkPage() {
           </Card>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

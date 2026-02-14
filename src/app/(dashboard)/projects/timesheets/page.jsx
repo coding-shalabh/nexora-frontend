@@ -1,28 +1,33 @@
 'use client';
 
-import { Timer, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { UnifiedLayout } from '@/components/layout/unified';
+import { ComingSoonPage } from '@/components/common/coming-soon-page';
+import { Timer, Clock, Calendar, Users, FileText, DollarSign } from 'lucide-react';
+
+const features = [
+  { icon: Timer, title: 'Time Entries', description: 'View and review time entries from team' },
+  {
+    icon: Clock,
+    title: 'Approval Workflow',
+    description: 'Review and approve timesheet submissions',
+  },
+  { icon: Calendar, title: 'Weekly View', description: 'See timesheets organized by week' },
+  { icon: Users, title: 'Team Overview', description: 'View time entries across all team members' },
+  { icon: FileText, title: 'Export Reports', description: 'Export timesheet data for payroll' },
+  { icon: DollarSign, title: 'Billable Hours', description: 'Track billable vs non-billable time' },
+];
 
 export default function TimesheetsPage() {
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Timesheets</h1>
-          <p className="text-muted-foreground">Review and approve time entries</p>
-        </div>
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Entry
-        </Button>
-      </div>
-      <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
-        <Timer className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium mb-2">No timesheet entries</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Time entries from your team will appear here
-        </p>
-      </div>
-    </div>
+    <UnifiedLayout hubId="projects" pageTitle="Timesheets">
+      <ComingSoonPage
+        title="Timesheets"
+        description="Review and approve time entries from your team. Track billable hours, manage approvals, and export reports for payroll."
+        icon={Timer}
+        features={features}
+        backHref="/projects"
+        backLabel="Go to Projects"
+      />
+    </UnifiedLayout>
   );
 }

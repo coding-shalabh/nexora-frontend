@@ -1,23 +1,36 @@
 'use client';
 
-import { Settings } from 'lucide-react';
+import { Settings, Clock, Database, FileOutput, Shield, Calendar } from 'lucide-react';
+import { UnifiedLayout } from '@/components/layout/unified';
+import { ComingSoonPage } from '@/components/common/coming-soon-page';
+
+const features = [
+  {
+    icon: Clock,
+    title: 'Data Retention',
+    description: 'Configure how long to keep analytics data',
+  },
+  { icon: Calendar, title: 'Date Ranges', description: 'Set default date ranges for reports' },
+  {
+    icon: FileOutput,
+    title: 'Export Options',
+    description: 'Configure data export formats and schedules',
+  },
+  { icon: Database, title: 'Data Collection', description: 'Manage what data is collected' },
+  { icon: Shield, title: 'Privacy', description: 'Configure privacy and consent settings' },
+];
 
 export default function AnalyticsSettingsPage() {
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Analytics Settings</h1>
-          <p className="text-muted-foreground">Configure analytics and reporting preferences</p>
-        </div>
-      </div>
-      <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
-        <Settings className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium mb-2">Settings</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Configure data retention, default date ranges, and export options
-        </p>
-      </div>
-    </div>
+    <UnifiedLayout hubId="analytics" pageTitle="Analytics Settings">
+      <ComingSoonPage
+        title="Analytics Settings"
+        description="Configure data retention, default date ranges, export options, and privacy settings for your analytics."
+        icon={Settings}
+        features={features}
+        backHref="/analytics"
+        backLabel="Go to Analytics"
+      />
+    </UnifiedLayout>
   );
 }

@@ -33,7 +33,7 @@ import {
   Loader2,
   Activity,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -617,19 +617,15 @@ export default function ActivityPage() {
 
   return (
     <>
-      <HubLayout
+      <UnifiedLayout
         hubId="inbox"
-        title="Message Activity"
-        description="Track all messages sent and received across all channels"
+        pageTitle="Message Activity"
         stats={layoutStats}
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder="Search by content, recipient..."
         actions={actionButtons}
-        showFixedMenu={false}
+        fixedMenu={null}
       >
         {mainContent}
-      </HubLayout>
+      </UnifiedLayout>
 
       {/* Detail Dialog */}
       <Dialog open={detailOpen} onOpenChange={setDetailOpen}>

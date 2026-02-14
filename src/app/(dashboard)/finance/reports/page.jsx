@@ -1,6 +1,7 @@
 'use client';
 
 import { ComingSoonPage } from '@/components/common/coming-soon-page';
+import { UnifiedLayout } from '@/components/layout/unified';
 import { DollarSign, TrendingUp, PieChart, FileText, BarChart3, Calculator } from 'lucide-react';
 
 const features = [
@@ -38,13 +39,15 @@ const features = [
 
 export default function FinanceReportsPage() {
   return (
-    <ComingSoonPage
-      title="Financial Reports"
-      description="Financial reports are being consolidated into the central Analytics hub. Visit Analytics for comprehensive financial metrics, P&L, and budget analysis."
-      icon={BarChart3}
-      features={features}
-      backHref="/analytics"
-      backLabel="Go to Analytics"
-    />
+    <UnifiedLayout hubId="finance" pageTitle="Financial Reports" fixedMenu={null}>
+      <ComingSoonPage
+        title="Financial Reports"
+        description="Financial reports are being consolidated into the central Analytics hub. Visit Analytics for comprehensive financial metrics, P&L, and budget analysis."
+        icon={BarChart3}
+        features={features}
+        backHref="/analytics"
+        backLabel="Go to Analytics"
+      />
+    </UnifiedLayout>
   );
 }

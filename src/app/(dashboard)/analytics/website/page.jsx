@@ -38,6 +38,7 @@ import {
   Loader2,
   Activity,
 } from 'lucide-react';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 function useWebsiteAnalytics(endpoint, params = {}) {
   return useQuery({
@@ -330,17 +331,23 @@ export default function WebsiteAnalyticsPage() {
 
   const isLoading = overviewLoading || visitorsLoading;
 
+  const layoutStats = [
+    createStat('Unique Visitors', formatNumber(overview.uniqueVisitors || 0), Users, 'blue'),
+    createStat('Page Views', formatNumber(overview.pageViews || 0), Eye, 'green'),
+    createStat('Avg. Duration', formatDuration(overview.avgDuration || 0), Clock, 'purple'),
+    createStat('Live Now', liveCount.toString(), Radio, 'green'),
+  ];
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Website Analytics</h1>
-          <p className="text-muted-foreground">
-            Track visitor behavior and engagement on your websites
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
+    <UnifiedLayout
+      hubId="analytics"
+      pageTitle="Website Analytics"
+      stats={layoutStats}
+      fixedMenu={null}
+    >
+      <div className="h-full overflow-y-auto p-6 space-y-6">
+        {/* Period selector and actions */}
+        <div className="flex items-center justify-end gap-3">
           <Select value={period} onValueChange={setPeriod}>
             <SelectTrigger className="w-36">
               <Calendar className="h-4 w-4 mr-2" />
@@ -362,164 +369,164 @@ export default function WebsiteAnalyticsPage() {
             </Button>
           </Link>
         </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <>
+            {/* Live Visitors */}
+            <LiveVisitorsWidget count={liveCount} />
+
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <StatCard
+                title="Unique Visitors"
+                value={overview.uniqueVisitors || 0}
+                icon={Users}
+                color="blue"
+                trend={overview.visitorsTrend}
+                formatter={formatNumber}
+                href="/analytics/website/visitors"
+              />
+              <StatCard
+                title="Total Sessions"
+                value={overview.totalSessions || 0}
+                icon={Activity}
+                color="purple"
+                trend={overview.sessionsTrend}
+                formatter={formatNumber}
+              />
+              <StatCard
+                title="Page Views"
+                value={overview.pageViews || 0}
+                icon={Eye}
+                color="green"
+                trend={overview.pageViewsTrend}
+                formatter={formatNumber}
+                href="/analytics/website/pages"
+              />
+              <StatCard
+                title="Avg. Duration"
+                value={overview.avgDuration || 0}
+                icon={Clock}
+                color="orange"
+                formatter={formatDuration}
+              />
+              <StatCard
+                title="Bounce Rate"
+                value={overview.bounceRate || 0}
+                icon={MousePointerClick}
+                color="red"
+                formatter={formatPercent}
+              />
+            </div>
+
+            {/* Charts Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Visitors Over Time */}
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Visitors Over Time</h3>
+                  <Link
+                    href="/analytics/website/visitors"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    View all
+                  </Link>
+                </div>
+                <VisitorsChart data={visitors} />
+              </Card>
+
+              {/* Traffic Sources */}
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Traffic Sources</h3>
+                  <Link
+                    href="/analytics/website/sources"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    View all
+                  </Link>
+                </div>
+                <TrafficSourcesChart data={sources} />
+              </Card>
+            </div>
+
+            {/* Second Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Top Pages */}
+              <Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold">Top Pages</h3>
+                  <Link
+                    href="/analytics/website/pages"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    View all
+                  </Link>
+                </div>
+                <TopPagesTable data={pages} />
+              </Card>
+
+              {/* Device Breakdown */}
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Devices</h3>
+                <DeviceBreakdown data={devices} />
+              </Card>
+            </div>
+
+            {/* Quick Links */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Link href="/analytics/website/visitors">
+                <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <Users className="h-5 w-5 text-blue-500" />
+                    <div>
+                      <p className="font-medium">Visitor Sessions</p>
+                      <p className="text-xs text-muted-foreground">View all sessions</p>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+              <Link href="/analytics/website/live">
+                <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <Radio className="h-5 w-5 text-green-500" />
+                    <div>
+                      <p className="font-medium">Live Visitors</p>
+                      <p className="text-xs text-muted-foreground">Real-time view</p>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+              <Link href="/analytics/website/forms">
+                <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-purple-500" />
+                    <div>
+                      <p className="font-medium">Form Analytics</p>
+                      <p className="text-xs text-muted-foreground">Submissions & conversions</p>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+              <Link href="/analytics/website/sources">
+                <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
+                  <div className="flex items-center gap-3">
+                    <Globe className="h-5 w-5 text-orange-500" />
+                    <div>
+                      <p className="font-medium">Traffic Sources</p>
+                      <p className="text-xs text-muted-foreground">Where visitors come from</p>
+                    </div>
+                  </div>
+                </Card>
+              </Link>
+            </div>
+          </>
+        )}
       </div>
-
-      {isLoading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : (
-        <>
-          {/* Live Visitors */}
-          <LiveVisitorsWidget count={liveCount} />
-
-          {/* KPI Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <StatCard
-              title="Unique Visitors"
-              value={overview.uniqueVisitors || 0}
-              icon={Users}
-              color="blue"
-              trend={overview.visitorsTrend}
-              formatter={formatNumber}
-              href="/analytics/website/visitors"
-            />
-            <StatCard
-              title="Total Sessions"
-              value={overview.totalSessions || 0}
-              icon={Activity}
-              color="purple"
-              trend={overview.sessionsTrend}
-              formatter={formatNumber}
-            />
-            <StatCard
-              title="Page Views"
-              value={overview.pageViews || 0}
-              icon={Eye}
-              color="green"
-              trend={overview.pageViewsTrend}
-              formatter={formatNumber}
-              href="/analytics/website/pages"
-            />
-            <StatCard
-              title="Avg. Duration"
-              value={overview.avgDuration || 0}
-              icon={Clock}
-              color="orange"
-              formatter={formatDuration}
-            />
-            <StatCard
-              title="Bounce Rate"
-              value={overview.bounceRate || 0}
-              icon={MousePointerClick}
-              color="red"
-              formatter={formatPercent}
-            />
-          </div>
-
-          {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Visitors Over Time */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Visitors Over Time</h3>
-                <Link
-                  href="/analytics/website/visitors"
-                  className="text-sm text-primary hover:underline"
-                >
-                  View all
-                </Link>
-              </div>
-              <VisitorsChart data={visitors} />
-            </Card>
-
-            {/* Traffic Sources */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Traffic Sources</h3>
-                <Link
-                  href="/analytics/website/sources"
-                  className="text-sm text-primary hover:underline"
-                >
-                  View all
-                </Link>
-              </div>
-              <TrafficSourcesChart data={sources} />
-            </Card>
-          </div>
-
-          {/* Second Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Top Pages */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Top Pages</h3>
-                <Link
-                  href="/analytics/website/pages"
-                  className="text-sm text-primary hover:underline"
-                >
-                  View all
-                </Link>
-              </div>
-              <TopPagesTable data={pages} />
-            </Card>
-
-            {/* Device Breakdown */}
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Devices</h3>
-              <DeviceBreakdown data={devices} />
-            </Card>
-          </div>
-
-          {/* Quick Links */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link href="/analytics/website/visitors">
-              <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <Users className="h-5 w-5 text-blue-500" />
-                  <div>
-                    <p className="font-medium">Visitor Sessions</p>
-                    <p className="text-xs text-muted-foreground">View all sessions</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-            <Link href="/analytics/website/live">
-              <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <Radio className="h-5 w-5 text-green-500" />
-                  <div>
-                    <p className="font-medium">Live Visitors</p>
-                    <p className="text-xs text-muted-foreground">Real-time view</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-            <Link href="/analytics/website/forms">
-              <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <FileText className="h-5 w-5 text-purple-500" />
-                  <div>
-                    <p className="font-medium">Form Analytics</p>
-                    <p className="text-xs text-muted-foreground">Submissions & conversions</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-            <Link href="/analytics/website/sources">
-              <Card className="p-4 hover:bg-muted/50 transition-colors cursor-pointer">
-                <div className="flex items-center gap-3">
-                  <Globe className="h-5 w-5 text-orange-500" />
-                  <div>
-                    <p className="font-medium">Traffic Sources</p>
-                    <p className="text-xs text-muted-foreground">Where visitors come from</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-          </div>
-        </>
-      )}
-    </div>
+    </UnifiedLayout>
   );
 }

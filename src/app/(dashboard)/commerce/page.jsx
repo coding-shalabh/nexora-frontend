@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 // Quick actions for commerce
 const quickActions = [
@@ -120,18 +120,11 @@ export default function CommerceHubPage() {
   ];
 
   return (
-    <HubLayout
+    <UnifiedLayout
       hubId="commerce"
-      title="Commerce Overview"
-      description="Manage orders, invoices, subscriptions, and payments"
+      pageTitle="Commerce Overview"
       stats={statsForLayout}
-      showFixedMenu={false}
-      actions={
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Invoice
-        </Button>
-      }
+      fixedMenu={null}
     >
       <div className="h-full overflow-y-auto p-6 space-y-6">
         {/* Quick Actions */}
@@ -273,6 +266,6 @@ export default function CommerceHubPage() {
           </CardContent>
         </Card>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

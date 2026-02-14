@@ -53,7 +53,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 // Mock invoices data
@@ -765,34 +765,33 @@ export default function InvoicesPage() {
 
   return (
     <>
-      <HubLayout
-        hubId="commerce"
-        title="Invoices"
-        description="Create and manage customer invoices"
-        stats={layoutStats}
-        showFixedMenu={true}
-        fixedMenuFilters={
-          <FixedMenuPanel
-            config={fixedMenuConfig}
-            activeFilter={selectedStatus.toLowerCase().replace(' ', '')}
-            onFilterChange={(filter) => {
-              if (filter === 'all') setSelectedStatus('All Status');
-              else if (filter === 'draft') setSelectedStatus('Draft');
-              else if (filter === 'sent') setSelectedStatus('Sent');
-              else if (filter === 'paid') setSelectedStatus('Paid');
-              else if (filter === 'overdue') setSelectedStatus('Overdue');
-            }}
-            onAction={handleMenuAction}
-            selectedCount={selectedIds.size}
-            bulkActions={bulkActions}
-            onBulkAction={handleBulkAction}
-            className="p-4"
-          />
-        }
-        fixedMenuList={fixedMenuListContent}
-      >
-        {contentArea}
-      </HubLayout>
+      <UnifiedLayout hubId="commerce" pageTitle="Invoices" stats={layoutStats} fixedMenu={null}>
+        <div className="flex h-full">
+          {/* Fixed Menu Panel */}
+          <div className="w-80 border-r border-gray-200 flex flex-col">
+            <FixedMenuPanel
+              config={fixedMenuConfig}
+              activeFilter={selectedStatus.toLowerCase().replace(' ', '')}
+              onFilterChange={(filter) => {
+                if (filter === 'all') setSelectedStatus('All Status');
+                else if (filter === 'draft') setSelectedStatus('Draft');
+                else if (filter === 'sent') setSelectedStatus('Sent');
+                else if (filter === 'paid') setSelectedStatus('Paid');
+                else if (filter === 'overdue') setSelectedStatus('Overdue');
+              }}
+              onAction={handleMenuAction}
+              selectedCount={selectedIds.size}
+              bulkActions={bulkActions}
+              onBulkAction={handleBulkAction}
+              className="p-4"
+            />
+            <div className="flex-1 overflow-auto">{fixedMenuListContent}</div>
+          </div>
+
+          {/* Content Area */}
+          <div className="flex-1 overflow-auto">{contentArea}</div>
+        </div>
+      </UnifiedLayout>
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

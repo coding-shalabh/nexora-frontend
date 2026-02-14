@@ -1,33 +1,12 @@
 'use client';
 
-import { Activity, Download, Phone, Video, Mail } from 'lucide-react';
+import { Activity, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout } from '@/components/layout/unified';
 
 export default function ActivityReportsPage() {
-  const stats = [
-    createStat('Activities', '0', Activity, 'blue'),
-    createStat('Calls', '0', Phone, 'green'),
-    createStat('Meetings', '0', Video, 'purple'),
-    createStat('Emails', '0', Mail, 'amber'),
-  ];
-
   return (
-    <HubLayout
-      hubId="crm"
-      showTopBar={false}
-      showSidebar={false}
-      title="Activity Reports"
-      description="Analyze team activities and engagement"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button variant="outline">
-          <Download className="h-4 w-4 mr-2" />
-          Export
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="crm" pageTitle="Activity Reports" fixedMenu={null}>
       <div className="h-full overflow-y-auto p-6">
         <div className="flex flex-col items-center justify-center h-[400px] border-2 border-dashed rounded-lg">
           <Activity className="h-12 w-12 text-muted-foreground mb-4" />
@@ -37,6 +16,6 @@ export default function ActivityReportsPage() {
           </p>
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

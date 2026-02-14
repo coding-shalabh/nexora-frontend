@@ -17,7 +17,7 @@ import {
   BarChart3,
   Calendar,
 } from 'lucide-react';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -387,20 +387,8 @@ export default function LandingPagesPage() {
   );
 
   return (
-    <HubLayout
-      hubId="marketing"
-      showTopBar={false}
-      showSidebar={false}
-      title="Landing Pages"
-      description="Create and manage high-converting landing pages"
-      stats={layoutStats}
-      searchValue={searchQuery}
-      onSearchChange={setSearchQuery}
-      searchPlaceholder="Search landing pages..."
-      actions={actionButtons}
-      showFixedMenu={false}
-    >
+    <UnifiedLayout hubId="marketing" pageTitle="Landing Pages" stats={layoutStats} fixedMenu={null}>
       {mainContent}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

@@ -5,7 +5,7 @@ import { Clock, Plus, Calendar, Mail, Pause, Play, Trash2, Settings, FileText } 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 
 const mockScheduledReports = [
   {
@@ -61,19 +61,7 @@ export default function AnalyticsReportsScheduledPage() {
   ];
 
   return (
-    <HubLayout
-      hubId="analytics"
-      title="Scheduled Reports"
-      description="Manage automated report delivery"
-      stats={stats}
-      showFixedMenu={false}
-      actions={
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Schedule Report
-        </Button>
-      }
-    >
+    <UnifiedLayout hubId="analytics" pageTitle="Scheduled Reports" stats={stats} fixedMenu={null}>
       <div className="p-6 space-y-6">
         <div className="grid gap-4">
           {mockScheduledReports.map((report) => (
@@ -136,6 +124,6 @@ export default function AnalyticsReportsScheduledPage() {
           ))}
         </div>
       </div>
-    </HubLayout>
+    </UnifiedLayout>
   );
 }

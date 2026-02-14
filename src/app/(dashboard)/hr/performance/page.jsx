@@ -23,7 +23,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { HubLayout, createStat } from '@/components/layout/hub-layout';
+import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 const employees = [
@@ -437,27 +437,8 @@ export default function PerformancePage() {
   );
 
   return (
-    <HubLayout
-      hubId="hr"
-      showTopBar={false}
-      showSidebar={false}
-      title="Performance"
-      description="Track employee performance and goals"
-      stats={layoutStats}
-      actions={topBarActions}
-      showFixedMenu={true}
-      fixedMenuFilters={
-        <FixedMenuPanel
-          config={fixedMenuConfig}
-          activeFilter={scoreFilter}
-          onFilterChange={setScoreFilter}
-          onAction={handleAction}
-          className="p-4"
-        />
-      }
-      fixedMenuList={fixedMenuListContent}
-    >
+    <UnifiedLayout hubId="hr" pageTitle="Performance" stats={layoutStats} fixedMenu={null}>
       {contentArea}
-    </HubLayout>
+    </UnifiedLayout>
   );
 }
