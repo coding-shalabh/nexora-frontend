@@ -36,6 +36,12 @@ import { cn } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/auth-context';
 import { UnifiedLayout } from '@/components/layout/unified';
+import {
+  INDUSTRY_PROFILES,
+  getIndustriesByCategory,
+  DEFAULT_TERMINOLOGY,
+} from '@/config/industry-terminology';
+import { useTerminology } from '@/contexts/terminology-context';
 
 // Animation variants for inner content
 const itemVariants = {
@@ -110,6 +116,7 @@ const tabs = [
   { id: 'general', label: 'General', icon: Building2 },
   { id: 'contact', label: 'Contact Info', icon: Phone },
   { id: 'branding', label: 'Branding', icon: Palette },
+  { id: 'business', label: 'Business Profile', icon: Link2 },
 ];
 
 export default function OrganizationPage() {
@@ -123,6 +130,10 @@ export default function OrganizationPage() {
   const [isUploadingFavicon, setIsUploadingFavicon] = useState(false);
   const [isSavingBrandColor, setIsSavingBrandColor] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedIndustryId, setSelectedIndustryId] = useState(null);
+  const [terminologyOverrides, setTerminologyOverrides] = useState({});
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const { updateTerminology } = useTerminology();
   const logoInputRef = useRef(null);
   const faviconInputRef = useRef(null);
   const colorInputRef = useRef(null);
@@ -146,6 +157,14 @@ export default function OrganizationPage() {
         const tenant = tenantResponse.data;
         const orgSettings = orgSettingsResponse.data?.data || {};
         const company = companyResponse.data?.[0] || {}; // Get first company (main company)
+
+        // Load business profile from tenant settings
+        if (tenant?.settings?.industryId) {
+          setSelectedIndustryId(tenant.settings.industryId);
+        }
+        if (tenant?.settings?.terminology) {
+          setTerminologyOverrides(tenant.settings.terminology);
+        }
 
         // Store company ID for updates
         if (company.id) {
@@ -534,6 +553,59 @@ export default function OrganizationPage() {
       });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Save Business Profile (industry + terminology overrides)
+  const handleSaveBusinessProfile = async () => {
+    setIsSavingProfile(true);
+    try {
+      // Only save non-default overrides
+      const cleanOverrides = {};
+      const industryDefaults = selectedIndustryId
+        ? INDUSTRY_PROFILES[selectedIndustryId]?.terminology || {}
+        : {};
+      for (const [key, value] of Object.entries(terminologyOverrides)) {
+        const industryDefault = industryDefaults[key] || DEFAULT_TERMINOLOGY[key];
+        if (value && value !== industryDefault) {
+          cleanOverrides[key] = value;
+        }
+      }
+
+      await api.patch('/settings/organization', {
+        settings: {
+          industryId: selectedIndustryId,
+          terminology: cleanOverrides,
+        },
+      });
+
+      // Update the in-memory terminology context so changes appear immediately
+      updateTerminology(selectedIndustryId, cleanOverrides);
+
+      toast({
+        title: 'Business profile saved',
+        description: 'Menu labels will update throughout Nexora to match your industry.',
+      });
+    } catch (err) {
+      toast({
+        title: 'Failed to save profile',
+        description: err.response?.data?.message || 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  // When user picks an industry, pre-fill terminology with industry defaults
+  const handleIndustryChange = (industryId) => {
+    setSelectedIndustryId(industryId);
+    const profile = INDUSTRY_PROFILES[industryId];
+    if (profile) {
+      // Start with industry defaults, let user then tweak
+      setTerminologyOverrides(profile.terminology || {});
+    } else {
+      setTerminologyOverrides({});
     }
   };
 
@@ -1243,6 +1315,204 @@ export default function OrganizationPage() {
               </Badge>
             </div>
           </div>
+        </motion.div>
+      )}
+
+      {/* ═══ Business Profile Tab ═══════════════════════════════════════════ */}
+      {activeTab === 'business' && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          {/* Industry Selector */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm space-y-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="h-10 w-10 rounded-xl bg-violet-50 flex items-center justify-center">
+                <Building2 className="h-5 w-5 text-violet-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-gray-900">Business Type</h3>
+                <p className="text-sm text-gray-500">
+                  Tell Nexora what kind of business you run so it can suggest familiar terminology
+                </p>
+              </div>
+            </div>
+
+            {/* Industry Grid */}
+            <div className="space-y-4">
+              {getIndustriesByCategory().map(({ category, industries }) =>
+                industries.length === 0 ? null : (
+                  <div key={category}>
+                    <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+                      {category}
+                    </p>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                      {industries.map((profile) => (
+                        <button
+                          key={profile.id}
+                          onClick={() => handleIndustryChange(profile.id)}
+                          className={cn(
+                            'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-left transition-all border',
+                            selectedIndustryId === profile.id
+                              ? 'bg-violet-50 border-violet-300 text-violet-800 font-medium'
+                              : 'bg-gray-50 border-transparent text-gray-700 hover:bg-gray-100'
+                          )}
+                        >
+                          <span className="text-base">{profile.emoji}</span>
+                          <span className="truncate">{profile.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )
+              )}
+            </div>
+
+            {/* Recommended hubs banner */}
+            {selectedIndustryId &&
+              INDUSTRY_PROFILES[selectedIndustryId]?.recommendedHubs?.length > 0 && (
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-blue-50 border border-blue-100">
+                  <div className="h-5 w-5 rounded-full bg-blue-600 flex items-center justify-center mt-0.5 flex-shrink-0">
+                    <span className="text-white text-xs font-bold">i</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-blue-900">
+                      Recommended hubs for your business
+                    </p>
+                    <p className="text-sm text-blue-700 mt-0.5">
+                      {INDUSTRY_PROFILES[selectedIndustryId].recommendedHubs
+                        .map((h) => h.charAt(0).toUpperCase() + h.slice(1))
+                        .join(' · ')}
+                    </p>
+                    <p className="text-xs text-blue-500 mt-1">
+                      All hubs remain available — this is just a recommendation based on your
+                      industry.
+                    </p>
+                  </div>
+                </div>
+              )}
+          </div>
+
+          {/* Terminology Customizer */}
+          {selectedIndustryId && (
+            <div className="bg-white rounded-2xl p-6 shadow-sm space-y-6">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="h-10 w-10 rounded-xl bg-amber-50 flex items-center justify-center">
+                  <Palette className="h-5 w-5 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Menu Terminology</h3>
+                  <p className="text-sm text-gray-500">
+                    Customise how Nexora labels your records. Pre-filled with{' '}
+                    <strong>{INDUSTRY_PROFILES[selectedIndustryId]?.label}</strong> defaults —
+                    change anything you like.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                {[
+                  { key: 'contacts', label: 'Contacts (plural)' },
+                  { key: 'contact', label: 'Contact (singular)' },
+                  { key: 'companies', label: 'Companies (plural)' },
+                  { key: 'company', label: 'Company (singular)' },
+                  { key: 'deals', label: 'Deals (plural)' },
+                  { key: 'deal', label: 'Deal (singular)' },
+                  { key: 'leads', label: 'Leads (plural)' },
+                  { key: 'lead', label: 'Lead (singular)' },
+                  { key: 'pipeline', label: 'Pipeline name' },
+                  { key: 'tickets', label: 'Tickets (plural)' },
+                  { key: 'ticket', label: 'Ticket (singular)' },
+                  { key: 'customers', label: 'Customers (plural)' },
+                ].map(({ key, label }) => {
+                  const industryDefault =
+                    INDUSTRY_PROFILES[selectedIndustryId]?.terminology?.[key] ||
+                    DEFAULT_TERMINOLOGY[key] ||
+                    '';
+                  const currentValue = terminologyOverrides[key] ?? industryDefault;
+                  return (
+                    <div key={key} className="space-y-1.5">
+                      <Label className="text-gray-600 text-xs font-medium uppercase tracking-wide">
+                        {label}
+                      </Label>
+                      <div className="relative">
+                        <input
+                          value={currentValue}
+                          onChange={(e) =>
+                            setTerminologyOverrides((prev) => ({
+                              ...prev,
+                              [key]: e.target.value,
+                            }))
+                          }
+                          placeholder={DEFAULT_TERMINOLOGY[key]}
+                          className="w-full h-10 px-3 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                        />
+                        {currentValue !== DEFAULT_TERMINOLOGY[key] &&
+                          currentValue !== industryDefault && (
+                            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-violet-600 font-medium">
+                              custom
+                            </span>
+                          )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Preview */}
+              <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  Preview
+                </p>
+                <p className="text-sm text-gray-700">
+                  Your CRM sidebar will show &ldquo;
+                  <strong>
+                    {terminologyOverrides.contacts ||
+                      INDUSTRY_PROFILES[selectedIndustryId]?.terminology?.contacts ||
+                      'Contacts'}
+                  </strong>
+                  &rdquo; instead of &ldquo;Contacts&rdquo;, &ldquo;
+                  <strong>
+                    {terminologyOverrides.deals ||
+                      INDUSTRY_PROFILES[selectedIndustryId]?.terminology?.deals ||
+                      'Deals'}
+                  </strong>
+                  &rdquo; instead of &ldquo;Deals&rdquo;, and &ldquo;
+                  <strong>
+                    {terminologyOverrides.pipeline ||
+                      INDUSTRY_PROFILES[selectedIndustryId]?.terminology?.pipeline ||
+                      'Pipeline'}
+                  </strong>
+                  &rdquo; instead of &ldquo;Pipeline&rdquo;.
+                </p>
+              </div>
+
+              <div className="flex justify-end pt-2 border-t border-gray-100">
+                <Button
+                  onClick={handleSaveBusinessProfile}
+                  disabled={isSavingProfile}
+                  className="rounded-xl bg-violet-600 hover:bg-violet-700"
+                >
+                  {isSavingProfile ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Save Business Profile'
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {!selectedIndustryId && (
+            <div className="flex flex-col items-center justify-center py-16 text-center text-gray-400">
+              <Building2 className="h-12 w-12 mb-4 opacity-30" />
+              <p className="text-sm">Select a business type above to customise your terminology</p>
+            </div>
+          )}
         </motion.div>
       )}
     </UnifiedLayout>

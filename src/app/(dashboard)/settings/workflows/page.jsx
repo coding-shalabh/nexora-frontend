@@ -31,7 +31,24 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Accordion,
   AccordionContent,
@@ -110,10 +127,14 @@ const workflowsData = [
   },
 ];
 
+const emptyWorkflow = { name: '', description: '', trigger: '', actions: '' };
+
 export default function WorkflowsPage() {
   const [workflows, setWorkflows] = useState(workflowsData);
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [newWorkflow, setNewWorkflow] = useState(emptyWorkflow);
 
   const toggleWorkflow = (id) => {
     setWorkflows(workflows.map((wf) => (wf.id === id ? { ...wf, isActive: !wf.isActive } : wf)));
@@ -133,6 +154,26 @@ export default function WorkflowsPage() {
 
   const activeCount = workflows.filter((w) => w.isActive).length;
   const totalRuns = workflows.reduce((acc, w) => acc + w.runsCount, 0);
+
+  const handleCreateWorkflow = () => {
+    if (!newWorkflow.name.trim() || !newWorkflow.trigger) return;
+    const created = {
+      id: `wf_${Date.now()}`,
+      name: newWorkflow.name.trim(),
+      description: newWorkflow.description.trim() || 'No description',
+      trigger: newWorkflow.trigger,
+      triggerIcon: Zap,
+      actions: newWorkflow.actions
+        ? newWorkflow.actions.split(',').map((a) => a.trim())
+        : ['Send Email'],
+      isActive: false,
+      runsCount: 0,
+      lastRun: 'Never',
+    };
+    setWorkflows([...workflows, created]);
+    setShowCreateModal(false);
+    setNewWorkflow(emptyWorkflow);
+  };
 
   return (
     <UnifiedLayout hubId="settings" pageTitle="Workflows" fixedMenu={null}>
@@ -219,7 +260,7 @@ export default function WorkflowsPage() {
                   Paused ({workflows.length - activeCount})
                 </TabsTrigger>
               </TabsList>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 relative z-10">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
@@ -229,7 +270,7 @@ export default function WorkflowsPage() {
                     className="pl-10 w-[250px]"
                   />
                 </div>
-                <Button>
+                <Button onClick={() => setShowCreateModal(true)}>
                   <Plus className="mr-2 h-4 w-4" />
                   Create Workflow
                 </Button>
@@ -352,6 +393,77 @@ export default function WorkflowsPage() {
           </Accordion>
         </motion.div>
       </motion.div>
+
+      {/* Create Workflow Modal */}
+      <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Workflow</DialogTitle>
+            <DialogDescription>
+              Define a trigger and actions to automate your business processes.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="wf-name">Workflow Name *</Label>
+              <Input
+                id="wf-name"
+                placeholder="e.g., Welcome New Contacts"
+                value={newWorkflow.name}
+                onChange={(e) => setNewWorkflow({ ...newWorkflow, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="wf-description">Description</Label>
+              <Input
+                id="wf-description"
+                placeholder="What does this workflow do?"
+                value={newWorkflow.description}
+                onChange={(e) => setNewWorkflow({ ...newWorkflow, description: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="wf-trigger">Trigger *</Label>
+              <Select
+                value={newWorkflow.trigger}
+                onValueChange={(v) => setNewWorkflow({ ...newWorkflow, trigger: v })}
+              >
+                <SelectTrigger id="wf-trigger">
+                  <SelectValue placeholder="Select a trigger" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Contact Created">Contact Created</SelectItem>
+                  <SelectItem value="Deal Updated">Deal Updated</SelectItem>
+                  <SelectItem value="Ticket Created">Ticket Created</SelectItem>
+                  <SelectItem value="Lead Score Changed">Lead Score Changed</SelectItem>
+                  <SelectItem value="Time-based">Time-based</SelectItem>
+                  <SelectItem value="Form Submitted">Form Submitted</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="wf-actions">Actions (comma-separated)</Label>
+              <Input
+                id="wf-actions"
+                placeholder="e.g., Send Email, Create Task"
+                value={newWorkflow.actions}
+                onChange={(e) => setNewWorkflow({ ...newWorkflow, actions: e.target.value })}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCreateModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateWorkflow}
+              disabled={!newWorkflow.name.trim() || !newWorkflow.trigger}
+            >
+              Create Workflow
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </UnifiedLayout>
   );
 }

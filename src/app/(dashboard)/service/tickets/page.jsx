@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   MoreHorizontal,
@@ -64,6 +65,7 @@ function formatTimeAgo(dateStr) {
 }
 
 export default function ServiceTicketsPage() {
+  const router = useRouter();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -102,7 +104,9 @@ export default function ServiceTicketsPage() {
 
   // Actions for UnifiedLayout status bar
   const layoutActions = [
-    createAction('Create Ticket', Plus, null, { primary: true, href: '/service/tickets/new' }),
+    createAction('Create Ticket', Plus, () => router.push('/service/tickets/new'), {
+      primary: true,
+    }),
   ];
 
   const handleResolve = async (ticket) => {
@@ -154,8 +158,8 @@ export default function ServiceTicketsPage() {
             const StatusIcon = status.icon;
             const PriorityIcon = priority.icon;
             const isSLABreached =
-              ticket.resolutionDeadline &&
-              new Date(ticket.resolutionDeadline) < new Date() &&
+              ticket.resolutionDue &&
+              new Date(ticket.resolutionDue) < new Date() &&
               ticket.status !== 'RESOLVED' &&
               ticket.status !== 'CLOSED';
 

@@ -214,7 +214,7 @@ export default function ActivitiesPage() {
   const deleteActivity = useDeleteActivity();
 
   const activities = data?.data || [];
-  const meta = data?.meta || { total: 0, page: 1, totalPages: 1 };
+  const meta = data?.data?.meta || { total: 0, page: 1, totalPages: 1 };
 
   // Calculate stats for UnifiedLayout status bar
   const layoutStats = useMemo(() => {

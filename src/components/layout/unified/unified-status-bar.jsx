@@ -28,10 +28,10 @@ export function UnifiedStatusBar({ hubName, pageTitle, stats = [], actions = [] 
         <div className="flex items-center gap-4">
           {/* ─── BREADCRUMB: "Hub Name / Page Title" ─── */}
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-500">{hubName}</span>
+            <span className="text-sm text-gray-500 dark:text-gray-400">{hubName}</span>
             {pageTitle && (
               <>
-                <span className="text-sm text-gray-400">/</span>
+                <span className="text-sm text-gray-400 dark:text-gray-500">/</span>
                 <h1 className="text-sm font-semibold text-gray-900 dark:text-white">{pageTitle}</h1>
               </>
             )}

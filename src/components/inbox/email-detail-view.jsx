@@ -42,6 +42,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useEmail, useDeleteEmail } from '@/hooks/use-emails';
+import { sanitizeHtml } from '@/lib/sanitize';
 import { formatDistanceToNow, format } from 'date-fns';
 import { useState } from 'react';
 
@@ -96,7 +97,7 @@ function TrackingEvent({ event }) {
 }
 
 // Main detail view
-export function EmailDetailView({ emailId, onClose, onReply, onForward }) {
+export function EmailDetailView({ emailId, onClose, onReply, onForward, onStar, onArchive }) {
   const [showTracking, setShowTracking] = useState(true);
   const { data, isLoading } = useEmail(emailId);
   const deleteEmail = useDeleteEmail();
@@ -163,7 +164,12 @@ export function EmailDetailView({ emailId, onClose, onReply, onForward }) {
           <div className="flex items-center gap-1">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => onStar?.(email)}
+                >
                   <Star className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -171,7 +177,12 @@ export function EmailDetailView({ emailId, onClose, onReply, onForward }) {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => onArchive?.(email)}
+                >
                   <Archive className="h-4 w-4" />
                 </Button>
               </TooltipTrigger>
@@ -243,7 +254,7 @@ export function EmailDetailView({ emailId, onClose, onReply, onForward }) {
             {email.bodyHtml ? (
               <div
                 className="prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: email.bodyHtml }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(email.bodyHtml) }}
               />
             ) : email.bodyText ? (
               <pre className="text-sm whitespace-pre-wrap font-sans">{email.bodyText}</pre>
@@ -300,7 +311,7 @@ export function EmailDetailView({ emailId, onClose, onReply, onForward }) {
             <Reply className="h-4 w-4 mr-1" />
             Reply
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => onReply?.(email)}>
             <ReplyAll className="h-4 w-4 mr-1" />
             Reply All
           </Button>

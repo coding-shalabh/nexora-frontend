@@ -738,7 +738,7 @@ export default function LeadsPage() {
   const qualifyLead = useQualifyLead();
 
   const leads = data?.data || [];
-  const meta = data?.meta || { total: 0, page: 1, totalPages: 1 };
+  const meta = data?.data?.meta || { total: 0, page: 1, totalPages: 1 };
 
   // Stats
   const stats = useMemo(

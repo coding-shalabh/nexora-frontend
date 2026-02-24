@@ -146,6 +146,7 @@ export default function NewTicketPage() {
                 <Label htmlFor="subject">Subject *</Label>
                 <Input
                   id="subject"
+                  name="subject"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   placeholder="Brief description of the issue"

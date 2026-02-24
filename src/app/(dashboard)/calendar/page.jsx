@@ -121,8 +121,8 @@ export default function CalendarPage() {
 
   // Transform events for display
   const events = useMemo(() => {
-    if (!eventsData?.events) return [];
-    return eventsData.events.map((event) => ({
+    if (!eventsData?.data?.events) return [];
+    return eventsData.data.events.map((event) => ({
       id: event.id,
       title: event.title,
       type: event.type,

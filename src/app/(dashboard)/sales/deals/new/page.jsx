@@ -13,7 +13,10 @@ import {
   Target,
   Plus,
   X,
+  Loader2,
 } from 'lucide-react';
+import { useCreateDeal } from '@/hooks/use-deals';
+import { useToast } from '@/hooks/use-toast';
 import { UnifiedLayout } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,6 +52,8 @@ const mockProducts = [
 
 export default function NewDealPage() {
   const router = useRouter();
+  const { toast } = useToast();
+  const createDeal = useCreateDeal();
   const [formData, setFormData] = useState({
     name: '',
     company: '',
@@ -97,12 +102,22 @@ export default function NewDealPage() {
     return selectedProducts.reduce((sum, p) => sum + p.price * p.quantity, 0);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically send the data to your API
-    console.log('Creating deal:', { ...formData, products: selectedProducts });
-    // Redirect to deals list or the new deal detail page
-    router.push('/sales/deals');
+    try {
+      await createDeal.mutateAsync({ ...formData, products: selectedProducts });
+      toast({
+        title: 'Deal Created',
+        description: 'The deal has been created successfully',
+      });
+      router.push('/sales/deals');
+    } catch (err) {
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to create deal',
+        variant: 'destructive',
+      });
+    }
   };
 
   const formatCurrency = (value) => {
@@ -135,8 +150,12 @@ export default function NewDealPage() {
               <Button variant="outline" asChild>
                 <Link href="/sales/deals">Cancel</Link>
               </Button>
-              <Button onClick={handleSubmit}>
-                <Save className="h-4 w-4 mr-2" />
+              <Button onClick={handleSubmit} disabled={createDeal.isPending}>
+                {createDeal.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
                 Create Deal
               </Button>
             </div>
@@ -398,8 +417,12 @@ export default function NewDealPage() {
               <Button type="button" variant="outline" asChild>
                 <Link href="/sales/deals">Cancel</Link>
               </Button>
-              <Button type="submit">
-                <Save className="h-4 w-4 mr-2" />
+              <Button type="submit" disabled={createDeal.isPending}>
+                {createDeal.isPending ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
                 Create Deal
               </Button>
             </div>

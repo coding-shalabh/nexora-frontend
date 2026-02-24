@@ -1065,7 +1065,18 @@ function ContactPanel({ call, onClose, isPinned, onTogglePin }) {
             <div className="flex gap-1">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      const phone =
+                        call?.direction?.toLowerCase() === 'outbound'
+                          ? call?.toNumber
+                          : call?.fromNumber;
+                      if (phone) window.open(`tel:${phone}`);
+                    }}
+                  >
                     <Phone className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -1073,7 +1084,14 @@ function ContactPanel({ call, onClose, isPinned, onTogglePin }) {
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      if (call?.contact?.email) window.open(`mailto:${call.contact.email}`);
+                    }}
+                  >
                     <Mail className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -1081,7 +1099,18 @@ function ContactPanel({ call, onClose, isPinned, onTogglePin }) {
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      const phone =
+                        call?.direction?.toLowerCase() === 'outbound'
+                          ? call?.toNumber
+                          : call?.fromNumber;
+                      if (phone) window.open(`/inbox?phone=${phone}`);
+                    }}
+                  >
                     <MessageSquare className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -1096,6 +1125,9 @@ function ContactPanel({ call, onClose, isPinned, onTogglePin }) {
                     size="sm"
                     className="h-8 w-8 p-0"
                     disabled={!call.contactId}
+                    onClick={() => {
+                      if (call.contactId) window.open(`/crm/contacts/${call.contactId}`, '_blank');
+                    }}
                   >
                     <ExternalLink className="h-4 w-4" />
                   </Button>
@@ -1104,7 +1136,17 @@ function ContactPanel({ call, onClose, isPinned, onTogglePin }) {
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                    onClick={() => {
+                      window.open(
+                        `/service/tickets/new?contactId=${call.contactId || ''}&source=voice`,
+                        '_blank'
+                      );
+                    }}
+                  >
                     <Ticket className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
@@ -1112,7 +1154,12 @@ function ContactPanel({ call, onClose, isPinned, onTogglePin }) {
               </Tooltip>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 text-orange-500">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 text-orange-500"
+                    onClick={onClose}
+                  >
                     <Archive className="h-3.5 w-3.5" />
                   </Button>
                 </TooltipTrigger>

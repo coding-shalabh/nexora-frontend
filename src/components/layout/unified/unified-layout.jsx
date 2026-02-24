@@ -232,18 +232,70 @@ export function UnifiedLayout({
 
 /**
  * Helper function to create stat objects
+ * Accepts either positional args: createStat(label, value, icon, color)
+ * or a single options object: createStat({ label, value, icon, color })
  */
-export function createStat(label, value, icon, color = 'primary') {
+export function createStat(labelOrOptions, value, icon, color = 'primary') {
+  // Support object-style call: createStat({ label, value, icon, color })
+  let label;
+  if (
+    labelOrOptions !== null &&
+    typeof labelOrOptions === 'object' &&
+    !Array.isArray(labelOrOptions) &&
+    typeof labelOrOptions.label !== 'undefined'
+  ) {
+    ({ label, value, icon, color = 'primary' } = labelOrOptions);
+  } else {
+    label = labelOrOptions;
+  }
+
   const colorClasses = {
     primary: { bg: 'bg-primary/10', icon: 'text-primary', value: 'text-primary' },
-    blue: { bg: 'bg-blue-50', icon: 'text-blue-600', value: 'text-blue-600' },
-    green: { bg: 'bg-green-50', icon: 'text-green-600', value: 'text-green-600' },
-    emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', value: 'text-emerald-600' },
-    amber: { bg: 'bg-amber-50', icon: 'text-amber-600', value: 'text-amber-600' },
-    purple: { bg: 'bg-purple-50', icon: 'text-purple-600', value: 'text-purple-600' },
-    red: { bg: 'bg-red-50', icon: 'text-red-600', value: 'text-red-600' },
-    orange: { bg: 'bg-orange-50', icon: 'text-orange-600', value: 'text-orange-600' },
-    cyan: { bg: 'bg-cyan-50', icon: 'text-cyan-600', value: 'text-cyan-600' },
+    blue: {
+      bg: 'bg-blue-50 dark:bg-blue-500/10',
+      icon: 'text-blue-600 dark:text-blue-400',
+      value: 'text-blue-600 dark:text-blue-400',
+    },
+    green: {
+      bg: 'bg-green-50 dark:bg-green-500/10',
+      icon: 'text-green-600 dark:text-green-400',
+      value: 'text-green-600 dark:text-green-400',
+    },
+    emerald: {
+      bg: 'bg-emerald-50 dark:bg-emerald-500/10',
+      icon: 'text-emerald-600 dark:text-emerald-400',
+      value: 'text-emerald-600 dark:text-emerald-400',
+    },
+    amber: {
+      bg: 'bg-amber-50 dark:bg-amber-500/10',
+      icon: 'text-amber-600 dark:text-amber-400',
+      value: 'text-amber-600 dark:text-amber-400',
+    },
+    purple: {
+      bg: 'bg-purple-50 dark:bg-purple-500/10',
+      icon: 'text-purple-600 dark:text-purple-400',
+      value: 'text-purple-600 dark:text-purple-400',
+    },
+    red: {
+      bg: 'bg-red-50 dark:bg-red-500/10',
+      icon: 'text-red-600 dark:text-red-400',
+      value: 'text-red-600 dark:text-red-400',
+    },
+    orange: {
+      bg: 'bg-orange-50 dark:bg-orange-500/10',
+      icon: 'text-orange-600 dark:text-orange-400',
+      value: 'text-orange-600 dark:text-orange-400',
+    },
+    cyan: {
+      bg: 'bg-cyan-50 dark:bg-cyan-500/10',
+      icon: 'text-cyan-600 dark:text-cyan-400',
+      value: 'text-cyan-600 dark:text-cyan-400',
+    },
+    gray: {
+      bg: 'bg-gray-50 dark:bg-gray-500/10',
+      icon: 'text-gray-600 dark:text-gray-400',
+      value: 'text-gray-600 dark:text-gray-400',
+    },
   };
 
   const colors = colorClasses[color] || colorClasses.primary;
@@ -260,8 +312,23 @@ export function createStat(label, value, icon, color = 'primary') {
 
 /**
  * Helper function to create action objects
+ * Accepts either positional args: createAction(label, icon, onClick, options)
+ * or a single options object: createAction({ label, icon, onClick, options })
  */
-export function createAction(label, icon, onClick, options = {}) {
+export function createAction(labelOrOptions, icon, onClick, options = {}) {
+  // Support object-style call: createAction({ label, icon, onClick, options })
+  let label;
+  if (
+    labelOrOptions !== null &&
+    typeof labelOrOptions === 'object' &&
+    !Array.isArray(labelOrOptions) &&
+    typeof labelOrOptions.label !== 'undefined'
+  ) {
+    ({ label, icon, onClick, options = {} } = labelOrOptions);
+  } else {
+    label = labelOrOptions;
+  }
+
   return {
     label,
     icon,

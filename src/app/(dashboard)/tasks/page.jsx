@@ -52,8 +52,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import { useTasks, useTaskStats, useUpdateTask } from '@/hooks/use-tasks';
-import { UnifiedLayout, createStat } from '@/components/layout/unified';
+import {
+  useTasks,
+  useTaskStats,
+  useCreateTask,
+  useUpdateTask,
+  useDeleteTask,
+} from '@/hooks/use-tasks';
+import { useToast } from '@/hooks/use-toast';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 
 // Task status config
@@ -106,6 +113,7 @@ function formatDateTime(dateStr) {
 }
 
 export default function TasksPage() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedTask, setSelectedTask] = useState(null);
@@ -126,12 +134,14 @@ export default function TasksPage() {
     search: searchQuery || undefined,
   });
   const { data: statsData, isLoading: statsLoading } = useTaskStats();
+  const createTask = useCreateTask();
   const updateTask = useUpdateTask();
+  const deleteTask = useDeleteTask();
 
   // Transform API data to component format
   const tasks = useMemo(() => {
-    if (!tasksData?.tasks) return [];
-    return tasksData.tasks.map((task) => ({
+    if (!tasksData?.data?.tasks) return [];
+    return tasksData.data.tasks.map((task) => ({
       id: task.id,
       title: task.title,
       description: task.description,
@@ -222,16 +232,71 @@ export default function TasksPage() {
   };
 
   const handleCreate = async () => {
-    // TODO: Implement create task API call
-    console.log('Create task:', formData);
-    setIsCreateOpen(false);
-    resetForm();
+    if (!formData.title) return;
+    setIsSubmitting(true);
+    try {
+      await createTask.mutateAsync({
+        title: formData.title,
+        description: formData.description || undefined,
+        status: formData.status.toUpperCase(),
+        priority: formData.priority.toUpperCase(),
+        dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : undefined,
+      });
+      toast({ title: 'Task created', description: 'Your task has been created successfully.' });
+      setIsCreateOpen(false);
+      resetForm();
+    } catch (err) {
+      console.error('Failed to create task:', err);
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to create task',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleUpdate = async () => {
-    // TODO: Implement update task API call
-    console.log('Update task:', selectedTask?.id, formData);
-    setIsEditOpen(false);
+    if (!selectedTask?.id) return;
+    setIsSubmitting(true);
+    try {
+      await updateTask.mutateAsync({
+        id: selectedTask.id,
+        data: {
+          title: formData.title,
+          description: formData.description || undefined,
+          status: formData.status.toUpperCase(),
+          priority: formData.priority.toUpperCase(),
+          dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : undefined,
+        },
+      });
+      toast({ title: 'Task updated', description: 'Your task has been updated successfully.' });
+      setIsEditOpen(false);
+    } catch (err) {
+      console.error('Failed to update task:', err);
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to update task',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (taskId) => {
+    try {
+      await deleteTask.mutateAsync(taskId);
+      toast({ title: 'Task deleted', description: 'The task has been deleted.' });
+    } catch (err) {
+      console.error('Failed to delete task:', err);
+      toast({
+        title: 'Error',
+        description: err.message || 'Failed to delete task',
+        variant: 'destructive',
+      });
+    }
   };
 
   const resetForm = () => {
@@ -336,7 +401,13 @@ export default function TasksPage() {
                     Edit Task
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-600">
+                  <DropdownMenuItem
+                    className="text-red-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(task.id);
+                    }}
+                  >
                     <Trash2 className="h-4 w-4 mr-2" />
                     Delete Task
                   </DropdownMenuItem>
@@ -430,7 +501,13 @@ export default function TasksPage() {
 
   return (
     <>
-      <UnifiedLayout hubId="home" pageTitle="Tasks" stats={stats} fixedMenu={null}>
+      <UnifiedLayout
+        hubId="home"
+        pageTitle="Tasks"
+        stats={stats}
+        fixedMenu={null}
+        actions={[createAction('New Task', Plus, () => setIsCreateOpen(true), { primary: true })]}
+      >
         {/* Task Detail View in Content Area */}
         {selectedTask ? (
           <div className="h-full overflow-y-auto p-6">

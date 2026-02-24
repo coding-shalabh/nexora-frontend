@@ -16,14 +16,15 @@ import {
   AlertTriangle,
   CheckCircle,
   BarChart3,
+  TrendingUp,
+  DollarSign,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import { UnifiedLayout, createStat } from '@/components/layout/unified';
-
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 // Quick actions
 const quickActions = [
   {
@@ -127,17 +128,28 @@ const tools = [
 ];
 
 export default function InventoryHubPage() {
-  // Stats for HubLayout
+  // Stats for header
   const stats = [
-    createStat('Total Products', '1,247', Package, 'blue'),
-    createStat('Warehouses', '4', Warehouse, 'green'),
-    createStat('Low Stock Items', '18', AlertTriangle, 'amber'),
-    createStat('Pending Orders', '32', ClipboardCheck, 'purple'),
+    createStat({ label: 'Total Products', value: '1,247', icon: Package, trend: '+12%' }),
+    createStat({ label: 'Low Stock', value: '4', icon: AlertTriangle, bgColor: 'bg-orange-100' }),
+    createStat({ label: 'Value', value: '₹2.4M', icon: DollarSign }),
+    createStat({ label: 'Warehouses', value: '4', icon: Warehouse }),
+  ];
+
+  // Actions for header
+  const actions = [
+    createAction({ label: 'Add Product', href: '/inventory/products/new', icon: Plus }),
   ];
 
   return (
-    <UnifiedLayout hubId="inventory" pageTitle="Inventory Overview" stats={stats} fixedMenu={null}>
-      <div className="h-full overflow-y-auto p-6 space-y-6">
+    <UnifiedLayout
+      hubId="inventory"
+      pageTitle="Inventory Overview"
+      stats={stats}
+      actions={actions}
+      fixedMenu={null}
+    >
+      <div className="p-6 space-y-6">
         {/* Quick Actions */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {quickActions.map((action, index) => (

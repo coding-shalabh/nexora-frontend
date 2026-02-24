@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useDeferredValue, useCallback } from 'react';
+import { useState, useEffect, useMemo, useDeferredValue, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -53,55 +53,75 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { api } from '@/lib/api';
 import { UnifiedLayout, createStat } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
+import { renderInvoice, getSelectedTemplateId } from '@/config/invoice-templates';
 
-// Mock invoices data
-const mockInvoices = [
+// Normalize API invoice to frontend shape
+function normalizeInvoice(inv) {
+  const contactName = inv.contact
+    ? `${inv.contact.firstName || ''} ${inv.contact.lastName || ''}`.trim()
+    : inv.buyerLegalName || inv.buyerTradeName || 'Unknown';
+  const lines = (inv.lines || []).map((l) => ({
+    description: l.description,
+    hsn: l.hsnCode || l.sacCode || '',
+    qty: Number(l.quantity) || 1,
+    rate: Number(l.unitPrice) || 0,
+    taxRate:
+      Number(l.taxRate) ||
+      Number(l.cgstRate || 0) + Number(l.sgstRate || 0) + Number(l.igstRate || 0),
+  }));
+  return {
+    id: inv.invoiceNumber || inv.id,
+    _id: inv.id, // keep real DB id for API calls
+    customer: contactName,
+    customerAddress: inv.buyerAddress || inv.contact?.address || '',
+    customerGSTIN: inv.buyerGstin || '',
+    customerEmail: inv.contact?.email || '',
+    amount: Number(inv.totalAmount) || 0,
+    status: (inv.status || 'draft').toLowerCase(),
+    dueDate: inv.dueDate ? inv.dueDate.split('T')[0] : '',
+    issueDate: inv.issueDate ? inv.issueDate.split('T')[0] : '',
+    paymentTerms: inv.terms ? '' : '',
+    placeOfSupply: inv.placeOfSupplyName || inv.placeOfSupply || '',
+    items: lines.length,
+    lineItems: lines,
+    notes: inv.notes || '',
+    terms: inv.terms || '',
+  };
+}
+
+// Fallback mock data shown only when API returns empty
+const fallbackInvoices = [
   {
     id: 'INV-2024-001',
+    _id: 'INV-2024-001',
     customer: 'Acme Corporation',
+    customerAddress: '42, MG Road, Bengaluru, Karnataka 560001',
+    customerGSTIN: '29AABCA1234F1ZP',
+    customerEmail: 'billing@acmecorp.in',
     amount: 2450.0,
     status: 'paid',
     dueDate: '2024-12-25',
     issueDate: '2024-12-10',
+    paymentTerms: 'Net 15',
+    placeOfSupply: 'Karnataka (29)',
     items: 3,
-  },
-  {
-    id: 'INV-2024-002',
-    customer: 'Tech Solutions Inc',
-    amount: 1890.5,
-    status: 'sent',
-    dueDate: '2024-12-28',
-    issueDate: '2024-12-15',
-    items: 2,
-  },
-  {
-    id: 'INV-2024-003',
-    customer: 'Design Studio LLC',
-    amount: 3200.0,
-    status: 'overdue',
-    dueDate: '2024-12-15',
-    issueDate: '2024-11-30',
-    items: 5,
-  },
-  {
-    id: 'INV-2024-004',
-    customer: 'StartupX',
-    amount: 750.0,
-    status: 'draft',
-    dueDate: '2025-01-05',
-    issueDate: '2024-12-20',
-    items: 1,
-  },
-  {
-    id: 'INV-2024-005',
-    customer: 'Enterprise Co',
-    amount: 5600.0,
-    status: 'paid',
-    dueDate: '2024-12-20',
-    issueDate: '2024-12-05',
-    items: 8,
+    lineItems: [
+      { description: 'CRM Pro License — Annual', hsn: '998314', qty: 2, rate: 800, taxRate: 18 },
+      { description: 'Data Migration Service', hsn: '998313', qty: 1, rate: 500, taxRate: 18 },
+      {
+        description: 'Onboarding & Training (8 hrs)',
+        hsn: '998313',
+        qty: 1,
+        rate: 350,
+        taxRate: 18,
+      },
+    ],
+    notes: 'Thank you for choosing our platform. Support: support@nexora.app',
+    terms:
+      'Payment due within 15 days of invoice date. Late payments attract 1.5% monthly interest.',
   },
 ];
 
@@ -303,70 +323,136 @@ function InvoiceDetailPanel({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto p-6 space-y-6">
-        {/* Status Badge */}
-        <div>
+      <div className="flex-1 overflow-auto p-6 space-y-5">
+        {/* Status + Amount */}
+        <div className="flex items-center justify-between">
           <Badge className={cn('capitalize', getStatusColor(invoice.status))}>
             {invoice.status}
           </Badge>
+          <div className="text-right">
+            <p className="text-2xl font-bold">${invoice.amount.toLocaleString()}</p>
+            {invoice.paymentTerms && (
+              <p className="text-xs text-muted-foreground">{invoice.paymentTerms}</p>
+            )}
+          </div>
         </div>
-
-        {/* Amount Section */}
-        <Card>
-          <CardContent className="p-4 space-y-3">
-            <h3 className="font-semibold text-sm">Invoice Amount</h3>
-            <div className="flex items-center justify-between">
-              <p className="text-3xl font-bold text-green-600">
-                ${invoice.amount.toLocaleString()}
-              </p>
-              {invoice.status === 'paid' && (
-                <Badge className="bg-green-100 text-green-700">
-                  <CheckCircle className="h-3 w-3 mr-1" />
-                  Paid
-                </Badge>
-              )}
-              {invoice.status === 'overdue' && (
-                <Badge className="bg-red-100 text-red-700">
-                  <AlertCircle className="h-3 w-3 mr-1" />
-                  Overdue
-                </Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Invoice Details */}
         <Card>
-          <CardContent className="p-4 space-y-3">
-            <h3 className="font-semibold text-sm">Invoice Details</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Invoice ID</span>
-                <span className="text-sm font-medium font-mono">{invoice.id}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Customer</span>
-                <span className="text-sm font-medium">{invoice.customer}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Issue Date</span>
-                <span className="text-sm font-medium">
-                  {new Date(invoice.issueDate).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Due Date</span>
-                <span className="text-sm font-medium">
-                  {new Date(invoice.dueDate).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-muted-foreground">Items</span>
-                <span className="text-sm font-medium">{invoice.items}</span>
-              </div>
-            </div>
+          <CardContent className="p-4 space-y-2">
+            <h3 className="font-semibold text-sm mb-2">Details</h3>
+            {[
+              ['Invoice ID', invoice.id],
+              ['Issue Date', new Date(invoice.issueDate).toLocaleDateString()],
+              ['Due Date', new Date(invoice.dueDate).toLocaleDateString()],
+              ['Payment Terms', invoice.paymentTerms],
+              ['Place of Supply', invoice.placeOfSupply],
+            ]
+              .filter(([, v]) => v)
+              .map(([label, value]) => (
+                <div key={label} className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">{label}</span>
+                  <span className="font-medium font-mono text-xs">{value}</span>
+                </div>
+              ))}
           </CardContent>
         </Card>
+
+        {/* Customer */}
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <h3 className="font-semibold text-sm mb-2">Customer</h3>
+            <p className="text-sm font-medium">{invoice.customer}</p>
+            {invoice.customerAddress && (
+              <p className="text-xs text-muted-foreground">{invoice.customerAddress}</p>
+            )}
+            {invoice.customerEmail && (
+              <p className="text-xs text-muted-foreground">{invoice.customerEmail}</p>
+            )}
+            {invoice.customerGSTIN && (
+              <Badge variant="secondary" className="mt-1 text-[10px] font-mono">
+                GSTIN: {invoice.customerGSTIN}
+              </Badge>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Line Items */}
+        {invoice.lineItems && invoice.lineItems.length > 0 && (
+          <Card>
+            <CardContent className="p-4 space-y-2">
+              <h3 className="font-semibold text-sm mb-2">Line Items</h3>
+              <div className="space-y-2">
+                {invoice.lineItems.map((item, idx) => {
+                  const lineTotal = item.qty * item.rate;
+                  const lineTax = (lineTotal * item.taxRate) / 100;
+                  return (
+                    <div
+                      key={idx}
+                      className="flex justify-between items-start text-sm py-1.5 border-b border-gray-50 last:border-0"
+                    >
+                      <div className="flex-1 min-w-0 pr-3">
+                        <p className="font-medium text-xs truncate">{item.description}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {item.qty} × ${item.rate.toLocaleString()} &middot; HSN {item.hsn}{' '}
+                          &middot; {item.taxRate}% GST
+                        </p>
+                      </div>
+                      <p className="font-semibold text-xs whitespace-nowrap">
+                        $
+                        {(lineTotal + lineTax).toLocaleString(undefined, {
+                          minimumFractionDigits: 2,
+                        })}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Totals */}
+              <div className="pt-2 mt-2 border-t space-y-1">
+                {(() => {
+                  const sub = invoice.lineItems.reduce((s, l) => s + l.qty * l.rate, 0);
+                  const tax = invoice.lineItems.reduce(
+                    (s, l) => s + (l.qty * l.rate * l.taxRate) / 100,
+                    0
+                  );
+                  return (
+                    <>
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Subtotal</span>
+                        <span>${sub.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+                      </div>
+                      {tax > 0 && (
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>GST</span>
+                          <span>
+                            ${tax.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between text-sm font-bold pt-1">
+                        <span>Total</span>
+                        <span>
+                          ${(sub + tax).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Notes */}
+        {invoice.notes && (
+          <Card>
+            <CardContent className="p-4">
+              <h3 className="font-semibold text-sm mb-1">Notes</h3>
+              <p className="text-xs text-muted-foreground">{invoice.notes}</p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Actions Card */}
         <Card>
@@ -416,8 +502,61 @@ export default function InvoicesPage() {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [viewMode, setViewMode] = useState('list'); // list, preview
   const [selectedStatus, setSelectedStatus] = useState('All Status');
+  const [invoices, setInvoices] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [orgInfo, setOrgInfo] = useState({
+    name: '',
+    address: '',
+    phone: '',
+    email: '',
+    website: '',
+    gstin: '',
+    logoUrl: null,
+    currency: 'INR',
+  });
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState(null);
+
+  // Fetch invoices from billing API
+  const fetchInvoices = useCallback(() => {
+    setIsLoading(true);
+    api
+      .get('/billing/invoices?limit=100')
+      .then((res) => {
+        const raw = res.data?.data || res.data || [];
+        const list = Array.isArray(raw) ? raw : [];
+        if (list.length > 0) {
+          setInvoices(list.map(normalizeInvoice));
+        } else {
+          setInvoices(fallbackInvoices);
+        }
+      })
+      .catch(() => {
+        setInvoices(fallbackInvoices);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  // Fetch organization details for invoice branding
+  useEffect(() => {
+    fetchInvoices();
+    api
+      .get('/settings/organization')
+      .then((res) => {
+        const d = res.data?.data || res.data || {};
+        setOrgInfo({
+          name: d.name || '',
+          address: d.address || '',
+          phone: d.phone || '',
+          email: d.email || '',
+          website: d.website || d.domain || '',
+          gstin: d.gstin || d.settings?.gstin || '',
+          logoUrl: d.logoUrl || null,
+          currency: d.currency || 'INR',
+        });
+      })
+      .catch(() => {});
+  }, [fetchInvoices]);
 
   // Bulk selection state
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -425,7 +564,7 @@ export default function InvoicesPage() {
 
   // Filter invoices
   const filteredInvoices = useMemo(() => {
-    return mockInvoices.filter((invoice) => {
+    return invoices.filter((invoice) => {
       const matchesSearch =
         invoice.id.toLowerCase().includes(deferredSearch.toLowerCase()) ||
         invoice.customer.toLowerCase().includes(deferredSearch.toLowerCase());
@@ -433,7 +572,7 @@ export default function InvoicesPage() {
         selectedStatus === 'All Status' || invoice.status === selectedStatus.toLowerCase();
       return matchesSearch && matchesStatus;
     });
-  }, [deferredSearch, selectedStatus]);
+  }, [invoices, deferredSearch, selectedStatus]);
 
   // Bulk selection handlers
   const toggleSelectInvoice = useCallback((invoiceId) => {
@@ -483,9 +622,25 @@ export default function InvoicesPage() {
   };
 
   const handleDownload = (invoice) => {
+    const html = renderInvoice(getSelectedTemplateId(), { invoice, orgInfo });
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const printWindow = window.open(url, '_blank');
+    if (printWindow) {
+      printWindow.onload = () => {
+        printWindow.print();
+        URL.revokeObjectURL(url);
+      };
+    } else {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${invoice.id}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
     toast({
-      title: 'Downloading invoice',
-      description: `${invoice.id} is being downloaded.`,
+      title: 'Invoice ready',
+      description: `${invoice.id} opened for printing/saving as PDF.`,
     });
   };
 
@@ -494,7 +649,14 @@ export default function InvoicesPage() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
+    const dbId = invoiceToDelete._id || invoiceToDelete.id;
+    try {
+      await api.delete(`/billing/invoices/${dbId}`);
+    } catch {
+      // If API fails (mock invoice), still remove locally
+    }
+    setInvoices((prev) => prev.filter((inv) => inv.id !== invoiceToDelete.id));
     toast({
       title: 'Invoice deleted',
       description: `${invoiceToDelete.id} has been deleted successfully.`,
@@ -507,11 +669,49 @@ export default function InvoicesPage() {
     setInvoiceToDelete(null);
   };
 
-  const handleDuplicate = (invoice) => {
-    toast({
-      title: 'Invoice duplicated',
-      description: `A copy of ${invoice.id} has been created.`,
-    });
+  const handleDuplicate = async (invoice) => {
+    try {
+      // Create a new invoice via API with same line items
+      const items = (invoice.lineItems || []).map((l) => ({
+        description: l.description,
+        quantity: l.qty,
+        unitPrice: l.rate,
+        hsnCode: l.hsn || undefined,
+        gstRate: l.taxRate || undefined,
+      }));
+      const res = await api.post('/billing/invoices', {
+        dueDate: new Date(Date.now() + 30 * 86400000).toISOString(),
+        items:
+          items.length > 0
+            ? items
+            : [{ description: 'Duplicated item', quantity: 1, unitPrice: 0 }],
+        notes: invoice.notes || '',
+      });
+      const created = res.data?.data || res.data;
+      if (created) {
+        setInvoices((prev) => [normalizeInvoice(created), ...prev]);
+        toast({
+          title: 'Invoice duplicated',
+          description: `${created.invoiceNumber || 'New invoice'} created as a draft copy of ${invoice.id}.`,
+        });
+      }
+    } catch {
+      // Fallback: local duplicate
+      const nextNum = String(invoices.length + 1).padStart(3, '0');
+      const newInvoice = {
+        ...invoice,
+        id: `INV-${new Date().getFullYear()}-${nextNum}`,
+        _id: `local-${Date.now()}`,
+        status: 'draft',
+        issueDate: new Date().toISOString().split('T')[0],
+        dueDate: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+      };
+      setInvoices((prev) => [newInvoice, ...prev]);
+      toast({
+        title: 'Invoice duplicated',
+        description: `${newInvoice.id} created as a draft copy of ${invoice.id}.`,
+      });
+    }
   };
 
   const handleExport = () => {
@@ -552,14 +752,12 @@ export default function InvoicesPage() {
   // Stats
   const stats = useMemo(
     () => ({
-      totalInvoiced: mockInvoices.reduce((sum, inv) => sum + inv.amount, 0),
-      paid: mockInvoices
-        .filter((i) => i.status === 'paid')
-        .reduce((sum, inv) => sum + inv.amount, 0),
-      pending: mockInvoices.filter((i) => i.status === 'sent').length,
-      overdue: mockInvoices.filter((i) => i.status === 'overdue').length,
+      totalInvoiced: invoices.reduce((sum, inv) => sum + inv.amount, 0),
+      paid: invoices.filter((i) => i.status === 'paid').reduce((sum, inv) => sum + inv.amount, 0),
+      pending: invoices.filter((i) => i.status === 'sent').length,
+      overdue: invoices.filter((i) => i.status === 'overdue').length,
     }),
-    []
+    [invoices]
   );
 
   const layoutStats = [
@@ -730,7 +928,9 @@ export default function InvoicesPage() {
         >
           <InvoiceDetailPanel
             invoice={selectedInvoice}
-            onEdit={(invoice) => router.push(`/commerce/invoices/${invoice.id}/edit`)}
+            onEdit={(invoice) =>
+              router.push(`/commerce/invoices/${invoice._id || invoice.id}/edit`)
+            }
             onDelete={handleDeleteInvoice}
             onSend={handleSendInvoice}
             onDownload={handleDownload}

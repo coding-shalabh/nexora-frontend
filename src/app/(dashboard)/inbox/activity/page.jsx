@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -115,7 +116,7 @@ function StatusBadge({ status }) {
 }
 
 // Activity Detail Modal
-function ActivityDetail({ activity, onClose }) {
+function ActivityDetail({ activity, onClose, onViewConversation, onRetry }) {
   if (!activity) return null;
 
   const channelCfg = channelConfig[activity.channel];
@@ -231,11 +232,15 @@ function ActivityDetail({ activity, onClose }) {
           Close
         </Button>
         {activity.status === 'failed' && (
-          <Button>
+          <Button onClick={() => onRetry?.(activity)}>
             <RefreshCw className="h-4 w-4 mr-2" /> Retry
           </Button>
         )}
-        <Button variant="outline" className="ml-auto">
+        <Button
+          variant="outline"
+          className="ml-auto"
+          onClick={() => onViewConversation?.(activity)}
+        >
           <ExternalLink className="h-4 w-4 mr-2" /> View Conversation
         </Button>
       </div>
@@ -323,6 +328,8 @@ export default function ActivityPage() {
     setDetailOpen(true);
   };
 
+  const router = useRouter();
+
   const clearFilters = () => {
     setSearchQuery('');
     setSelectedChannel('all');
@@ -330,6 +337,55 @@ export default function ActivityPage() {
     setSelectedDirection('all');
     setSelectedPeriod('today');
   };
+
+  const handleViewConversation = useCallback(
+    (activity) => {
+      const convId = activity.conversationId || activity.threadId;
+      if (convId) {
+        router.push(`/inbox?conversationId=${convId}`);
+      }
+    },
+    [router]
+  );
+
+  const handleRetry = useCallback(
+    async (activity) => {
+      try {
+        await api.post(`/inbox/activity/${activity.id}/retry`);
+        refetch();
+      } catch {
+        // Retry endpoint may not exist yet — silently refresh
+        refetch();
+      }
+    },
+    [refetch]
+  );
+
+  const handleExport = useCallback(() => {
+    const rows = filteredActivities.map((a) => ({
+      direction: a.direction || '',
+      recipient: a.recipientName || a.recipient || '',
+      channel: a.channel || '',
+      status: a.status || '',
+      content: (a.content || '').replace(/"/g, '""'),
+      timestamp: a.timestamp ? new Date(a.timestamp).toISOString() : '',
+    }));
+    const header = 'Direction,Recipient,Channel,Status,Content,Timestamp';
+    const csv = [
+      header,
+      ...rows.map(
+        (r) =>
+          `${r.direction},"${r.recipient}",${r.channel},${r.status},"${r.content}",${r.timestamp}`
+      ),
+    ].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `inbox-activity-${selectedPeriod}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [filteredActivities, selectedPeriod]);
 
   const hasFilters =
     searchQuery ||
@@ -358,7 +414,7 @@ export default function ActivityPage() {
         <RefreshCw className={cn('h-4 w-4 mr-2', (isLoading || isRefetching) && 'animate-spin')} />
         Refresh
       </Button>
-      <Button variant="outline" size="sm">
+      <Button variant="outline" size="sm" onClick={handleExport}>
         <Download className="h-4 w-4 mr-2" /> Export
       </Button>
     </div>
@@ -538,11 +594,21 @@ export default function ActivityPage() {
                           >
                             <Eye className="h-4 w-4 mr-2" /> View Details
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleViewConversation(activity);
+                            }}
+                          >
                             <ExternalLink className="h-4 w-4 mr-2" /> View Conversation
                           </DropdownMenuItem>
                           {activity.status === 'failed' && (
-                            <DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRetry(activity);
+                              }}
+                            >
                               <RefreshCw className="h-4 w-4 mr-2" /> Retry
                             </DropdownMenuItem>
                           )}
@@ -639,6 +705,8 @@ export default function ActivityPage() {
               setDetailOpen(false);
               setSelectedActivity(null);
             }}
+            onViewConversation={handleViewConversation}
+            onRetry={handleRetry}
           />
         </DialogContent>
       </Dialog>

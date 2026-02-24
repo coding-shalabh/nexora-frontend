@@ -84,13 +84,11 @@ export function useSocket() {
 
     // Connection events
     socket.on('connect', () => {
-      console.log('WebSocket connected:', socket.id);
       setIsConnected(true);
       setConnectionError(null);
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('WebSocket disconnected:', reason);
       setIsConnected(false);
     });
 
@@ -102,8 +100,6 @@ export function useSocket() {
 
     // Handle new message event
     socket.on('message:new', (data) => {
-      console.log('New message received via WebSocket:', data);
-
       // Invalidate messages query for the conversation
       queryClient.invalidateQueries({
         queryKey: inboxKeys.messages(data.conversationId),
@@ -129,8 +125,6 @@ export function useSocket() {
 
     // Handle conversation update event
     socket.on('conversation:updated', (data) => {
-      console.log('Conversation updated via WebSocket:', data);
-
       // Invalidate conversations list
       queryClient.invalidateQueries({
         queryKey: inboxKeys.all,
@@ -139,8 +133,6 @@ export function useSocket() {
 
     // Handle message status update
     socket.on('message:status', (data) => {
-      console.log('Message status update via WebSocket:', data);
-
       // Update message status in cache
       queryClient.setQueryData(inboxKeys.messages(data.conversationId), (oldData) => {
         if (!oldData) return oldData;
@@ -160,7 +152,6 @@ export function useSocket() {
     // Handle typing indicators
     socket.on('typing:update', (data) => {
       // Can be handled by components if needed
-      console.log('Typing update:', data);
     });
 
     // Cleanup on unmount or token change

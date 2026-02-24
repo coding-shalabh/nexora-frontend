@@ -1,0 +1,6 @@
+id: "openbug-service"
+description: "Next.js 14 App Router frontend, 14 hubs (CRM, Sales, Inbox, Marketing, Service, Projects, Analytics, Settings etc), port 3001, Tailwind CSS + shadcn/ui"
+name: "Nexora Hub"
+window_id: 1771508812696
+logs_available: true
+code_available: true

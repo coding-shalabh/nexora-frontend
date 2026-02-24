@@ -59,12 +59,7 @@ export default function SurveysPage() {
       createStat('Surveys', stats?.total || 0, MessageSquare, 'blue'),
       createStat('Active', stats?.active || 0, TrendingUp, 'green'),
       createStat('Responses', stats?.totalResponses || 0, Users, 'purple'),
-      createStat(
-        'Avg Score',
-        stats?.avgScore ? stats.avgScore.toFixed(1) : '0',
-        BarChart3,
-        'orange'
-      ),
+      createStat('Avg Score', Number(stats?.avgScore || 0).toFixed(1), BarChart3, 'orange'),
     ],
     [stats]
   );
@@ -198,7 +193,9 @@ export default function SurveysPage() {
                           {survey.type === 'NPS' ? 'Average Score' : 'Average Rating'}
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="text-2xl font-bold">{survey.avgScore.toFixed(1)}</div>
+                          <div className="text-2xl font-bold">
+                            {Number(survey.avgScore || 0).toFixed(1)}
+                          </div>
                           {survey.type !== 'NPS' && (
                             <div className="flex items-center text-yellow-500">
                               {[...Array(5)].map((_, i) => (

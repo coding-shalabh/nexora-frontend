@@ -35,8 +35,8 @@ export function useSurveys(filters = {}) {
 
       const response = await api.get(`/surveys?${params}`);
       return {
-        surveys: response.data,
-        meta: response.meta,
+        surveys: response.data?.surveys || [],
+        meta: response.data?.meta || {},
       };
     },
   });

@@ -25,6 +25,7 @@ import {
   CheckCircle,
   Timer,
   UserCheck,
+  Phone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -66,6 +67,12 @@ const serviceNavigation = [
     href: '/service/call-center',
     icon: HeadphonesIcon,
     description: 'Phone support',
+  },
+  {
+    title: 'Dialer',
+    href: '/dialer',
+    icon: Phone,
+    description: 'Voice calling & dialer',
   },
   { title: 'Customer Health', href: '/service/health', icon: Star, description: 'Health scores' },
   { title: 'Team Inbox', href: '/service/team-inbox', icon: Users, description: 'Shared inbox' },
@@ -218,7 +225,7 @@ export function ServiceSidebar({ onAction }) {
     <TooltipProvider delayDuration={0}>
       <motion.aside
         initial={false}
-        animate={{ width: isCollapsed ? 64 : 260 }}
+        animate={{ width: isCollapsed ? 64 : 180 }}
         transition={{
           type: 'spring',
           stiffness: 300,

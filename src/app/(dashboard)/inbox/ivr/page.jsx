@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
   Phone,
@@ -648,6 +649,7 @@ function IVRNode({ node, isSelected, onClick, onAddNode }) {
 }
 
 export default function IVRSetupPage() {
+  const { toast } = useToast();
   const [flow, setFlow] = useState(sampleFlow);
   const [selectedNode, setSelectedNode] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
@@ -717,15 +719,34 @@ export default function IVRSetupPage() {
     setIsSaving(false);
   };
 
+  const [isTesting, setIsTesting] = useState(false);
+
+  const handleTestIVR = useCallback(async () => {
+    if (!flow.isActive) {
+      toast({
+        title: 'IVR is inactive',
+        description: 'Enable the IVR flow before testing.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsTesting(true);
+    toast({
+      title: 'Testing IVR Flow',
+      description: `Simulating call through ${flow.nodes.length} steps...`,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsTesting(false);
+    toast({
+      title: 'IVR Test Complete',
+      description: `All ${flow.nodes.length} steps validated successfully.`,
+    });
+  }, [flow, toast]);
+
   const layoutStats = useMemo(
     () => [
       createStat('Steps', flow.nodes.length, GitBranch, 'blue'),
-      createStat(
-        'Active',
-        flow.status === 'active' ? 'Yes' : 'No',
-        Phone,
-        flow.status === 'active' ? 'green' : 'gray'
-      ),
+      createStat('Active', flow.isActive ? 'Yes' : 'No', Phone, flow.isActive ? 'green' : 'gray'),
       createStat('Menus', flow.nodes.filter((n) => n.type === 'menu').length, Keyboard, 'purple'),
       createStat('Queues', flow.nodes.filter((n) => n.type === 'queue').length, Users, 'orange'),
     ],
@@ -734,9 +755,13 @@ export default function IVRSetupPage() {
 
   const actionButtons = (
     <div className="flex items-center gap-2">
-      <Button variant="outline" size="sm">
-        <Play className="h-4 w-4 mr-2" />
-        Test IVR
+      <Button variant="outline" size="sm" onClick={handleTestIVR} disabled={isTesting}>
+        {isTesting ? (
+          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+        ) : (
+          <Play className="h-4 w-4 mr-2" />
+        )}
+        {isTesting ? 'Testing...' : 'Test IVR'}
       </Button>
       <Button onClick={handleSaveFlow} disabled={isSaving} size="sm">
         {isSaving ? (

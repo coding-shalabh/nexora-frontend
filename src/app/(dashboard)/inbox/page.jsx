@@ -1406,7 +1406,7 @@ function MediaContent({ message, variant = 'light' }) {
 
 // WhatsApp Style Message Bubble
 // Unified Modern Chat Bubble - Same design for all channels (WhatsApp, SMS, Email)
-function UnifiedChatBubble({ message, channelType }) {
+function UnifiedChatBubble({ message, channelType, onReply }) {
   const isOutbound = message.direction === 'outbound';
   const isFailed = message.status === 'failed';
   const isPending = message.status === 'pending';
@@ -1500,10 +1500,22 @@ function UnifiedChatBubble({ message, channelType }) {
             isOutbound ? '-left-16' : '-right-16'
           )}
         >
-          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-gray-100">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 hover:bg-gray-100"
+            onClick={() => onReply?.(message)}
+          >
             <Reply className="h-3.5 w-3.5 text-gray-500" />
           </Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-gray-100">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 hover:bg-gray-100"
+            onClick={(e) => {
+              navigator.clipboard.writeText(message.content || '');
+            }}
+          >
             <MoreHorizontal className="h-3.5 w-3.5 text-gray-500" />
           </Button>
         </div>
@@ -1513,16 +1525,16 @@ function UnifiedChatBubble({ message, channelType }) {
 }
 
 // Legacy bubble functions - now all use UnifiedChatBubble
-function WhatsAppBubble({ message }) {
-  return <UnifiedChatBubble message={message} channelType="whatsapp" />;
+function WhatsAppBubble({ message, onReply }) {
+  return <UnifiedChatBubble message={message} channelType="whatsapp" onReply={onReply} />;
 }
 
-function SMSBubble({ message }) {
-  return <UnifiedChatBubble message={message} channelType="sms" />;
+function SMSBubble({ message, onReply }) {
+  return <UnifiedChatBubble message={message} channelType="sms" onReply={onReply} />;
 }
 
-function EmailBubble({ message }) {
-  return <UnifiedChatBubble message={message} channelType="email" />;
+function EmailBubble({ message, onReply }) {
+  return <UnifiedChatBubble message={message} channelType="email" onReply={onReply} />;
 }
 
 // Message Context Menu Wrapper
@@ -1621,17 +1633,19 @@ function MessageWithContextMenu({ children, message, onAction }) {
 function MessageBubble({ message, channelType, onAction, showSenderLabel = false, contactName }) {
   const isOutbound = message.direction === 'outbound';
 
+  const handleReply = () => onAction?.('reply', message);
+
   // Render the bubble inside context menu wrapper
   const renderBubble = () => {
     switch (channelType) {
       case 'whatsapp':
-        return <WhatsAppBubble message={message} />;
+        return <WhatsAppBubble message={message} onReply={handleReply} />;
       case 'sms':
-        return <SMSBubble message={message} />;
+        return <SMSBubble message={message} onReply={handleReply} />;
       case 'email':
-        return <EmailBubble message={message} />;
+        return <EmailBubble message={message} onReply={handleReply} />;
       default:
-        return <WhatsAppBubble message={message} />;
+        return <WhatsAppBubble message={message} onReply={handleReply} />;
     }
   };
 
@@ -1846,6 +1860,7 @@ export default function InboxPage() {
   const isInitialLoadRef = useRef(true);
   const searchInputRef = useRef(null);
   const messageInputRef = useRef(null);
+  const callTimerRef = useRef(null);
 
   // Keyboard shortcuts dialogs
   const [showKeyboardShortcuts, setShowKeyboardShortcuts] = useState(false);
@@ -1857,7 +1872,6 @@ export default function InboxPage() {
     queryKey: ['signatures'],
     queryFn: async () => {
       const response = await api.get('/settings/signatures');
-      console.log('Fetched signatures from API:', response.data);
       return response.data || [];
     },
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
@@ -1940,13 +1954,8 @@ export default function InboxPage() {
       } else if (bucketFilter === 'my_chats') {
         filters.assignedTo = 'me';
       }
-    } else if (!filterSnoozed && !filterArchived) {
-      // Default: Show only conversations assigned to the current user (exclude unassigned)
-      // But not when filtering by snoozed/archived (show all regardless of assignment)
-      if (!filterStarred) {
-        filters.assignedTo = 'me';
-      }
     }
+    // No default assignedTo filter — "All Conversations" should show all
 
     // Apply status filter if not 'all' (and not already filtering by snoozed/archived)
     if (statusFilter !== 'all' && !filterSnoozed && !filterArchived) {
@@ -2170,6 +2179,13 @@ export default function InboxPage() {
     }
   };
 
+  // Cleanup call timer on unmount
+  useEffect(() => {
+    return () => {
+      if (callTimerRef.current) clearInterval(callTimerRef.current);
+    };
+  }, []);
+
   // Call handling
   const handleStartCall = (type) => {
     if (!selectedConversation?.contactPhone) {
@@ -2200,11 +2216,8 @@ export default function InboxPage() {
       setTimeout(() => {
         setCallStatus('connected');
         const startTime = Date.now();
-        const timer = setInterval(() => {
-          if (callStatus === 'ended') {
-            clearInterval(timer);
-            return;
-          }
+        if (callTimerRef.current) clearInterval(callTimerRef.current);
+        callTimerRef.current = setInterval(() => {
           setCallDuration(Math.floor((Date.now() - startTime) / 1000));
         }, 1000);
       }, 3000);
@@ -2219,6 +2232,10 @@ export default function InboxPage() {
   };
 
   const handleEndCall = () => {
+    if (callTimerRef.current) {
+      clearInterval(callTimerRef.current);
+      callTimerRef.current = null;
+    }
     setCallStatus('ended');
     toast({
       title: 'Call Ended',
@@ -3272,13 +3289,12 @@ export default function InboxPage() {
                               size="icon"
                               className="h-8 w-8 text-gray-500 hover:text-yellow-500"
                               onClick={() => {
+                                const wasStarred = selectedConversation.isStarred;
                                 toggleStarMutation.mutate(selectedId, {
                                   onSuccess: () => {
                                     toast({
-                                      title: selectedConversation.isStarred
-                                        ? 'Unstarred'
-                                        : 'Starred',
-                                      description: `Conversation ${selectedConversation.isStarred ? 'removed from' : 'added to'} starred`,
+                                      title: wasStarred ? 'Unstarred' : 'Starred',
+                                      description: `Conversation ${wasStarred ? 'removed from' : 'added to'} starred`,
                                     });
                                   },
                                 });
@@ -3416,7 +3432,13 @@ export default function InboxPage() {
                             <Inbox className="h-3.5 w-3.5" />
                           )}
                           <span className="text-xs font-medium">
-                            {selectedConversation.purpose || 'General'}
+                            {{
+                              GENERAL: 'General',
+                              SALES: 'Sales',
+                              SUPPORT: 'Support',
+                              SERVICE: 'Service',
+                              MARKETING: 'Marketing',
+                            }[selectedConversation.purpose] || 'General'}
                           </span>
                           <ChevronDown className="h-3 w-3" />
                         </Button>
@@ -3735,6 +3757,42 @@ export default function InboxPage() {
                                     channelType={selectedConversation.channelType}
                                     showSenderLabel={showSenderLabel}
                                     contactName={selectedConversation.contactName}
+                                    onAction={(action, actionMsg) => {
+                                      switch (action) {
+                                        case 'reply':
+                                          messageInputRef.current?.focus();
+                                          break;
+                                        case 'forward':
+                                          navigator.clipboard.writeText(actionMsg.content || '');
+                                          toast({ title: 'Message copied for forwarding' });
+                                          break;
+                                        case 'copy':
+                                          navigator.clipboard.writeText(actionMsg.content || '');
+                                          toast({ title: 'Copied to clipboard' });
+                                          break;
+                                        case 'star':
+                                          toggleStarMutation.mutate(selectedId);
+                                          break;
+                                        case 'archive':
+                                          archiveConversationMutation.mutate(selectedId, {
+                                            onSuccess: () => {
+                                              toast({ title: 'Archived' });
+                                              setSelectedId(null);
+                                            },
+                                          });
+                                          break;
+                                        case 'delete':
+                                          // Delete is destructive — resolve instead
+                                          resolveConversationMutation.mutate(
+                                            { conversationId: selectedId, force: true },
+                                            {
+                                              onSuccess: () =>
+                                                toast({ title: 'Conversation resolved' }),
+                                            }
+                                          );
+                                          break;
+                                      }
+                                    }}
                                   />
                                 );
                               }
@@ -3760,8 +3818,6 @@ export default function InboxPage() {
                         const channelType = selectedConversation?.channelType?.toLowerCase();
                         const signatures = getSignatures(channelType);
                         const sig = signatures.find((s) => s.id === signature);
-                        console.log('Selected signature:', sig);
-                        console.log('Signature links:', sig?.links);
                         let signatureContent = sig?.content || '';
 
                         // Replace signature variables with logged-in user's data (sender info)
@@ -3839,7 +3895,6 @@ export default function InboxPage() {
                         );
                       }}
                       onAttach={(files) => {
-                        console.log('Attached files:', files);
                         // Handle file attachments - would upload to server
                       }}
                       isLoading={sendMessageMutation.isPending}

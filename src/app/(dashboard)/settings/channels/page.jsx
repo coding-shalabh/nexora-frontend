@@ -36,6 +36,7 @@ import {
   Unlink,
   Search,
   TrendingUp,
+  FlaskConical,
 } from 'lucide-react';
 import { UnifiedLayout } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
@@ -115,6 +116,14 @@ const channelProviders = {
       apiFields: ['accountSid', 'authToken', 'phoneNumber'],
       description: 'Global WhatsApp Business API',
     },
+    {
+      id: 'apidog',
+      name: 'API Dog',
+      color: '#FA5A28',
+      oauthEnabled: false,
+      apiFields: ['baseUrl', 'apiToken'],
+      description: 'All-in-one API service partner',
+    },
   ],
   SMS: [
     {
@@ -133,6 +142,14 @@ const channelProviders = {
       oauthLabel: 'Connect Twilio Account',
       apiFields: ['accountSid', 'authToken', 'phoneNumber'],
       description: 'Global SMS provider',
+    },
+    {
+      id: 'apidog',
+      name: 'API Dog',
+      color: '#FA5A28',
+      oauthEnabled: false,
+      apiFields: ['baseUrl', 'apiToken'],
+      description: 'All-in-one API service partner',
     },
   ],
   VOICE: [
@@ -153,6 +170,14 @@ const channelProviders = {
       apiFields: ['accountSid', 'authToken', 'phoneNumber'],
       description: 'Global voice calling',
     },
+    {
+      id: 'apidog',
+      name: 'API Dog',
+      color: '#FA5A28',
+      oauthEnabled: false,
+      apiFields: ['baseUrl', 'apiToken'],
+      description: 'All-in-one API service partner',
+    },
   ],
   EMAIL: [
     {
@@ -170,6 +195,14 @@ const channelProviders = {
       oauthEnabled: true,
       apiFields: [],
       description: 'Connect via Microsoft OAuth',
+    },
+    {
+      id: 'apidog',
+      name: 'API Dog',
+      color: '#FA5A28',
+      oauthEnabled: false,
+      apiFields: ['baseUrl', 'apiToken'],
+      description: 'All-in-one API service partner',
     },
   ],
 };
@@ -541,6 +574,14 @@ function AddChannelModal({ isOpen, onClose, onAdd }) {
           authToken: formData.authToken,
           phoneNumber: formData.phoneNumber.replace(/\D/g, ''),
         };
+      } else if (provider === 'apidog') {
+        configPayload = {
+          ...configPayload,
+          setupMode: 'SELF_SERVICE',
+          baseUrl: formData.baseUrl,
+          apiToken: formData.apiToken,
+          provider: 'APIDOG',
+        };
       } else if (provider === 'google' || provider === 'microsoft') {
         const token = localStorage.getItem('accessToken');
         if (!token) {
@@ -888,6 +929,37 @@ function AddChannelModal({ isOpen, onClose, onAdd }) {
               </>
             )}
 
+            {/* API Dog */}
+            {selectedProvider?.id === 'apidog' && (
+              <>
+                <div className="space-y-2">
+                  <Label className="text-gray-700">API Dog Base URL</Label>
+                  <Input
+                    placeholder="https://mock.apidog.com/m1/xxxxx-xxxxx-default"
+                    value={formData.baseUrl || ''}
+                    onChange={(e) => setFormData({ ...formData, baseUrl: e.target.value })}
+                    className="h-11 rounded-xl bg-gray-50 border-0"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-gray-700">API Token</Label>
+                  <Input
+                    placeholder="Your API Dog authentication token"
+                    value={formData.apiToken || ''}
+                    onChange={(e) => setFormData({ ...formData, apiToken: e.target.value })}
+                    className="h-11 rounded-xl bg-gray-50 border-0"
+                  />
+                </div>
+                <div className="p-4 rounded-xl bg-orange-50 text-orange-700 text-sm">
+                  <p className="font-medium mb-2">API Dog Service Partner</p>
+                  <p className="text-xs">
+                    API Dog provides all channel APIs (WhatsApp, SMS, Voice, Email) through a
+                    single base URL. Enter your API Dog project URL and token above.
+                  </p>
+                </div>
+              </>
+            )}
+
             {/* Email OAuth */}
             {(selectedProvider?.id === 'google' || selectedProvider?.id === 'microsoft') && (
               <div className="p-4 rounded-xl bg-blue-50 text-blue-700 text-sm">
@@ -1033,6 +1105,15 @@ export default function ChannelConnectionsPage() {
   const handleToggle = async (id) => {
     const channel = channels.find((ch) => ch.id === id);
     if (!channel) return;
+
+    if (
+      channel.isEnabled &&
+      !confirm(
+        `Are you sure you want to disable "${channel.name}"? This will stop all messages on this channel.`
+      )
+    ) {
+      return;
+    }
 
     try {
       const newStatus = channel.isEnabled ? 'INACTIVE' : 'ACTIVE';

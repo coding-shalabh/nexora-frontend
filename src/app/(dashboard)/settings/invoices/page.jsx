@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { UnifiedLayout } from '@/components/layout/unified';
 import {
@@ -19,9 +19,19 @@ import {
   HelpCircle,
   DollarSign,
   Building2,
+  Check,
+  Sparkles,
+  FileCheck,
+  LayoutTemplate,
 } from 'lucide-react';
+import {
+  INVOICE_TEMPLATES,
+  getSelectedTemplateId,
+  setSelectedTemplateId,
+} from '@/config/invoice-templates';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -178,6 +188,11 @@ export default function InvoicesPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [activeTemplate, setActiveTemplate] = useState('standard');
+
+  useEffect(() => {
+    setActiveTemplate(getSelectedTemplateId());
+  }, []);
 
   const filteredInvoices = invoicesData.filter((invoice) => {
     const matchesSearch =
@@ -218,12 +233,114 @@ export default function InvoicesPage() {
         <motion.div variants={itemVariants} className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Invoices</h1>
-            <p className="text-muted-foreground">View and download your billing history</p>
+            <p className="text-muted-foreground">Manage invoice templates and billing history</p>
           </div>
           <Button variant="outline" size="sm" className="rounded-lg">
             <Download className="mr-2 h-4 w-4" />
             Export All
           </Button>
+        </motion.div>
+
+        {/* Invoice Template Selector */}
+        <motion.div variants={itemVariants}>
+          <Card className="rounded-2xl border">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+                  <LayoutTemplate className="h-5 w-5 text-indigo-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Invoice Templates</CardTitle>
+                  <CardDescription>Choose the default template for your invoices</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-3">
+                {Object.values(INVOICE_TEMPLATES).map((tpl) => {
+                  const isActive = activeTemplate === tpl.id;
+                  const icons = {
+                    standard: Sparkles,
+                    compact: FileText,
+                    gst_formal: FileCheck,
+                  };
+                  const colors = {
+                    standard: {
+                      bg: 'bg-indigo-50',
+                      border: 'border-indigo-200',
+                      icon: 'text-indigo-600',
+                      iconBg: 'bg-indigo-100',
+                      ring: 'ring-indigo-500',
+                    },
+                    compact: {
+                      bg: 'bg-slate-50',
+                      border: 'border-slate-200',
+                      icon: 'text-slate-600',
+                      iconBg: 'bg-slate-100',
+                      ring: 'ring-slate-500',
+                    },
+                    gst_formal: {
+                      bg: 'bg-amber-50',
+                      border: 'border-amber-200',
+                      icon: 'text-amber-600',
+                      iconBg: 'bg-amber-100',
+                      ring: 'ring-amber-500',
+                    },
+                  };
+                  const TplIcon = icons[tpl.id] || FileText;
+                  const c = colors[tpl.id] || colors.standard;
+
+                  return (
+                    <div
+                      key={tpl.id}
+                      onClick={() => {
+                        setSelectedTemplateId(tpl.id);
+                        setActiveTemplate(tpl.id);
+                      }}
+                      className={cn(
+                        'relative cursor-pointer rounded-xl border-2 p-4 transition-all hover:shadow-md',
+                        isActive
+                          ? `${c.border} ${c.bg} ring-2 ${c.ring} ring-offset-1`
+                          : 'border-gray-200 bg-white hover:border-gray-300'
+                      )}
+                    >
+                      {isActive && (
+                        <div className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-green-500 flex items-center justify-center shadow-sm">
+                          <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+                        </div>
+                      )}
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={cn(
+                            'h-10 w-10 rounded-lg flex items-center justify-center shrink-0',
+                            c.iconBg
+                          )}
+                        >
+                          <TplIcon className={cn('h-5 w-5', c.icon)} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-sm">{tpl.name}</h3>
+                            {isActive && (
+                              <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-[10px] px-1.5 py-0">
+                                Default
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                            {tpl.description}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground/70 mt-2 italic">
+                            {tpl.preview}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Stats */}

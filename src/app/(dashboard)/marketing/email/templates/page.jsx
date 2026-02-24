@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { sanitizeHtml } from '@/lib/sanitize';
 import Link from 'next/link';
 import {
   Plus,
@@ -638,7 +639,7 @@ export default function EmailTemplatesPage() {
             <div className="flex-1 overflow-auto border rounded-md p-4 bg-white">
               <div
                 dangerouslySetInnerHTML={{
-                  __html: selectedTemplate?.content || '',
+                  __html: sanitizeHtml(selectedTemplate?.content || ''),
                 }}
               />
             </div>

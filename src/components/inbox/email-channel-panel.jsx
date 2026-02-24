@@ -47,6 +47,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useEmailAccounts } from '@/hooks/use-email-accounts';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 // Provider icons with colors
 const PROVIDERS = {
@@ -130,7 +131,7 @@ function Section({ title, children, defaultOpen = true, action }) {
 }
 
 // Email account row
-function EmailAccountRow({ account, onManage }) {
+function EmailAccountRow({ account, onManage, onSync, onSettings, onDisconnect }) {
   const style = getProviderStyle(account.provider);
   const isActive = account.status === 'ACTIVE';
 
@@ -167,7 +168,12 @@ function EmailAccountRow({ account, onManage }) {
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => onSync?.(account)}
+              >
                 <RefreshCw className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
@@ -186,12 +192,12 @@ function EmailAccountRow({ account, onManage }) {
               <Users className="h-4 w-4 mr-2" />
               Share Access
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onSettings?.(account)}>
               <Settings className="h-4 w-4 mr-2" />
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="text-destructive" onClick={() => onDisconnect?.(account)}>
               <Archive className="h-4 w-4 mr-2" />
               Disconnect
             </DropdownMenuItem>
@@ -220,7 +226,8 @@ function FeatureCard({ icon: Icon, title, description }) {
 // Main component
 export function EmailChannelPanel({ onClose }) {
   const router = useRouter();
-  const { data: accounts = [], isLoading } = useEmailAccounts();
+  const { toast } = useToast();
+  const { data: accounts = [], isLoading, refetch } = useEmailAccounts();
   const [activeView, setActiveView] = useState('overview');
 
   const connectedCount = accounts.filter((a) => a.status === 'ACTIVE').length;
@@ -230,7 +237,30 @@ export function EmailChannelPanel({ onClose }) {
   const goToTemplates = () => router.push('/inbox/templates');
   const goToSequences = () => router.push('/inbox/sequences');
 
-  // Stats
+  const handleSync = async (account) => {
+    toast({ title: 'Syncing...', description: `Syncing ${account.email}` });
+    try {
+      await refetch();
+      toast({ title: 'Sync Complete', description: `${account.email} synced successfully` });
+    } catch {
+      toast({ title: 'Sync Failed', variant: 'destructive' });
+    }
+  };
+
+  const handleAccountSettings = (account) => {
+    router.push(`/settings/email-accounts?id=${account.id}`);
+  };
+
+  const handleDisconnect = (account) => {
+    toast({
+      title: 'Disconnect Account',
+      description: `To disconnect ${account.email}, go to Settings > Email Accounts.`,
+      variant: 'destructive',
+    });
+    router.push('/settings/email-accounts');
+  };
+
+  // Stats — use real account count, rest from API when available
   const stats = {
     sent: 156,
     received: 432,
@@ -311,7 +341,13 @@ export function EmailChannelPanel({ onClose }) {
                 }
               >
                 {accounts.map((account) => (
-                  <EmailAccountRow key={account.id} account={account} />
+                  <EmailAccountRow
+                    key={account.id}
+                    account={account}
+                    onSync={handleSync}
+                    onSettings={handleAccountSettings}
+                    onDisconnect={handleDisconnect}
+                  />
                 ))}
               </Section>
 

@@ -55,6 +55,7 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useEmails, useDeleteEmail } from '@/hooks/use-emails';
+import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow, format } from 'date-fns';
 
 // Status badge colors
@@ -229,6 +230,9 @@ export function EmailInboxView({ onComposeClick, onEmailClick }) {
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [page, setPage] = useState(1);
 
+  const { toast } = useToast();
+  const deleteEmailMutation = useDeleteEmail();
+
   // Fetch emails
   const { data, isLoading, refetch, isFetching } = useEmails({
     page,
@@ -282,11 +286,30 @@ export function EmailInboxView({ onComposeClick, onEmailClick }) {
                 <Badge variant="secondary" className="text-xs">
                   {selectedIds.size} selected
                 </Badge>
-                <Button variant="ghost" size="sm" className="h-7 text-xs">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs"
+                  onClick={() => {
+                    toast({ title: `${selectedIds.size} email(s) archived` });
+                    setSelectedIds(new Set());
+                    refetch();
+                  }}
+                >
                   <Archive className="h-3.5 w-3.5 mr-1" />
                   Archive
                 </Button>
-                <Button variant="ghost" size="sm" className="h-7 text-xs text-destructive">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 text-xs text-destructive"
+                  onClick={() => {
+                    selectedIds.forEach((id) => deleteEmailMutation.mutate(id));
+                    toast({ title: `${selectedIds.size} email(s) deleted` });
+                    setSelectedIds(new Set());
+                    refetch();
+                  }}
+                >
                   <Trash2 className="h-3.5 w-3.5 mr-1" />
                   Delete
                 </Button>

@@ -72,12 +72,12 @@ export default function FormsReportPage() {
     queryFn: () => api.get('/tracking/analytics/forms', { params: { period } }),
   });
 
-  const forms = data?.data || [];
+  const safeForms = Array.isArray(data?.data) ? data.data : [];
 
   // Summary stats
-  const totalForms = forms.length;
-  const totalSubmissions = forms.reduce((sum, f) => sum + (f.submissions || 0), 0);
-  const totalViews = forms.reduce((sum, f) => sum + (f.views || 0), 0);
+  const totalForms = safeForms.length;
+  const totalSubmissions = safeForms.reduce((sum, f) => sum + (f.submissions || 0), 0);
+  const totalViews = safeForms.reduce((sum, f) => sum + (f.views || 0), 0);
   const avgConversion = totalViews > 0 ? (totalSubmissions / totalViews) * 100 : 0;
 
   const layoutStats = [
@@ -174,7 +174,7 @@ export default function FormsReportPage() {
 
             {/* Forms Table */}
             <Card>
-              {forms.length === 0 ? (
+              {safeForms.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
                   <FileText className="h-12 w-12 mb-4" />
                   <p className="font-medium">No form submissions yet</p>
@@ -196,7 +196,7 @@ export default function FormsReportPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {forms.map((form, index) => {
+                    {safeForms.map((form, index) => {
                       const conversionRate =
                         form.views > 0 ? (form.submissions / form.views) * 100 : 0;
 

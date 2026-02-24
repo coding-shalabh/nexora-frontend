@@ -113,7 +113,7 @@ export default function VisitorsPage() {
   });
 
   const sessions = data?.data || [];
-  const meta = data?.meta || { total: 0, pages: 1 };
+  const meta = data?.data?.meta || { total: 0, pages: 1 };
 
   const filteredSessions = searchQuery
     ? sessions.filter(

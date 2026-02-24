@@ -62,6 +62,7 @@ import {
   useMarkNotificationRead,
   useMarkAllNotificationsRead,
 } from '@/hooks/use-notifications';
+import { HubSwitcher } from '@/components/layout/hub-switcher';
 
 // Notification type to icon and color mapping
 const notificationTypeConfig = {
@@ -241,7 +242,7 @@ export function GlobalHeader() {
           </Link>
 
           {/* Vertical Separator */}
-          <div className="h-8 w-px bg-gray-300 mx-3" />
+          <div className="h-8 w-px bg-gray-300 dark:bg-gray-600 mx-3" />
 
           {/* Customer Logo */}
           <div className="flex items-center">
@@ -267,18 +268,24 @@ export function GlobalHeader() {
                 />
               )
             ) : (
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {user?.tenant?.name || 'My Company'}
               </span>
             )}
           </div>
+
+          {/* Vertical Separator */}
+          <div className="h-8 w-px bg-gray-300 dark:bg-gray-600 mx-3" />
+
+          {/* Hub Switcher */}
+          <HubSwitcher />
 
           {/* Search Bar - aligned with HubLayout stats bar left edge */}
           <div className="relative hidden md:block ml-[52px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search..."
-              className="pl-9 h-9 w-[400px] bg-white/80 border border-gray-200 rounded-lg focus:bg-white"
+              className="pl-9 h-9 w-[400px] bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-lg focus:bg-white dark:focus:bg-gray-800"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch(e)}
@@ -296,7 +303,7 @@ export function GlobalHeader() {
                 variant="ghost"
                 size="icon"
                 onClick={() => setNavExpanded(!navExpanded)}
-                className="h-8 w-8 text-gray-500 hover:text-gray-700 hover:bg-white/50"
+                className="h-8 w-8 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10"
                 aria-label={navExpanded ? 'Collapse navigation' : 'Expand navigation'}
               >
                 {navExpanded ? (
@@ -326,7 +333,7 @@ export function GlobalHeader() {
                             }}
                             transition={{ duration: 0.2, ease: 'easeInOut' }}
                             className={cn(
-                              'relative flex items-center h-8 rounded-md text-gray-700 hover:text-gray-900 hover:bg-white/50 cursor-pointer'
+                              'relative flex items-center h-8 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10 cursor-pointer'
                             )}
                           >
                             <ItemIcon className="h-4 w-4 shrink-0" />
@@ -360,13 +367,13 @@ export function GlobalHeader() {
           </TooltipProvider>
 
           {/* Vertical Separator */}
-          <div className="h-6 w-px bg-gray-300 hidden md:block" />
+          <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 hidden md:block" />
 
           {/* Mobile Search Icon */}
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 text-gray-600 hover:text-gray-900 hover:bg-white/50 md:hidden"
+            className="h-9 w-9 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10 md:hidden"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
           >
@@ -379,7 +386,7 @@ export function GlobalHeader() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative h-9 w-9 text-gray-600 hover:text-gray-900 hover:bg-white/50"
+                className="relative h-9 w-9 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10"
                 aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
               >
                 <Bell className="h-4 w-4" />
@@ -449,7 +456,7 @@ export function GlobalHeader() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 text-gray-600 hover:text-gray-900 hover:bg-white/50"
+                  className="h-9 w-9 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-white/50 dark:hover:bg-white/10"
                   asChild
                   aria-label="Settings"
                 >
@@ -468,10 +475,10 @@ export function GlobalHeader() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 rounded-full hover:bg-white/50"
+                className="h-9 w-9 rounded-full hover:bg-white/50 dark:hover:bg-white/10"
                 aria-label="User menu"
               >
-                <div className="flex h-7 w-7 items-center justify-center rounded-full ring-2 ring-gray-200 bg-brand">
+                <div className="flex h-7 w-7 items-center justify-center rounded-full ring-2 ring-gray-200 dark:ring-gray-700 bg-brand">
                   <span className="text-xs font-medium text-white">{getUserInitials()}</span>
                 </div>
               </Button>

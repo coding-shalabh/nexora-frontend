@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { sanitizeHtml } from '@/lib/sanitize';
 import {
   Search,
   Plus,
@@ -484,7 +485,7 @@ function ResponsePreview({ response, onEdit, onDuplicate, onDelete, onCopy, cate
             <div className="p-5 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200">
               <p
                 className="text-sm leading-relaxed whitespace-pre-wrap"
-                dangerouslySetInnerHTML={{ __html: highlightedContent }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlightedContent) }}
               />
             </div>
             <Button

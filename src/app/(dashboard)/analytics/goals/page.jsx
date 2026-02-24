@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
@@ -43,17 +43,13 @@ import {
   Users,
   DollarSign,
   Ticket,
-  MessageSquare,
-  Package,
   Trash2,
   Edit,
   Copy,
   Award,
-  Flag,
   CheckCircle,
   AlertCircle,
   Clock,
-  Zap,
 } from 'lucide-react';
 
 // Mock data for goals
@@ -167,6 +163,12 @@ const statusConfig = {
   achieved: { label: 'Achieved', color: 'bg-blue-100 text-blue-700', icon: Award },
 };
 
+const defaultStatusConfig = {
+  label: 'Unknown',
+  color: 'bg-gray-100 text-gray-700',
+  icon: AlertCircle,
+};
+
 function formatValue(value, unit) {
   if (unit === '$') {
     if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
@@ -176,36 +178,47 @@ function formatValue(value, unit) {
   return `${value}${unit}`;
 }
 
+const emptyForm = {
+  name: '',
+  description: '',
+  metric: 'revenue',
+  target: '',
+  unit: '',
+  period: 'monthly',
+  assignedTo: '',
+  startDate: '',
+  endDate: '',
+};
+
 function CreateGoalDialog({ open, onOpenChange, onSubmit, editGoal }) {
-  const [formData, setFormData] = useState({
-    name: editGoal?.name || '',
-    description: editGoal?.description || '',
-    metric: editGoal?.metric || 'revenue',
-    target: editGoal?.target || '',
-    unit: editGoal?.unit || '',
-    period: editGoal?.period || 'monthly',
-    assignedTo: editGoal?.assignedTo || '',
-    startDate: editGoal?.startDate || '',
-    endDate: editGoal?.endDate || '',
-  });
+  const [formData, setFormData] = useState(emptyForm);
+
+  // Sync form data when editGoal changes
+  useEffect(() => {
+    if (editGoal) {
+      setFormData({
+        name: editGoal.name || '',
+        description: editGoal.description || '',
+        metric: editGoal.metric || 'revenue',
+        target: editGoal.target || '',
+        unit: editGoal.unit || '',
+        period: editGoal.period || 'monthly',
+        assignedTo: editGoal.assignedTo || '',
+        startDate: editGoal.startDate || '',
+        endDate: editGoal.endDate || '',
+      });
+    } else {
+      setFormData(emptyForm);
+    }
+  }, [editGoal, open]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit({
       ...formData,
-      target: parseFloat(formData.target),
+      target: parseFloat(formData.target) || 0,
     });
-    setFormData({
-      name: '',
-      description: '',
-      metric: 'revenue',
-      target: '',
-      unit: '',
-      period: 'monthly',
-      assignedTo: '',
-      startDate: '',
-      endDate: '',
-    });
+    setFormData(emptyForm);
   };
 
   return (
@@ -219,7 +232,9 @@ function CreateGoalDialog({ open, onOpenChange, onSubmit, editGoal }) {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Goal Name</Label>
+            <Label htmlFor="name">
+              Goal Name <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="name"
               value={formData.name}
@@ -300,7 +315,9 @@ function CreateGoalDialog({ open, onOpenChange, onSubmit, editGoal }) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date</Label>
+              <Label htmlFor="startDate">
+                Start Date <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="startDate"
                 type="date"
@@ -310,7 +327,9 @@ function CreateGoalDialog({ open, onOpenChange, onSubmit, editGoal }) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="endDate">End Date</Label>
+              <Label htmlFor="endDate">
+                End Date <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="endDate"
                 type="date"
@@ -355,7 +374,8 @@ export default function GoalsPage() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       return (
-        goal.name.toLowerCase().includes(query) || goal.description.toLowerCase().includes(query)
+        goal.name.toLowerCase().includes(query) ||
+        (goal.description || '').toLowerCase().includes(query)
       );
     }
     return true;
@@ -421,8 +441,8 @@ export default function GoalsPage() {
       <div className="h-full overflow-y-auto p-6 space-y-6">
         {/* Filters */}
         <Card className="p-4">
-          <div className="flex items-center gap-4">
-            <div className="relative flex-1 max-w-md">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="relative flex-1 min-w-[200px] max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search goals..."
@@ -463,9 +483,16 @@ export default function GoalsPage() {
         {/* Goals Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredGoals.map((goal) => {
-            const MetricIcon = metricConfig[goal.metric]?.icon || Target;
-            const StatusIcon = statusConfig[goal.status].icon;
-            const progress = Math.min(100, Math.round((goal.current / goal.target) * 100));
+            const metricEntry = metricConfig[goal.metric] || {
+              label: goal.metric,
+              icon: Target,
+              color: 'text-gray-600',
+            };
+            const MetricIcon = metricEntry.icon;
+            const statusEntry = statusConfig[goal.status] || defaultStatusConfig;
+            const StatusIcon = statusEntry.icon;
+            const progress =
+              goal.target > 0 ? Math.min(100, Math.round((goal.current / goal.target) * 100)) : 0;
 
             return (
               <Card key={goal.id} className="overflow-hidden">
@@ -485,9 +512,9 @@ export default function GoalsPage() {
                           )}
                         />
                       </div>
-                      <Badge className={statusConfig[goal.status].color}>
+                      <Badge className={statusEntry.color}>
                         <StatusIcon className="h-3 w-3 mr-1" />
-                        {statusConfig[goal.status].label}
+                        {statusEntry.label}
                       </Badge>
                     </div>
                     <DropdownMenu>
@@ -573,12 +600,16 @@ export default function GoalsPage() {
             <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="text-lg font-semibold mb-2">No goals found</h3>
             <p className="text-muted-foreground mb-4">
-              Create your first goal to start tracking progress
+              {searchQuery || filterStatus !== 'all' || filterPeriod !== 'all'
+                ? 'Try adjusting your filters'
+                : 'Create your first goal to start tracking progress'}
             </p>
-            <Button onClick={() => setCreateDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Goal
-            </Button>
+            {!searchQuery && filterStatus === 'all' && filterPeriod === 'all' && (
+              <Button onClick={() => setCreateDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Goal
+              </Button>
+            )}
           </Card>
         )}
 

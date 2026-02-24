@@ -38,6 +38,7 @@ import {
   TableFooter,
 } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
+import { api } from '@/lib/api';
 
 export default function NewInvoicePage() {
   const router = useRouter();
@@ -97,14 +98,36 @@ export default function NewInvoicePage() {
       return;
     }
 
-    setTimeout(() => {
+    try {
+      const payload = {
+        dueDate: formData.dueDate
+          ? new Date(formData.dueDate).toISOString()
+          : new Date(Date.now() + 30 * 86400000).toISOString(),
+        items: formData.items.map((item) => ({
+          description: item.description,
+          quantity: item.quantity,
+          unitPrice: item.rate,
+          discount: 0,
+        })),
+        notes: formData.notes || undefined,
+        tax: formData.tax || undefined,
+      };
+
+      await api.post('/billing/invoices', payload);
       toast({
         title: 'Invoice created',
         description: 'Invoice has been created successfully.',
       });
       router.push('/commerce/invoices');
+    } catch (err) {
+      toast({
+        title: 'Creation failed',
+        description: err.response?.data?.message || 'Could not create invoice. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
       setIsSaving(false);
-    }, 1000);
+    }
   };
 
   return (

@@ -186,7 +186,7 @@ export function MarketingSidebar() {
     <TooltipProvider delayDuration={0}>
       <motion.aside
         initial={false}
-        animate={{ width: isCollapsed ? 64 : 220 }}
+        animate={{ width: isCollapsed ? 64 : 180 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }}
         className="relative h-full flex flex-col bg-transparent"
       >

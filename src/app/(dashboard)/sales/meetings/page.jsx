@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Calendar,
@@ -94,6 +95,7 @@ const meetingStats = {
 };
 
 export default function MeetingsPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('upcoming');
 
   const getMeetingIcon = (type) => {
@@ -133,7 +135,7 @@ export default function MeetingsPage() {
   ];
 
   const actions = [
-    createAction('Schedule Meeting', Plus, () => console.log('schedule'), { primary: true }),
+    createAction('Schedule Meeting', Plus, () => router.push('/calendar'), { primary: true }),
   ];
 
   return (
@@ -254,7 +256,7 @@ export default function MeetingsPage() {
                   <p className="text-muted-foreground mb-4">
                     Schedule your first meeting to get started
                   </p>
-                  <Button>
+                  <Button onClick={() => router.push('/calendar')}>
                     <Plus className="h-4 w-4 mr-2" />
                     Schedule Meeting
                   </Button>

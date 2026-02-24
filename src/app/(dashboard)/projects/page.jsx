@@ -107,8 +107,8 @@ export default function ProjectsPage() {
   const createProject = useCreateProject();
   const deleteProject = useDeleteProject();
 
-  const projects = data?.projects || [];
-  const meta = data?.meta || {};
+  const projects = data?.data?.projects || [];
+  const meta = data?.data?.meta || {};
 
   const handleCreateProject = async (e) => {
     e.preventDefault();

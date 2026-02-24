@@ -19,7 +19,7 @@ import { useState } from 'react';
 
 export default function ProjectsTimelinePage() {
   const { data, isLoading } = useProjects({});
-  const projects = data?.projects || [];
+  const projects = data?.data?.projects || [];
   const [viewMonth, setViewMonth] = useState(new Date());
 
   const stats = [

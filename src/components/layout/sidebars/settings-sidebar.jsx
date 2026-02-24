@@ -45,6 +45,8 @@ import {
   RefreshCw,
   Bot,
   FileSignature,
+  Package,
+  FileBarChart,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -185,14 +187,37 @@ const navigationSections = [
     ],
   },
   {
+    id: 'commerce',
+    title: 'Commerce',
+    subtitle: 'Customer billing & invoicing',
+    icon: Receipt,
+    items: [
+      {
+        title: 'GST Configuration',
+        href: '/settings/gst-configuration',
+        icon: FileBarChart,
+        color: 'text-green-600',
+        bgColor: 'bg-green-600/10',
+      },
+      {
+        title: 'HSN/SAC Codes',
+        href: '/settings/hsn-sac-codes',
+        icon: Package,
+        color: 'text-indigo-600',
+        bgColor: 'bg-indigo-600/10',
+      },
+      { title: 'Invoice Settings', href: '/settings/invoices', icon: Receipt },
+      { title: 'Payment Methods', href: '/settings/payment-methods', icon: CreditCard },
+    ],
+  },
+  {
     id: 'billing',
-    title: 'Billing',
-    subtitle: 'Subscription & payments',
+    title: 'Subscription',
+    subtitle: 'Nexora billing & usage',
     icon: CreditCard,
     items: [
-      { title: 'Subscription', href: '/settings/subscription', icon: CreditCard },
-      { title: 'Wallet', href: '/settings/wallet', icon: Wallet },
-      { title: 'Invoices', href: '/settings/invoices', icon: Receipt },
+      { title: 'Plan & Billing', href: '/settings/subscription', icon: CreditCard },
+      { title: 'Wallet & Credits', href: '/settings/wallet', icon: Wallet },
     ],
   },
 ];
@@ -576,6 +601,30 @@ const pageStats = {
     { value: '4', label: 'Pending', icon: Clock, bg: 'bg-amber-50', color: 'text-amber-600' },
     { value: '2', label: 'Rejected', icon: Lock, bg: 'bg-red-50', color: 'text-red-600' },
   ],
+  '/settings/gst-configuration': [
+    { value: '-', label: 'GSTIN', icon: FileBarChart, bg: 'bg-green-50', color: 'text-green-600' },
+    { value: '-', label: 'State', icon: Building2, bg: 'bg-blue-50', color: 'text-blue-600' },
+    {
+      value: 'Not Set',
+      label: 'Status',
+      icon: CheckCircle,
+      bg: 'bg-amber-50',
+      color: 'text-amber-600',
+    },
+    { value: 'Regular', label: 'Type', icon: Shield, bg: 'bg-purple-50', color: 'text-purple-600' },
+  ],
+  '/settings/hsn-sac-codes': [
+    { value: '0', label: 'Codes', icon: Package, bg: 'bg-indigo-50', color: 'text-indigo-600' },
+    { value: '0', label: 'HSN', icon: Package, bg: 'bg-blue-50', color: 'text-blue-600' },
+    { value: '0', label: 'SAC', icon: FileText, bg: 'bg-green-50', color: 'text-green-600' },
+    {
+      value: '18%',
+      label: 'Avg Rate',
+      icon: CreditCard,
+      bg: 'bg-purple-50',
+      color: 'text-purple-600',
+    },
+  ],
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -606,6 +655,10 @@ const pageActions = {
   '/settings/workflows': [{ icon: 'plus', label: 'New Workflow', variant: 'default' }],
   '/settings/triggers': [{ icon: 'plus', label: 'Add Trigger', variant: 'default' }],
   '/settings/audit': [{ icon: 'download', label: 'Export Logs', variant: 'default' }],
+  '/settings/gst-configuration': [
+    { icon: 'save', label: 'Save Configuration', variant: 'default' },
+  ],
+  '/settings/hsn-sac-codes': [{ icon: 'plus', label: 'Add Code', variant: 'default' }],
 };
 
 import {

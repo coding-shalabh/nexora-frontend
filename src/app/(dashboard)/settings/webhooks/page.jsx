@@ -262,7 +262,10 @@ export default function WebhooksPage() {
         className="flex-1 space-y-6 p-6"
       >
         {/* Header */}
-        <motion.div variants={itemVariants} className="flex items-center justify-between">
+        <motion.div
+          variants={itemVariants}
+          className="flex items-center justify-between relative z-10"
+        >
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Webhooks</h1>
             <p className="text-muted-foreground">

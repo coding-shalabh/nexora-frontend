@@ -1,6 +1,7 @@
 'use client';
 
 import { Plus, Users, MoreHorizontal, DollarSign, Target } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -49,6 +50,8 @@ const totalValue = pipelineStages.reduce(
 );
 
 export default function SalesPipelinePage() {
+  const router = useRouter();
+
   const stats = [
     createStat('Total Deals', totalDeals, Target, 'blue'),
     createStat('Pipeline Value', `$${(totalValue / 1000).toFixed(0)}K`, DollarSign, 'green'),
@@ -62,7 +65,7 @@ export default function SalesPipelinePage() {
   ];
 
   const actions = [
-    createAction('Add Deal', Plus, () => console.log('add deal'), { primary: true }),
+    createAction('Add Deal', Plus, () => router.push('/sales/deals/new'), { primary: true }),
   ];
 
   return (
@@ -108,7 +111,12 @@ export default function SalesPipelinePage() {
                       </p>
                     </Card>
                   ))}
-                  <Button variant="ghost" className="w-full text-muted-foreground" size="sm">
+                  <Button
+                    variant="ghost"
+                    className="w-full text-muted-foreground"
+                    size="sm"
+                    onClick={() => router.push('/sales/deals/new')}
+                  >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Deal
                   </Button>

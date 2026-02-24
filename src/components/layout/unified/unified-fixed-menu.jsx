@@ -74,6 +74,7 @@ export function UnifiedFixedMenu({
 
   const {
     items = [],
+    list,
     hasDetailPage = false,
     detailBasePath = '',
     getItemId = (item) => item.id,
@@ -203,20 +204,47 @@ export function UnifiedFixedMenu({
 
       {/* ─── LIST: Scrollable items ─── */}
       <ScrollArea className="flex-1">
-        <div className="p-2 space-y-1">
-          {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 text-gray-400">
-              {EmptyIcon && <EmptyIcon className="h-10 w-10 mb-3 opacity-50" />}
-              <p className="text-sm">{emptyMessage}</p>
-            </div>
-          ) : (
-            <AnimatePresence mode="popLayout">
-              {items.map((item, index) => {
-                const itemId = getItemId(item);
-                const isSelected = isItemSelected(item);
+        {list ? (
+          list
+        ) : (
+          <div className="p-2 space-y-1">
+            {items.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-400">
+                {EmptyIcon && <EmptyIcon className="h-10 w-10 mb-3 opacity-50" />}
+                <p className="text-sm">{emptyMessage}</p>
+              </div>
+            ) : (
+              <AnimatePresence mode="popLayout">
+                {items.map((item, index) => {
+                  const itemId = getItemId(item);
+                  const isSelected = isItemSelected(item);
 
-                // Use custom renderer if provided
-                if (renderItem) {
+                  // Use custom renderer if provided
+                  if (renderItem) {
+                    return (
+                      <motion.div
+                        key={itemId}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.15, delay: index * 0.02 }}
+                      >
+                        {renderItem({
+                          item,
+                          isSelected,
+                          onSelect: () => onSelect?.(item),
+                          href: hasDetailPage ? `${detailBasePath}/${itemId}` : undefined,
+                        })}
+                      </motion.div>
+                    );
+                  }
+
+                  // Default item rendering
+                  const ItemWrapper = hasDetailPage ? Link : 'button';
+                  const itemProps = hasDetailPage
+                    ? { href: `${detailBasePath}/${itemId}` }
+                    : { onClick: () => onSelect?.(item), type: 'button' };
+
                   return (
                     <motion.div
                       key={itemId}
@@ -225,122 +253,99 @@ export function UnifiedFixedMenu({
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.15, delay: index * 0.02 }}
                     >
-                      {renderItem({
-                        item,
-                        isSelected,
-                        onSelect: () => onSelect?.(item),
-                        href: hasDetailPage ? `${detailBasePath}/${itemId}` : undefined,
-                      })}
-                    </motion.div>
-                  );
-                }
-
-                // Default item rendering
-                const ItemWrapper = hasDetailPage ? Link : 'button';
-                const itemProps = hasDetailPage
-                  ? { href: `${detailBasePath}/${itemId}` }
-                  : { onClick: () => onSelect?.(item), type: 'button' };
-
-                return (
-                  <motion.div
-                    key={itemId}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.15, delay: index * 0.02 }}
-                  >
-                    <ItemWrapper
-                      {...itemProps}
-                      className={cn(
-                        'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all',
-                        isSelected
-                          ? 'bg-primary text-white'
-                          : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                      )}
-                    >
-                      {/* Avatar/Icon */}
-                      {item.avatar ? (
-                        <div className="h-10 w-10 rounded-full overflow-hidden shrink-0">
-                          <img
-                            src={item.avatar}
-                            alt={item.name || item.title}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      ) : item.icon ? (
-                        <div
-                          className={cn(
-                            'h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-                            isSelected ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-700'
-                          )}
-                        >
-                          <item.icon
-                            className={cn('h-5 w-5', isSelected ? 'text-white' : 'text-gray-500')}
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          className={cn(
-                            'h-10 w-10 rounded-full flex items-center justify-center shrink-0 font-medium',
-                            isSelected ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'
-                          )}
-                        >
-                          {(item.name || item.title || '?').charAt(0).toUpperCase()}
-                        </div>
-                      )}
-
-                      {/* Content */}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <span
+                      <ItemWrapper
+                        {...itemProps}
+                        className={cn(
+                          'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all',
+                          isSelected
+                            ? 'bg-primary text-white'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                        )}
+                      >
+                        {/* Avatar/Icon */}
+                        {item.avatar ? (
+                          <div className="h-10 w-10 rounded-full overflow-hidden shrink-0">
+                            <img
+                              src={item.avatar}
+                              alt={item.name || item.title}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        ) : item.icon ? (
+                          <div
                             className={cn(
-                              'font-medium truncate',
-                              isSelected ? 'text-white' : 'text-gray-900 dark:text-white'
+                              'h-10 w-10 rounded-full flex items-center justify-center shrink-0',
+                              isSelected ? 'bg-white/20' : 'bg-gray-100 dark:bg-gray-700'
                             )}
                           >
-                            {item.name || item.title}
-                          </span>
-                          {item.time && (
+                            <item.icon
+                              className={cn('h-5 w-5', isSelected ? 'text-white' : 'text-gray-500')}
+                            />
+                          </div>
+                        ) : (
+                          <div
+                            className={cn(
+                              'h-10 w-10 rounded-full flex items-center justify-center shrink-0 font-medium',
+                              isSelected ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'
+                            )}
+                          >
+                            {(item.name || item.title || '?').charAt(0).toUpperCase()}
+                          </div>
+                        )}
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
                             <span
                               className={cn(
-                                'text-xs shrink-0',
-                                isSelected ? 'text-white/70' : 'text-gray-400'
+                                'font-medium truncate',
+                                isSelected ? 'text-white' : 'text-gray-900 dark:text-white'
                               )}
                             >
-                              {item.time}
+                              {item.name || item.title}
                             </span>
+                            {item.time && (
+                              <span
+                                className={cn(
+                                  'text-xs shrink-0',
+                                  isSelected ? 'text-white/70' : 'text-gray-400'
+                                )}
+                              >
+                                {item.time}
+                              </span>
+                            )}
+                          </div>
+                          {item.subtitle && (
+                            <p
+                              className={cn(
+                                'text-sm truncate',
+                                isSelected ? 'text-white/80' : 'text-gray-500'
+                              )}
+                            >
+                              {item.subtitle}
+                            </p>
                           )}
                         </div>
-                        {item.subtitle && (
-                          <p
+
+                        {/* Badge */}
+                        {item.badge && (
+                          <span
                             className={cn(
-                              'text-sm truncate',
-                              isSelected ? 'text-white/80' : 'text-gray-500'
+                              'flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold shrink-0',
+                              isSelected ? 'bg-white/20 text-white' : 'bg-primary text-white'
                             )}
                           >
-                            {item.subtitle}
-                          </p>
+                            {item.badge}
+                          </span>
                         )}
-                      </div>
-
-                      {/* Badge */}
-                      {item.badge && (
-                        <span
-                          className={cn(
-                            'flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-bold shrink-0',
-                            isSelected ? 'bg-white/20 text-white' : 'bg-primary text-white'
-                          )}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                    </ItemWrapper>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          )}
-        </div>
+                      </ItemWrapper>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            )}
+          </div>
+        )}
       </ScrollArea>
 
       {/* ─── FOOTER: Pagination/Stats ─── */}

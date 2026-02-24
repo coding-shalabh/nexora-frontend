@@ -24,6 +24,7 @@ import {
   HelpCircle,
   Puzzle,
   Globe,
+  FlaskConical,
 } from 'lucide-react';
 import { UnifiedLayout } from '@/components/layout/unified';
 
@@ -246,6 +247,12 @@ const providerLogos = {
     fallbackBg: 'bg-indigo-600',
     fallbackColor: 'text-white',
   },
+  postman: {
+    url: 'https://cdn.brandfetch.io/postman.com/w/400/h/400/logo',
+    fallbackBg: 'bg-orange-500',
+    fallbackColor: 'text-white',
+    icon: FlaskConical,
+  },
 };
 
 // Provider logo component with fallback
@@ -289,6 +296,7 @@ const providerCategories = {
   whatsapp: { label: 'WhatsApp', color: 'text-emerald-600', bg: 'bg-emerald-100' },
   voice: { label: 'Voice', color: 'text-orange-600', bg: 'bg-orange-100' },
   multi: { label: 'Multi-Channel', color: 'text-purple-600', bg: 'bg-purple-100' },
+  mock: { label: 'Development', color: 'text-orange-600', bg: 'bg-orange-100' },
 };
 
 export default function IntegrationsPage() {
@@ -717,7 +725,11 @@ export default function IntegrationsPage() {
                         <motion.div
                           key={provider.id}
                           variants={itemVariants}
-                          className="rounded-2xl border bg-white p-4 hover:shadow-md hover:border-primary/50 transition-all cursor-pointer"
+                          className={`rounded-2xl border p-4 hover:shadow-md transition-all cursor-pointer ${
+                            provider.category === 'mock'
+                              ? 'bg-gradient-to-br from-orange-50/50 to-amber-50/30 border-orange-300 border-dashed hover:border-orange-400'
+                              : 'bg-white hover:border-primary/50'
+                          }`}
                           onClick={() => router.push(`/settings/integrations/${provider.id}`)}
                         >
                           <div className="flex items-start gap-4">

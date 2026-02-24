@@ -450,7 +450,9 @@ export default function UsersPage() {
     createStat('Total Users', usersData.length, Users, 'blue'),
     createStat(
       'Active',
-      usersData.filter((u) => u.status === 'active').length,
+      usersData.filter(
+        (u) => u.status === 'ACTIVE' || u.isActive === true || (!u.status && u.email)
+      ).length,
       CheckCircle2,
       'green'
     ),

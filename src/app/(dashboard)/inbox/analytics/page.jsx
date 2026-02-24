@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
@@ -368,6 +368,51 @@ export default function InboxAnalyticsPage() {
     avgResponse: formatResponseTime(analytics?.overview?.avgResponseTime || 120),
   };
 
+  const [teamFilter, setTeamFilter] = useState('all');
+
+  const handleExportAnalytics = useCallback(() => {
+    const rows = [
+      ['Metric', 'Value'],
+      ['Total Conversations', analytics?.overview?.totalConversations || 0],
+      ['Active Contacts', analytics?.overview?.activeContacts || 0],
+      ['Avg Response Time', formatResponseTime(analytics?.overview?.avgResponseTime)],
+      ['Resolution Rate', `${analytics?.overview?.resolutionRate?.toFixed(1) || 0}%`],
+      ['Today New', todaySummary.newConversations || 0],
+      ['Today Resolved', todaySummary.resolved || 0],
+      ['Today Pending', todaySummary.pending || 0],
+      ['CSAT Score', todaySummary.csatScore || 'N/A'],
+    ];
+    if (agentPerformance.length > 0) {
+      rows.push([], ['Agent', 'Conversations', 'Avg Response', 'Satisfaction', 'Resolution']);
+      agentPerformance.forEach((a) => {
+        rows.push([a.name, a.conversations, a.avgResponseTime, a.satisfaction, `${a.resolved}%`]);
+      });
+    }
+    const csv = rows.map((r) => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `inbox-analytics-${dateRange}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [analytics, todaySummary, agentPerformance, dateRange]);
+
+  const handleCustomReport = useCallback(() => {
+    toast({
+      title: 'Custom Reports',
+      description: 'Custom report builder coming soon. Use segment filters for now.',
+    });
+  }, [toast]);
+
+  const filteredAgentPerformance = useMemo(() => {
+    if (teamFilter === 'all') return agentPerformance;
+    if (teamFilter === 'top')
+      return [...agentPerformance].sort((a, b) => b.resolved - a.resolved).slice(0, 5);
+    if (teamFilter === 'low') return agentPerformance.filter((a) => a.resolved < 90);
+    return agentPerformance;
+  }, [agentPerformance, teamFilter]);
+
   return (
     <div className="flex flex-col w-full h-full overflow-hidden">
       {/* Top Header with Search */}
@@ -396,7 +441,7 @@ export default function InboxAnalyticsPage() {
           <Button variant="outline" size="icon" onClick={() => refetch()}>
             <RefreshCw className="h-4 w-4" />
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExportAnalytics}>
             <Download className="h-4 w-4 mr-2" /> Export
           </Button>
         </div>
@@ -487,7 +532,7 @@ export default function InboxAnalyticsPage() {
 
           {/* Quick Actions Footer */}
           <div className="p-3 border-t shrink-0">
-            <Button variant="outline" className="w-full" size="sm">
+            <Button variant="outline" className="w-full" size="sm" onClick={handleCustomReport}>
               <PieChart className="h-4 w-4 mr-2" /> Custom Report
             </Button>
           </div>
@@ -860,9 +905,17 @@ export default function InboxAnalyticsPage() {
                           Agent metrics and productivity insights
                         </p>
                       </div>
-                      <Button variant="outline" size="sm">
-                        <Filter className="h-4 w-4 mr-1" /> Filter
-                      </Button>
+                      <Select value={teamFilter} onValueChange={setTeamFilter}>
+                        <SelectTrigger className="w-[140px] h-9">
+                          <Filter className="h-4 w-4 mr-1" />
+                          <SelectValue placeholder="Filter" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Agents</SelectItem>
+                          <SelectItem value="top">Top 5</SelectItem>
+                          <SelectItem value="low">Below SLA</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <Card className="p-4">
@@ -888,8 +941,8 @@ export default function InboxAnalyticsPage() {
                             </tr>
                           </thead>
                           <tbody>
-                            {agentPerformance.length > 0 ? (
-                              agentPerformance.map((agent, index) => (
+                            {filteredAgentPerformance.length > 0 ? (
+                              filteredAgentPerformance.map((agent, index) => (
                                 <motion.tr
                                   key={agent.name}
                                   initial={{ opacity: 0, x: -10 }}

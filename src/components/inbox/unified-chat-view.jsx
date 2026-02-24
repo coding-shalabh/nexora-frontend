@@ -361,6 +361,8 @@ export function UnifiedChatView({
   onTyping,
   isLoading = false,
   currentUserId,
+  onArchive,
+  onViewContact,
 }) {
   const [inputValue, setInputValue] = useState('');
   const [isRecording, setIsRecording] = useState(false);
@@ -494,7 +496,7 @@ export function UnifiedChatView({
                   align="end"
                   className="w-52 bg-white border-0 shadow-xl rounded-xl"
                 >
-                  <DropdownMenuItem className="py-2.5">
+                  <DropdownMenuItem className="py-2.5" onClick={() => inputRef.current?.focus()}>
                     <Pin className="h-4 w-4 mr-3 text-primary" />
                     Pin conversation
                   </DropdownMenuItem>
@@ -502,16 +504,19 @@ export function UnifiedChatView({
                     <BellOff className="h-4 w-4 mr-3 text-primary" />
                     Mute notifications
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="py-2.5">
+                  <DropdownMenuItem className="py-2.5" onClick={() => onArchive?.(conversation)}>
                     <Archive className="h-4 w-4 mr-3 text-primary" />
                     Archive
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="py-2.5">
+                  <DropdownMenuItem
+                    className="py-2.5"
+                    onClick={() => onViewContact?.(conversation)}
+                  >
                     <User className="h-4 w-4 mr-3 text-primary" />
                     View contact
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="py-2.5">
+                  <DropdownMenuItem className="py-2.5" onClick={() => inputRef.current?.focus()}>
                     <Search className="h-4 w-4 mr-3 text-primary" />
                     Search in chat
                   </DropdownMenuItem>

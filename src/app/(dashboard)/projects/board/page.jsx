@@ -24,7 +24,7 @@ const columns = [
 
 export default function ProjectsBoardPage() {
   const { data, isLoading } = useProjects({});
-  const projects = data?.projects || [];
+  const projects = data?.data?.projects || [];
 
   const stats = [
     createStat('Total', projects.length.toString(), FolderKanban, 'blue'),

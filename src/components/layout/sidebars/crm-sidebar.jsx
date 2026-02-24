@@ -46,98 +46,101 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTerminology } from '@/contexts/terminology-context';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// NAVIGATION SECTIONS - Based on HubSpot, Salesforce, Zoho, Pipedrive, Freshsales, Odoo
+// NAVIGATION SECTIONS - dynamic labels resolved via terminology context
 // ═══════════════════════════════════════════════════════════════════════════════
-const navigationSections = [
-  {
-    id: 'people',
-    title: 'People',
-    subtitle: 'Contacts & companies',
-    icon: Users,
-    items: [
-      { title: 'Contacts', href: '/crm/contacts', icon: Users },
-      { title: 'Companies', href: '/crm/companies', icon: Building2 },
-      { title: 'Leads', href: '/crm/leads', icon: UserCircle },
-    ],
-  },
-  {
-    id: 'engagement',
-    title: 'Engagement',
-    subtitle: 'Interactions & tasks',
-    icon: MessageSquare,
-    items: [
-      { title: 'Activities', href: '/crm/activities', icon: Activity },
-      { title: 'Tasks', href: '/crm/tasks', icon: ListTodo },
-      { title: 'Calls', href: '/crm/calls', icon: Phone },
-      { title: 'Meetings', href: '/crm/meetings', icon: Video },
-      { title: 'Notes', href: '/crm/notes', icon: FileText },
-      { title: 'Emails', href: '/crm/emails', icon: Mail },
-    ],
-  },
-  {
-    id: 'segments',
-    title: 'Segments',
-    subtitle: 'Lists & targeting',
-    icon: Layers,
-    items: [
-      { title: 'All Segments', href: '/crm/segments', icon: Layers },
-      { title: 'Dynamic Segments', href: '/crm/segments/dynamic', icon: Filter },
-      { title: 'Static Lists', href: '/crm/segments/static', icon: ListTodo },
-      { title: 'Custom Views', href: '/crm/segments/custom', icon: Target },
-    ],
-  },
-  {
-    id: 'scoring',
-    title: 'Scoring',
-    subtitle: 'Lead & contact scoring',
-    icon: Star,
-    items: [
-      { title: 'Contact Scoring', href: '/crm/scoring/contacts', icon: Users },
-      { title: 'Company Scoring', href: '/crm/scoring/companies', icon: Building2 },
-      { title: 'Scoring Rules', href: '/crm/scoring/rules', icon: Target },
-      { title: 'Score History', href: '/crm/scoring/history', icon: History },
-    ],
-  },
-  {
-    id: 'lifecycle',
-    title: 'Lifecycle',
-    subtitle: 'Stages & journeys',
-    icon: GitMerge,
-    items: [
-      { title: 'Lifecycle Stages', href: '/crm/lifecycle/stages', icon: GitMerge },
-      { title: 'Contact Journey', href: '/crm/lifecycle/journey', icon: TrendingUp },
-      { title: 'Stage Rules', href: '/crm/lifecycle/rules', icon: Settings },
-    ],
-  },
-  {
-    id: 'reports',
-    title: 'Reports',
-    subtitle: 'CRM analytics',
-    icon: BarChart3,
-    items: [
-      { title: 'Overview', href: '/crm/reports', icon: PieChart },
-      { title: 'Contact Reports', href: '/crm/reports/contacts', icon: Users },
-      { title: 'Company Reports', href: '/crm/reports/companies', icon: Building2 },
-      { title: 'Activity Reports', href: '/crm/reports/activities', icon: Activity },
-      { title: 'Source Reports', href: '/crm/reports/sources', icon: Globe },
-    ],
-  },
-  {
-    id: 'tools',
-    title: 'Tools',
-    subtitle: 'Data utilities',
-    icon: Wrench,
-    items: [
-      { title: 'Import', href: '/crm/import', icon: Upload },
-      { title: 'Export', href: '/crm/export', icon: Download },
-      { title: 'Merge Duplicates', href: '/crm/contacts/duplicates', icon: Merge },
-      { title: 'Data Enrichment', href: '/crm/enrich', icon: UserCheck },
-      { title: 'Bulk Actions', href: '/crm/bulk', icon: Share2 },
-    ],
-  },
-];
+function buildNavigationSections(term) {
+  return [
+    {
+      id: 'people',
+      title: term('contacts', 'People'),
+      subtitle: `${term('contacts')} & ${term('companies')}`,
+      icon: Users,
+      items: [
+        { title: term('contacts'), href: '/crm/contacts', icon: Users },
+        { title: term('companies'), href: '/crm/companies', icon: Building2 },
+        { title: term('leads'), href: '/crm/leads', icon: UserCircle },
+      ],
+    },
+    {
+      id: 'engagement',
+      title: 'Engagement',
+      subtitle: 'Interactions & tasks',
+      icon: MessageSquare,
+      items: [
+        { title: term('activities', 'Activities'), href: '/crm/activities', icon: Activity },
+        { title: 'Tasks', href: '/crm/tasks', icon: ListTodo },
+        { title: 'Calls', href: '/crm/calls', icon: Phone },
+        { title: 'Meetings', href: '/crm/meetings', icon: Video },
+        { title: 'Notes', href: '/crm/notes', icon: FileText },
+        { title: 'Emails', href: '/crm/emails', icon: Mail },
+      ],
+    },
+    {
+      id: 'segments',
+      title: 'Segments',
+      subtitle: 'Lists & targeting',
+      icon: Layers,
+      items: [
+        { title: 'All Segments', href: '/crm/segments', icon: Layers },
+        { title: 'Dynamic Segments', href: '/crm/segments/dynamic', icon: Filter },
+        { title: 'Static Lists', href: '/crm/segments/static', icon: ListTodo },
+        { title: 'Custom Views', href: '/crm/segments/custom', icon: Target },
+      ],
+    },
+    {
+      id: 'scoring',
+      title: 'Scoring',
+      subtitle: 'Lead & contact scoring',
+      icon: Star,
+      items: [
+        { title: 'Contact Scoring', href: '/crm/scoring/contacts', icon: Users },
+        { title: 'Company Scoring', href: '/crm/scoring/companies', icon: Building2 },
+        { title: 'Scoring Rules', href: '/crm/scoring/rules', icon: Target },
+        { title: 'Score History', href: '/crm/scoring/history', icon: History },
+      ],
+    },
+    {
+      id: 'lifecycle',
+      title: 'Lifecycle',
+      subtitle: 'Stages & journeys',
+      icon: GitMerge,
+      items: [
+        { title: 'Lifecycle Stages', href: '/crm/lifecycle/stages', icon: GitMerge },
+        { title: 'Contact Journey', href: '/crm/lifecycle/journey', icon: TrendingUp },
+        { title: 'Stage Rules', href: '/crm/lifecycle/rules', icon: Settings },
+      ],
+    },
+    {
+      id: 'reports',
+      title: 'Reports',
+      subtitle: 'CRM analytics',
+      icon: BarChart3,
+      items: [
+        { title: 'Overview', href: '/crm/reports', icon: PieChart },
+        { title: 'Contact Reports', href: '/crm/reports/contacts', icon: Users },
+        { title: 'Company Reports', href: '/crm/reports/companies', icon: Building2 },
+        { title: 'Activity Reports', href: '/crm/reports/activities', icon: Activity },
+        { title: 'Source Reports', href: '/crm/reports/sources', icon: Globe },
+      ],
+    },
+    {
+      id: 'tools',
+      title: 'Tools',
+      subtitle: 'Data utilities',
+      icon: Wrench,
+      items: [
+        { title: 'Import', href: '/crm/import', icon: Upload },
+        { title: 'Export', href: '/crm/export', icon: Download },
+        { title: 'Merge Duplicates', href: '/crm/contacts/duplicates', icon: Merge },
+        { title: 'Data Enrichment', href: '/crm/enrich', icon: UserCheck },
+        { title: 'Bulk Actions', href: '/crm/bulk', icon: Share2 },
+      ],
+    },
+  ];
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTEXT FOR SHARING SELECTED SECTION
@@ -157,7 +160,11 @@ export function useCRMContext() {
 // ═══════════════════════════════════════════════════════════════════════════════
 export function CRMProvider({ children }) {
   const pathname = usePathname();
+  const { term } = useTerminology();
   const [selectedSection, setSelectedSection] = useState('people');
+
+  // Build sections with current terminology
+  const navigationSections = useMemo(() => buildNavigationSections(term), [term]);
 
   // Find which section contains the active item
   useEffect(() => {
@@ -169,11 +176,11 @@ export function CRMProvider({ children }) {
         }
       }
     }
-  }, [pathname]);
+  }, [pathname, navigationSections]);
 
   const currentSection = useMemo(
     () => navigationSections.find((s) => s.id === selectedSection),
-    [selectedSection]
+    [selectedSection, navigationSections]
   );
 
   const contextValue = useMemo(
@@ -184,7 +191,7 @@ export function CRMProvider({ children }) {
       navigationSections,
       pathname,
     }),
-    [currentSection, selectedSection, pathname]
+    [currentSection, selectedSection, pathname, navigationSections]
   );
 
   return <CRMContext.Provider value={contextValue}>{children}</CRMContext.Provider>;
@@ -247,7 +254,7 @@ export function CRMSidebar() {
     <TooltipProvider delayDuration={0}>
       <motion.aside
         initial={false}
-        animate={{ width: isCollapsed ? 64 : 220 }}
+        animate={{ width: isCollapsed ? 64 : 180 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }}
         className="relative h-full flex flex-col bg-transparent"
       >

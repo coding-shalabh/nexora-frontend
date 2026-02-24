@@ -671,7 +671,7 @@ export default function ContactsPage() {
     if (selectedIds.size === 0) return;
     setShowExportModal(true);
   };
-  const meta = data?.meta || { total: 0, page: 1, totalPages: 1 };
+  const meta = data?.data?.meta || { total: 0, page: 1, totalPages: 1 };
 
   // Stats
   const stats = useMemo(

@@ -311,6 +311,18 @@ export function useToggleStar() {
       const response = await api.patch(`/inbox/conversations/${conversationId}/star`);
       return response.data;
     },
+    onMutate: async (conversationId) => {
+      await queryClient.cancelQueries({ queryKey: ['inbox', 'conversations'] });
+      queryClient.setQueriesData({ queryKey: ['inbox', 'conversations'] }, (oldData) => {
+        if (!Array.isArray(oldData?.data)) return oldData;
+        return {
+          ...oldData,
+          data: oldData.data.map((c) =>
+            c.id === conversationId ? { ...c, isStarred: !c.isStarred } : c
+          ),
+        };
+      });
+    },
     onSuccess: (data, conversationId) => {
       queryClient.invalidateQueries({
         queryKey: inboxKeys.conversation(conversationId),
@@ -386,6 +398,16 @@ export function useUpdatePurpose() {
         subCategory,
       });
       return response.data;
+    },
+    onMutate: async ({ conversationId, purpose }) => {
+      await queryClient.cancelQueries({ queryKey: ['inbox', 'conversations'] });
+      queryClient.setQueriesData({ queryKey: ['inbox', 'conversations'] }, (oldData) => {
+        if (!Array.isArray(oldData?.data)) return oldData;
+        return {
+          ...oldData,
+          data: oldData.data.map((c) => (c.id === conversationId ? { ...c, purpose } : c)),
+        };
+      });
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({

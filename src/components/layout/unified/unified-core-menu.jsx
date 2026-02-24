@@ -191,18 +191,12 @@ export function UnifiedCoreMenu({ hubId, menu, isCollapsed = false, onToggleColl
     <TooltipProvider delayDuration={0}>
       <motion.aside
         initial={false}
-        animate={{ width: isCollapsed ? 64 : 260 }}
+        animate={{ width: isCollapsed ? 64 : 180 }}
         transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
         className="relative h-full flex flex-col bg-transparent"
       >
         {/* Navigation Links */}
-        <nav
-          className="flex-1 overflow-y-auto py-3 px-2 scrollbar-thin scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400 scrollbar-track-transparent"
-          style={{
-            scrollbarWidth: 'thin',
-            scrollbarColor: '#d1d5db transparent',
-          }}
-        >
+        <nav className="flex-1 overflow-y-auto py-3 px-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-400 dark:hover:scrollbar-thumb-gray-500 scrollbar-track-transparent">
           <div className="space-y-1">
             {menuConfig.sections?.map((section) => {
               const isExpanded = expandedSections[section.id];
@@ -217,7 +211,10 @@ export function UnifiedCoreMenu({ hubId, menu, isCollapsed = false, onToggleColl
               return (
                 <div
                   key={section.id}
-                  className={cn('mb-1', isCollapsed && 'border-b border-gray-200/50 pb-1')}
+                  className={cn(
+                    'mb-1',
+                    isCollapsed && 'border-b border-gray-200/50 dark:border-gray-700/50 pb-1'
+                  )}
                 >
                   {/* Section Header */}
                   {isCollapsed ? (
@@ -227,7 +224,9 @@ export function UnifiedCoreMenu({ hubId, menu, isCollapsed = false, onToggleColl
                           onClick={() => toggleSection(section.id)}
                           className={cn(
                             'w-full flex items-center justify-center p-1.5 rounded transition-all',
-                            isExpanded ? 'text-gray-400' : 'text-gray-300 hover:text-gray-400'
+                            isExpanded
+                              ? 'text-gray-400 dark:text-gray-500'
+                              : 'text-gray-300 hover:text-gray-400 dark:text-gray-600 dark:hover:text-gray-400'
                           )}
                         >
                           {SectionIcon && <SectionIcon className="h-4 w-4" />}
@@ -235,9 +234,11 @@ export function UnifiedCoreMenu({ hubId, menu, isCollapsed = false, onToggleColl
                       </TooltipTrigger>
                       <TooltipContent
                         side="right"
-                        className="bg-white border border-gray-200 shadow-lg"
+                        className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg"
                       >
-                        <span className="font-medium text-gray-900">{section.title}</span>
+                        <span className="font-medium text-gray-900 dark:text-white">
+                          {section.title}
+                        </span>
                         {sectionBadgeCount > 0 && (
                           <span className="ml-2 text-xs text-primary">({sectionBadgeCount})</span>
                         )}
@@ -249,14 +250,17 @@ export function UnifiedCoreMenu({ hubId, menu, isCollapsed = false, onToggleColl
                       className={cn(
                         'w-full flex items-center justify-between px-3 py-2 rounded-lg transition-all group',
                         isExpanded
-                          ? 'bg-white/70 text-gray-900'
-                          : 'text-gray-600 hover:bg-white/50 hover:text-gray-900'
+                          ? 'bg-white/70 dark:bg-white/10 text-gray-900 dark:text-white'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white'
                       )}
                     >
                       <div className="flex items-center gap-2">
                         {SectionIcon && (
                           <SectionIcon
-                            className={cn('h-4 w-4', isExpanded ? 'text-primary' : 'text-gray-500')}
+                            className={cn(
+                              'h-4 w-4',
+                              isExpanded ? 'text-primary' : 'text-gray-500 dark:text-gray-400'
+                            )}
                           />
                         )}
                         <span className="text-sm font-medium">{section.title}</span>
@@ -268,7 +272,7 @@ export function UnifiedCoreMenu({ hubId, menu, isCollapsed = false, onToggleColl
                       </div>
                       <ChevronDown
                         className={cn(
-                          'h-4 w-4 text-gray-400 transition-transform duration-200',
+                          'h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform duration-200',
                           isExpanded && 'rotate-180'
                         )}
                       />
@@ -324,7 +328,7 @@ export function UnifiedCoreMenu({ hubId, menu, isCollapsed = false, onToggleColl
 
         {/* Bottom fixed items */}
         {menuConfig.bottomItems?.length > 0 && (
-          <div className="px-2 py-2 bg-transparent border-t border-gray-200/50">
+          <div className="px-2 py-2 bg-transparent border-t border-gray-200/50 dark:border-gray-700/50">
             <div className="space-y-0.5">
               {menuConfig.bottomItems.map((item) => (
                 <NavItem
@@ -346,7 +350,7 @@ export function UnifiedCoreMenu({ hubId, menu, isCollapsed = false, onToggleColl
           size="icon"
           onClick={onToggleCollapse}
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className="absolute -right-3 top-20 h-6 w-6 rounded-full bg-white border-gray-200 text-gray-600 shadow-md hover:bg-gray-50 hover:text-gray-900 z-10"
+          className="absolute -right-3 top-20 h-6 w-6 rounded-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 shadow-md hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white z-10"
         >
           {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
         </Button>
@@ -368,7 +372,9 @@ function NavItem({ item, isActive, isCollapsed, plan, hubId }) {
       className={cn(
         'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all',
         isActive && 'text-white bg-primary',
-        !isActive && !isLocked && 'text-gray-700 hover:bg-white/50 hover:text-gray-900',
+        !isActive &&
+          !isLocked &&
+          'text-gray-700 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white',
         isLocked && 'opacity-50 cursor-not-allowed',
         isCollapsed && 'justify-center px-2 py-2'
       )}
@@ -379,7 +385,7 @@ function NavItem({ item, isActive, isCollapsed, plan, hubId }) {
           className={cn(
             'flex items-center justify-center rounded-md shrink-0',
             isCollapsed ? 'h-6 w-6' : 'h-5 w-5',
-            isActive ? item.bgColor : 'bg-gray-100'
+            isActive ? item.bgColor : 'bg-gray-100 dark:bg-gray-800'
           )}
         >
           {ItemIcon && (
@@ -391,7 +397,7 @@ function NavItem({ item, isActive, isCollapsed, plan, hubId }) {
           className={cn(
             'shrink-0',
             isCollapsed ? 'h-5 w-5' : 'h-4 w-4',
-            isActive ? 'text-white' : 'text-gray-500'
+            isActive ? 'text-white' : 'text-gray-500 dark:text-gray-400'
           )}
         />
       ) : null}
@@ -402,7 +408,7 @@ function NavItem({ item, isActive, isCollapsed, plan, hubId }) {
           <span
             className={cn(
               'text-sm font-medium whitespace-nowrap',
-              isActive ? 'text-white' : 'text-gray-900'
+              isActive ? 'text-white' : 'text-gray-900 dark:text-white'
             )}
           >
             {item.title}
@@ -432,8 +438,11 @@ function NavItem({ item, isActive, isCollapsed, plan, hubId }) {
         <TooltipTrigger asChild>
           {isLocked ? <div>{linkContent}</div> : <Link href={item.href || '#'}>{linkContent}</Link>}
         </TooltipTrigger>
-        <TooltipContent side="right" className="bg-white border-0 px-3 py-2 shadow-lg">
-          <span className="font-medium text-gray-900">{item.title}</span>
+        <TooltipContent
+          side="right"
+          className="bg-white dark:bg-gray-800 border-0 px-3 py-2 shadow-lg"
+        >
+          <span className="font-medium text-gray-900 dark:text-white">{item.title}</span>
           {isLocked && <span className="text-xs text-orange-500 block">Upgrade required</span>}
           {item.badge > 0 && <span className="text-xs text-primary block">{item.badge} items</span>}
         </TooltipContent>

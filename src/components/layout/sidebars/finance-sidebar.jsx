@@ -189,7 +189,7 @@ export function FinanceSidebar() {
     <TooltipProvider delayDuration={0}>
       <motion.aside
         initial={false}
-        animate={{ width: isCollapsed ? 64 : 260 }}
+        animate={{ width: isCollapsed ? 64 : 180 }}
         transition={{
           type: 'spring',
           stiffness: 300,

@@ -62,12 +62,24 @@ const nextConfig = {
       { protocol: 'https', hostname: 'nexoraos.pro' },
       { protocol: 'https', hostname: 'nexora-assets-prod.s3.ap-south-1.amazonaws.com' },
       { protocol: 'https', hostname: '*.s3.*.amazonaws.com' },
+      { protocol: 'https', hostname: 'ui-avatars.com' },
     ],
   },
   experimental: {
     serverActions: {
-      allowedOrigins: ['localhost:3000', 'nexoraos.pro'],
+      allowedOrigins: ['localhost:3000', 'localhost:3001', 'nexoraos.pro', 'aka.nexoraos.pro'],
     },
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Prevent undici (Node.js HTTP client) from being bundled into client-side code
+      // undici uses private class fields (#target) that webpack's parser can't handle
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        undici: false,
+      };
+    }
+    return config;
   },
   // env: {
   //   // Use VPS API (production backend) - Commented out to allow .env.local to override

@@ -32,101 +32,108 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTerminology } from '@/contexts/terminology-context';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// NAVIGATION SECTIONS - Core sidebar categories
+// NAVIGATION SECTIONS - Dynamic labels via terminology context
 // ═══════════════════════════════════════════════════════════════════════════════
-const navigationSections = [
-  {
-    id: 'core',
-    title: 'Core',
-    subtitle: 'Sales tools & pipeline',
-    icon: Briefcase,
-    // Items grouped by category for accordion display in SubMenu
-    groups: [
-      {
-        id: 'overview',
-        title: null, // No header for overview
-        items: [{ title: 'Overview', href: '/sales', icon: TrendingUp }],
-      },
-      {
-        id: 'leads',
-        title: 'Leads',
-        items: [
-          { title: 'Leads', href: '/sales/leads', icon: Target },
-          { title: 'Prospecting', href: '/sales/prospecting', icon: Target },
-        ],
-      },
-      {
-        id: 'pipeline',
-        title: 'Pipeline',
-        items: [
-          { title: 'Pipeline', href: '/sales/pipeline', icon: LineChart },
-          { title: 'Deals', href: '/sales/deals', icon: Briefcase },
-        ],
-      },
-      {
-        id: 'quotes',
-        title: 'Quotes',
-        items: [
-          { title: 'Quotes', href: '/sales/quotes', icon: FileText },
-          { title: 'Products', href: '/sales/products', icon: LayoutGrid },
-        ],
-      },
-      {
-        id: 'forecasting',
-        title: 'Forecasting',
-        items: [
-          { title: 'Forecasts', href: '/sales/forecasts', icon: TrendingUp },
-          { title: 'Goals', href: '/sales/goals', icon: Target },
-        ],
-      },
-      {
-        id: 'workspace',
-        title: 'Workspace',
-        items: [
-          { title: 'Workspace', href: '/sales/workspace', icon: LayoutGrid },
-          { title: 'Documents', href: '/sales/documents', icon: Files },
-        ],
-      },
-      {
-        id: 'tools',
-        title: 'Tools',
-        items: [
-          { title: 'Sequences', href: '/sales/sequences', icon: RefreshCw },
-          { title: 'Playbooks', href: '/sales/playbooks', icon: ClipboardList },
-          { title: 'Coaching', href: '/sales/coaching', icon: Trophy },
-        ],
-      },
-      {
-        id: 'analytics',
-        title: 'Analytics',
-        items: [
-          { title: 'Reports', href: '/sales/reports', icon: LineChart },
-          { title: 'Leaderboard', href: '/sales/leaderboard', icon: Trophy },
-        ],
-      },
-      {
-        id: 'ai',
-        title: 'AI',
-        items: [
-          { title: 'AI Forecasting', href: '/sales/ai-forecast', icon: TrendingUp },
-          { title: 'Call Intelligence', href: '/sales/call-intelligence', icon: Target },
-          { title: 'Deal Insights', href: '/sales/deal-insights', icon: LineChart },
-        ],
-      },
-    ],
-    // Flat items for stats/header (first item of each group)
-    items: [{ title: 'Overview', href: '/sales', icon: TrendingUp }],
-  },
-  {
-    id: 'config',
-    title: 'Config',
-    subtitle: 'Settings',
-    icon: Settings,
-    items: [{ title: 'Settings', href: '/sales/settings', icon: Settings }],
-  },
-];
+function buildNavigationSections(term) {
+  return [
+    {
+      id: 'core',
+      title: 'Core',
+      subtitle: `${term('salesShort', 'Sales')} tools & ${term('pipeline', 'pipeline')}`,
+      icon: Briefcase,
+      // Items grouped by category for accordion display in SubMenu
+      groups: [
+        {
+          id: 'overview',
+          title: null, // No header for overview
+          items: [{ title: 'Overview', href: '/sales', icon: TrendingUp }],
+        },
+        {
+          id: 'leads',
+          title: term('leads', 'Leads'),
+          items: [
+            { title: term('leads', 'Leads'), href: '/sales/leads', icon: Target },
+            { title: 'Prospecting', href: '/sales/prospecting', icon: Target },
+          ],
+        },
+        {
+          id: 'pipeline',
+          title: term('pipeline', 'Pipeline'),
+          items: [
+            { title: term('pipeline', 'Pipeline'), href: '/sales/pipeline', icon: LineChart },
+            { title: term('deals', 'Deals'), href: '/sales/deals', icon: Briefcase },
+          ],
+        },
+        {
+          id: 'quotes',
+          title: 'Quotes',
+          items: [
+            { title: 'Quotes', href: '/sales/quotes', icon: FileText },
+            { title: 'Products', href: '/sales/products', icon: LayoutGrid },
+          ],
+        },
+        {
+          id: 'forecasting',
+          title: 'Forecasting',
+          items: [
+            { title: 'Forecasts', href: '/sales/forecasts', icon: TrendingUp },
+            { title: 'Goals', href: '/sales/goals', icon: Target },
+          ],
+        },
+        {
+          id: 'workspace',
+          title: 'Workspace',
+          items: [
+            { title: 'Workspace', href: '/sales/workspace', icon: LayoutGrid },
+            { title: 'Documents', href: '/sales/documents', icon: Files },
+          ],
+        },
+        {
+          id: 'tools',
+          title: 'Tools',
+          items: [
+            { title: 'Sequences', href: '/sales/sequences', icon: RefreshCw },
+            { title: 'Playbooks', href: '/sales/playbooks', icon: ClipboardList },
+            { title: 'Coaching', href: '/sales/coaching', icon: Trophy },
+          ],
+        },
+        {
+          id: 'analytics',
+          title: 'Analytics',
+          items: [
+            { title: 'Reports', href: '/sales/reports', icon: LineChart },
+            { title: 'Leaderboard', href: '/sales/leaderboard', icon: Trophy },
+          ],
+        },
+        {
+          id: 'ai',
+          title: 'AI',
+          items: [
+            { title: 'AI Forecasting', href: '/sales/ai-forecast', icon: TrendingUp },
+            { title: 'Call Intelligence', href: '/sales/call-intelligence', icon: Target },
+            {
+              title: `${term('deal', 'Deal')} Insights`,
+              href: '/sales/deal-insights',
+              icon: LineChart,
+            },
+          ],
+        },
+      ],
+      // Flat items for stats/header (first item of each group)
+      items: [{ title: 'Overview', href: '/sales', icon: TrendingUp }],
+    },
+    {
+      id: 'config',
+      title: 'Config',
+      subtitle: 'Settings',
+      icon: Settings,
+      items: [{ title: 'Settings', href: '/sales/settings', icon: Settings }],
+    },
+  ];
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CONTEXT FOR SHARING SELECTED SECTION
@@ -146,7 +153,11 @@ export function useSalesContext() {
 // ═══════════════════════════════════════════════════════════════════════════════
 export function SalesProvider({ children }) {
   const pathname = usePathname();
+  const { term } = useTerminology();
   const [selectedSection, setSelectedSection] = useState('core');
+
+  // Build sections with current terminology
+  const navigationSections = useMemo(() => buildNavigationSections(term), [term]);
 
   // Find which section contains the active item
   useEffect(() => {
@@ -158,11 +169,11 @@ export function SalesProvider({ children }) {
         }
       }
     }
-  }, [pathname]);
+  }, [pathname, navigationSections]);
 
   const currentSection = useMemo(
     () => navigationSections.find((s) => s.id === selectedSection),
-    [selectedSection]
+    [selectedSection, navigationSections]
   );
 
   const contextValue = useMemo(
@@ -173,7 +184,7 @@ export function SalesProvider({ children }) {
       navigationSections,
       pathname,
     }),
-    [currentSection, selectedSection, pathname]
+    [currentSection, selectedSection, pathname, navigationSections]
   );
 
   return <SalesContext.Provider value={contextValue}>{children}</SalesContext.Provider>;
@@ -217,7 +228,7 @@ export function SalesSidebar() {
     <TooltipProvider delayDuration={0}>
       <motion.aside
         initial={false}
-        animate={{ width: isCollapsed ? 64 : 220 }}
+        animate={{ width: isCollapsed ? 64 : 180 }}
         transition={{ type: 'spring', stiffness: 300, damping: 30, mass: 0.8 }}
         className="relative h-full flex flex-col bg-transparent"
       >

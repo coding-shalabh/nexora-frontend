@@ -254,9 +254,11 @@ export default function DealsPage() {
     setPage(1);
   };
 
-  // Open Add Modal
+  // Open Add Modal - only use real stage IDs from the API (not fake defaultStages)
   const handleOpenAdd = (stageId = '') => {
-    setFormData({ ...emptyDeal, stageId: stageId || stages[0]?.id || '' });
+    const realStages = currentPipeline?.stages || [];
+    const firstRealStageId = realStages[0]?.id || '';
+    setFormData({ ...emptyDeal, stageId: stageId || firstRealStageId });
     setShowAddModal(true);
   };
 
@@ -290,6 +292,17 @@ export default function DealsPage() {
       toast({
         title: 'Validation Error',
         description: 'Deal title is required',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!formData.stageId || !currentPipeline?.id) {
+      toast({
+        title: 'Validation Error',
+        description: !currentPipeline?.id
+          ? 'No pipeline found. Please set up a pipeline first.'
+          : 'Please select a stage',
         variant: 'destructive',
       });
       return;
@@ -884,7 +897,7 @@ export default function DealsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="stageId">Stage</Label>
+                <Label htmlFor="stageId">Stage *</Label>
                 <Select
                   value={formData.stageId}
                   onValueChange={(value) => setFormData({ ...formData, stageId: value })}
@@ -893,11 +906,16 @@ export default function DealsPage() {
                     <SelectValue placeholder="Select stage" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stages.map((stage) => (
+                    {(currentPipeline?.stages || []).map((stage) => (
                       <SelectItem key={stage.id} value={stage.id}>
                         {stage.name}
                       </SelectItem>
                     ))}
+                    {!currentPipeline && (
+                      <SelectItem value="" disabled>
+                        Loading stages...
+                      </SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -985,7 +1003,7 @@ export default function DealsPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="editStageId">Stage</Label>
+                <Label htmlFor="editStageId">Stage *</Label>
                 <Select
                   value={formData.stageId}
                   onValueChange={(value) => setFormData({ ...formData, stageId: value })}
@@ -994,7 +1012,7 @@ export default function DealsPage() {
                     <SelectValue placeholder="Select stage" />
                   </SelectTrigger>
                   <SelectContent>
-                    {stages.map((stage) => (
+                    {(currentPipeline?.stages || []).map((stage) => (
                       <SelectItem key={stage.id} value={stage.id}>
                         {stage.name}
                       </SelectItem>

@@ -1,8 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { useDeals } from '@/hooks/use-deals';
+import { useActivities } from '@/hooks/use-activities';
+import { useContacts } from '@/hooks/use-contacts';
 import {
   TrendingUp,
   Users,
@@ -54,42 +58,6 @@ const quickActions = [
   },
 ];
 
-// Recent deals
-const recentDeals = [
-  {
-    id: '1',
-    name: 'Enterprise License',
-    company: 'Acme Corp',
-    value: 45000,
-    stage: 'Negotiation',
-    probability: 75,
-  },
-  {
-    id: '2',
-    name: 'Annual Contract',
-    company: 'Tech Solutions',
-    value: 28000,
-    stage: 'Proposal',
-    probability: 50,
-  },
-  {
-    id: '3',
-    name: 'Premium Support',
-    company: 'StartupX',
-    value: 12000,
-    stage: 'Discovery',
-    probability: 25,
-  },
-  {
-    id: '4',
-    name: 'Software License',
-    company: 'Design Co',
-    value: 8500,
-    stage: 'Qualification',
-    probability: 10,
-  },
-];
-
 // Sales tools
 const tools = [
   { name: 'Contacts', description: 'People & leads', href: '/crm/contacts', icon: Users },
@@ -100,28 +68,51 @@ const tools = [
   { name: 'Reports', description: 'Sales analytics', href: '/reports', icon: TrendingUp },
 ];
 
-// Upcoming activities
-const upcomingActivities = [
-  { type: 'call', title: 'Call with John Smith', time: 'Today, 2:00 PM', company: 'Acme Corp' },
-  {
-    type: 'meeting',
-    title: 'Demo presentation',
-    time: 'Today, 4:30 PM',
-    company: 'Tech Solutions',
-  },
-  { type: 'task', title: 'Send proposal', time: 'Tomorrow, 10:00 AM', company: 'StartupX' },
-];
-
 export default function SalesHubPage() {
+  const router = useRouter();
+
+  // Real API data
+  const { data: dealsData } = useDeals({ limit: 5 });
+  const { data: activitiesData } = useActivities({ limit: 3 });
+  const { data: contactsData } = useContacts({ limit: 1 });
+
+  const recentDeals = useMemo(() => dealsData?.data || [], [dealsData]);
+  const recentActivities = useMemo(
+    () => activitiesData?.data || activitiesData?.activities || [],
+    [activitiesData]
+  );
+  const totalContacts = useMemo(
+    () => contactsData?.meta?.total || contactsData?.pagination?.total || 0,
+    [contactsData]
+  );
+
+  const totalRevenue = useMemo(() => {
+    const won = recentDeals.filter((d) => d.stage?.isWon || d.status === 'WON');
+    return won.reduce((sum, d) => sum + (d.value || 0), 0);
+  }, [recentDeals]);
+
+  const winRate = useMemo(() => {
+    const closed = recentDeals.filter(
+      (d) => d.stage?.isClosed || d.status === 'WON' || d.status === 'LOST'
+    );
+    const won = recentDeals.filter((d) => d.stage?.isWon || d.status === 'WON');
+    return closed.length > 0 ? Math.round((won.length / closed.length) * 100) : 0;
+  }, [recentDeals]);
+
   const stats = [
-    createStat('Total Revenue', '$284,500', DollarSign, 'green'),
-    createStat('Active Deals', '67', Briefcase, 'blue'),
-    createStat('Contacts', '1,847', Users, 'purple'),
-    createStat('Win Rate', '34%', Target, 'orange'),
+    createStat(
+      'Revenue',
+      totalRevenue > 0 ? `₹${totalRevenue.toLocaleString()}` : '₹0',
+      DollarSign,
+      'green'
+    ),
+    createStat('Active Deals', recentDeals.length, Briefcase, 'blue'),
+    createStat('Contacts', totalContacts, Users, 'purple'),
+    createStat('Win Rate', `${winRate}%`, Target, 'orange'),
   ];
 
   const actions = [
-    createAction('New Deal', Plus, () => console.log('new deal'), { primary: true }),
+    createAction('New Deal', Plus, () => router.push('/sales/deals/new'), { primary: true }),
   ];
 
   return (
@@ -171,22 +162,30 @@ export default function SalesHubPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {recentDeals.map((deal) => (
-                  <div
-                    key={deal.id}
-                    className="flex items-center gap-4 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium truncate">{deal.name}</p>
-                      <p className="text-sm text-muted-foreground">{deal.company}</p>
+                {recentDeals.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">No deals yet</p>
+                ) : (
+                  recentDeals.map((deal) => (
+                    <div
+                      key={deal.id}
+                      className="flex items-center gap-4 p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{deal.name || deal.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {deal.contact?.firstName} {deal.contact?.lastName}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">₹{(deal.value || 0).toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {deal.probability || 0}% prob
+                        </p>
+                      </div>
+                      <Badge variant="outline">{deal.stage?.name || deal.stageName || '—'}</Badge>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold">${deal.value.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">{deal.probability}% prob</p>
-                    </div>
-                    <Badge variant="outline">{deal.stage}</Badge>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
@@ -221,80 +220,93 @@ export default function SalesHubPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {upcomingActivities.map((activity, index) => (
-                    <div key={index} className="flex items-start gap-3">
-                      <div
-                        className={cn(
-                          'p-1.5 rounded-full',
-                          activity.type === 'call' && 'bg-green-100 text-green-700',
-                          activity.type === 'meeting' && 'bg-blue-100 text-blue-700',
-                          activity.type === 'task' && 'bg-orange-100 text-orange-700'
-                        )}
-                      >
-                        {activity.type === 'call' && <Phone className="h-3 w-3" />}
-                        {activity.type === 'meeting' && <Calendar className="h-3 w-3" />}
-                        {activity.type === 'task' && <CheckCircle className="h-3 w-3" />}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm">{activity.title}</p>
-                        <p className="text-xs text-muted-foreground">{activity.company}</p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                          <Clock className="h-3 w-3" />
-                          {activity.time}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                  {recentActivities.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No recent activities
+                    </p>
+                  ) : (
+                    recentActivities.map((activity) => {
+                      const type = (activity.type || 'task').toLowerCase();
+                      return (
+                        <div key={activity.id} className="flex items-start gap-3">
+                          <div
+                            className={cn(
+                              'p-1.5 rounded-full',
+                              type === 'call' && 'bg-green-100 text-green-700',
+                              type === 'meeting' && 'bg-blue-100 text-blue-700',
+                              (type === 'task' || type === 'email') &&
+                                'bg-orange-100 text-orange-700'
+                            )}
+                          >
+                            {type === 'call' && <Phone className="h-3 w-3" />}
+                            {type === 'meeting' && <Calendar className="h-3 w-3" />}
+                            {(type === 'task' || type === 'email') && (
+                              <CheckCircle className="h-3 w-3" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm">{activity.title}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {activity.contact?.firstName} {activity.contact?.lastName}
+                            </p>
+                            {activity.scheduledAt && (
+                              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                                <Clock className="h-3 w-3" />
+                                {new Date(activity.scheduledAt).toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        {/* Pipeline Progress */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">
-              Pipeline Progress This Quarter
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Qualification</span>
-                  <span className="font-medium">$45K</span>
-                </div>
-                <Progress value={25} className="h-2" />
-                <p className="text-xs text-muted-foreground">12 deals</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Discovery</span>
-                  <span className="font-medium">$78K</span>
-                </div>
-                <Progress value={45} className="h-2" />
-                <p className="text-xs text-muted-foreground">8 deals</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Proposal</span>
-                  <span className="font-medium">$120K</span>
-                </div>
-                <Progress value={70} className="h-2" />
-                <p className="text-xs text-muted-foreground">5 deals</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Negotiation</span>
-                  <span className="font-medium">$95K</span>
-                </div>
-                <Progress value={85} className="h-2" />
-                <p className="text-xs text-muted-foreground">3 deals</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Pipeline Progress - derived from real deals */}
+        {recentDeals.length > 0 &&
+          (() => {
+            const stageMap = {};
+            recentDeals.forEach((deal) => {
+              const stageName = deal.stage?.name || 'Unknown';
+              if (!stageMap[stageName]) stageMap[stageName] = { count: 0, value: 0 };
+              stageMap[stageName].count += 1;
+              stageMap[stageName].value += deal.value || 0;
+            });
+            const stages = Object.entries(stageMap).slice(0, 4);
+            const maxValue = Math.max(...stages.map(([, s]) => s.value), 1);
+            return (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-semibold">Pipeline Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div
+                    className={`grid grid-cols-1 md:grid-cols-${Math.min(stages.length, 4)} gap-6`}
+                  >
+                    {stages.map(([stageName, data]) => (
+                      <div key={stageName} className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>{stageName}</span>
+                          <span className="font-medium">₹{Math.round(data.value / 1000)}K</span>
+                        </div>
+                        <Progress
+                          value={Math.round((data.value / maxValue) * 100)}
+                          className="h-2"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {data.count} deal{data.count !== 1 ? 's' : ''}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })()}
       </div>
     </UnifiedLayout>
   );

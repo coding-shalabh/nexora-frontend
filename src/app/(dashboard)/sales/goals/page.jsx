@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Target,
   Plus,
@@ -56,6 +57,8 @@ const salesGoals = [
 ];
 
 export default function SalesGoalsPage() {
+  const router = useRouter();
+
   const stats = [
     createStat('Total Goals', salesGoals.length, Target, 'blue'),
     createStat(
@@ -79,7 +82,7 @@ export default function SalesGoalsPage() {
   ];
 
   const actions = [
-    createAction('Add Goal', Plus, () => console.log('add goal'), { primary: true }),
+    createAction('Add Goal', Plus, () => router.push('/sales/goals/new'), { primary: true }),
   ];
 
   const getStatusBadge = (status) => {

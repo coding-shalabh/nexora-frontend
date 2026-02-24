@@ -58,7 +58,7 @@ import {
 } from '@/components/ui/table';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from '@/hooks/use-toast';
-import { UnifiedLayout, createStat } from '@/components/layout/unified';
+import { UnifiedLayout, createStat, createAction } from '@/components/layout/unified';
 import { FixedMenuPanel } from '@/components/layout/fixed-menu-panel';
 import { cn } from '@/lib/utils';
 
@@ -284,7 +284,7 @@ export default function SegmentsPage() {
       const params = new URLSearchParams();
       if (typeFilter !== 'all') params.append('type', typeFilter);
       if (searchQuery) params.append('search', searchQuery);
-      const res = await fetch(`${API_URL}/segments?${params}`, {
+      const res = await fetch(`${API_URL}/api/v1/segments?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.json();
@@ -296,7 +296,7 @@ export default function SegmentsPage() {
   const { data: fieldsData } = useQuery({
     queryKey: ['segment-fields'],
     queryFn: async () => {
-      const res = await fetch(`${API_URL}/segments/fields`, {
+      const res = await fetch(`${API_URL}/api/v1/segments/fields`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.json();
@@ -307,7 +307,7 @@ export default function SegmentsPage() {
   // Preview mutation
   const previewMutation = useMutation({
     mutationFn: async (conditions) => {
-      const res = await fetch(`${API_URL}/segments/preview`, {
+      const res = await fetch(`${API_URL}/api/v1/segments/preview`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -322,7 +322,7 @@ export default function SegmentsPage() {
   // Create mutation
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const res = await fetch(`${API_URL}/segments`, {
+      const res = await fetch(`${API_URL}/api/v1/segments`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -347,7 +347,7 @@ export default function SegmentsPage() {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      const res = await fetch(`${API_URL}/segments/${id}`, {
+      const res = await fetch(`${API_URL}/api/v1/segments/${id}`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -372,7 +372,7 @@ export default function SegmentsPage() {
   // Delete mutation
   const deleteMutation = useMutation({
     mutationFn: async (id) => {
-      const res = await fetch(`${API_URL}/segments/${id}`, {
+      const res = await fetch(`${API_URL}/api/v1/segments/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -391,7 +391,7 @@ export default function SegmentsPage() {
   // Sync mutation
   const syncMutation = useMutation({
     mutationFn: async (id) => {
-      const res = await fetch(`${API_URL}/segments/${id}/sync`, {
+      const res = await fetch(`${API_URL}/api/v1/segments/${id}/sync`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -410,7 +410,7 @@ export default function SegmentsPage() {
   // Duplicate mutation
   const duplicateMutation = useMutation({
     mutationFn: async (id) => {
-      const res = await fetch(`${API_URL}/segments/${id}/duplicate`, {
+      const res = await fetch(`${API_URL}/api/v1/segments/${id}/duplicate`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -430,9 +430,12 @@ export default function SegmentsPage() {
   const { data: contactsData, isLoading: loadingContacts } = useQuery({
     queryKey: ['segment-contacts', viewContactsDialog],
     queryFn: async () => {
-      const res = await fetch(`${API_URL}/segments/${viewContactsDialog}/contacts?limit=50`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `${API_URL}/api/v1/segments/${viewContactsDialog}/contacts?limit=50`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       return res.json();
     },
     enabled: !!viewContactsDialog && !!token,
@@ -498,6 +501,10 @@ export default function SegmentsPage() {
     createStat('Contacts', totalContacts, Users, 'blue'),
     createStat('Static', counts.static || 0, Users, 'green'),
     createStat('Dynamic', counts.dynamic || 0, RefreshCw, 'amber'),
+  ];
+
+  const hubActions = [
+    createAction('New Segment', Plus, () => setCreateDialogOpen(true), { primary: true }),
   ];
 
   // FixedMenuPanel configuration
@@ -631,6 +638,7 @@ export default function SegmentsPage() {
         hubId="marketing"
         pageTitle="Audience Segments"
         stats={hubStats}
+        actions={hubActions}
         fixedMenu={null}
       >
         {/* Segment Details View in Content Area */}

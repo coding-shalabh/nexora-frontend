@@ -43,9 +43,11 @@ import { SnoozeDialog } from './snooze-dialog';
 import {
   useToggleStar,
   useArchiveConversation,
+  useUnarchiveConversation,
   useAssignConversation,
   useMarkAsRead,
   useResolveConversation,
+  useReopenConversation,
 } from '@/hooks/use-inbox';
 import { useSnoozeConversation, useUnsnoozeConversation } from '@/hooks/use-inbox-agent';
 import { useToast } from '@/hooks/use-toast';
@@ -58,9 +60,11 @@ export function ConversationContextMenu({ children, conversation, onOpenChange }
 
   const toggleStar = useToggleStar();
   const archiveConversation = useArchiveConversation();
+  const unarchiveConversation = useUnarchiveConversation();
   const assignConversation = useAssignConversation();
   const markAsRead = useMarkAsRead();
   const resolveConversation = useResolveConversation();
+  const reopenConversation = useReopenConversation();
   const unsnoozeConversation = useUnsnoozeConversation();
 
   const channelType = conversation?.channelType?.toLowerCase();
@@ -73,10 +77,7 @@ export function ConversationContextMenu({ children, conversation, onOpenChange }
   // Handle star toggle
   const handleToggleStar = async () => {
     try {
-      await toggleStar.mutateAsync({
-        conversationId: conversation.id,
-        isStarred: !isStarred,
-      });
+      await toggleStar.mutateAsync(conversation.id);
       toast({
         title: isStarred ? 'Removed from starred' : 'Added to starred',
       });
@@ -92,10 +93,11 @@ export function ConversationContextMenu({ children, conversation, onOpenChange }
   // Handle archive
   const handleArchive = async () => {
     try {
-      await archiveConversation.mutateAsync({
-        conversationId: conversation.id,
-        action: isArchived ? 'unarchive' : 'archive',
-      });
+      if (isArchived) {
+        await unarchiveConversation.mutateAsync(conversation.id);
+      } else {
+        await archiveConversation.mutateAsync(conversation.id);
+      }
       toast({
         title: isArchived ? 'Conversation unarchived' : 'Conversation archived',
       });
@@ -113,7 +115,7 @@ export function ConversationContextMenu({ children, conversation, onOpenChange }
     try {
       await assignConversation.mutateAsync({
         conversationId: conversation.id,
-        userId: user.id,
+        assignedTo: user.id,
       });
       toast({
         title: 'Conversation assigned to you',
@@ -130,10 +132,7 @@ export function ConversationContextMenu({ children, conversation, onOpenChange }
   // Handle mark as read/unread
   const handleMarkAsRead = async (read = true) => {
     try {
-      await markAsRead.mutateAsync({
-        conversationId: conversation.id,
-        read,
-      });
+      await markAsRead.mutateAsync(conversation.id);
       toast({
         title: read ? 'Marked as read' : 'Marked as unread',
       });
@@ -149,10 +148,11 @@ export function ConversationContextMenu({ children, conversation, onOpenChange }
   // Handle resolve/reopen
   const handleResolve = async () => {
     try {
-      await resolveConversation.mutateAsync({
-        conversationId: conversation.id,
-        action: isResolved ? 'reopen' : 'resolve',
-      });
+      if (isResolved) {
+        await reopenConversation.mutateAsync(conversation.id);
+      } else {
+        await resolveConversation.mutateAsync({ conversationId: conversation.id });
+      }
       toast({
         title: isResolved ? 'Conversation reopened' : 'Conversation resolved',
       });
@@ -168,9 +168,7 @@ export function ConversationContextMenu({ children, conversation, onOpenChange }
   // Handle unsnooze
   const handleUnsnooze = async () => {
     try {
-      await unsnoozeConversation.mutateAsync({
-        conversationId: conversation.id,
-      });
+      await unsnoozeConversation.mutateAsync(conversation.id);
       toast({
         title: 'Snooze removed',
       });

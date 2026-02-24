@@ -1,7 +1,7 @@
 'use client';
 
 import { GlobalHeader } from '@/components/layout/global-header';
-import { FloatingActionButton } from '@/components/layout/floating-action-button';
+import { FloatingChatbot } from '@/components/layout/floating-chatbot';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import { KeyboardShortcuts } from '@/components/layout/keyboard-shortcuts';
 import { EmailVerificationBanner } from '@/components/email-verification-banner';
@@ -10,6 +10,7 @@ import { TelecmiProvider } from '@/providers/telecmi-provider';
 import { TelecmiCallWidget } from '@/components/telecmi';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
+import { TerminologyProvider } from '@/contexts/terminology-context';
 
 export default function DashboardLayout({ children }) {
   const pathname = usePathname();
@@ -36,40 +37,42 @@ export default function DashboardLayout({ children }) {
 
   return (
     <AuthGuard>
-      <SocketProvider>
-        <TelecmiProvider>
-          {/* Email Verification Banner - Fixed at top */}
-          <EmailVerificationBanner />
+      <TerminologyProvider>
+        <SocketProvider>
+          <TelecmiProvider>
+            {/* Email Verification Banner - Fixed at top */}
+            <EmailVerificationBanner />
 
-          <div
-            className={`flex h-screen flex-col overflow-hidden bg-background ${showVerificationBanner ? 'pt-[52px]' : ''}`}
-          >
-            {/* Global Header - Always visible */}
-            <GlobalHeader />
+            <div
+              className={`flex h-screen flex-col overflow-hidden bg-background text-foreground ${showVerificationBanner ? 'pt-[52px]' : ''}`}
+            >
+              {/* Global Header - Always visible */}
+              <GlobalHeader />
 
-            {/* Main Content Area */}
-            <div className="relative flex flex-1 overflow-hidden">
-              {/* Content Area */}
-              <main
-                className={`relative flex-1 ${hasOwnLayout ? 'overflow-hidden' : 'overflow-auto'}`}
-              >
-                <div className={hasOwnLayout ? 'h-full' : 'p-6 max-w-7xl mx-auto w-full'}>
-                  {children}
-                </div>
-              </main>
+              {/* Main Content Area */}
+              <div className="relative flex flex-1 overflow-hidden">
+                {/* Content Area */}
+                <main
+                  className={`relative flex-1 ${hasOwnLayout ? 'overflow-hidden' : 'overflow-auto'}`}
+                >
+                  <div className={hasOwnLayout ? 'h-full' : 'p-6 max-w-7xl mx-auto w-full'}>
+                    {children}
+                  </div>
+                </main>
+              </div>
+
+              {/* Global Keyboard Shortcuts */}
+              <KeyboardShortcuts />
+
+              {/* Floating Chatbot - Always visible */}
+              <FloatingChatbot />
+
+              {/* TeleCMI Call Widget - Shows during active calls */}
+              <TelecmiCallWidget />
             </div>
-
-            {/* Global Keyboard Shortcuts */}
-            <KeyboardShortcuts />
-
-            {/* Floating Action Button - Always visible */}
-            <FloatingActionButton />
-
-            {/* TeleCMI Call Widget - Shows during active calls */}
-            <TelecmiCallWidget />
-          </div>
-        </TelecmiProvider>
-      </SocketProvider>
+          </TelecmiProvider>
+        </SocketProvider>
+      </TerminologyProvider>
     </AuthGuard>
   );
 }

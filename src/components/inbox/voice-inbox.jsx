@@ -1216,7 +1216,7 @@ export function VoiceInbox() {
     // Try WebRTC SDK first (direct browser call - no API balance needed)
     if (telecmi?.sdkReady && telecmi?.makeCall) {
       try {
-        console.log('[Voice] Making WebRTC call via PIOPIY SDK to:', phoneNumber);
+        // Making WebRTC call via PIOPIY SDK
         await telecmi.makeCall(phoneNumber);
         refetch();
         return;
@@ -1231,7 +1231,7 @@ export function VoiceInbox() {
       toast({ title: 'No voice channel configured', variant: 'destructive' });
       return;
     }
-    console.log('[Voice] Making call via API to:', phoneNumber);
+    // Making call via API
     await initiateCall.mutateAsync({
       channelAccountId: voiceChannel.id,
       toNumber: phoneNumber,

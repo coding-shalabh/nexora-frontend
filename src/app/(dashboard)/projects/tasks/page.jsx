@@ -113,8 +113,8 @@ export default function TasksPage() {
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
 
-  const tasks = data?.tasks || [];
-  const meta = data?.meta || {};
+  const tasks = data?.data?.tasks || [];
+  const meta = data?.data?.meta || {};
   const stats = statsData || {};
   const projects = projectsData?.projects || [];
 
